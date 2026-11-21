@@ -31,6 +31,14 @@ export async function setCache(key: string, value: unknown, seconds: number) {
   mem.kv.set(key, value);
 }
 
+/** Pose la clé seulement si elle n'existe pas encore ; renvoie true pour le premier appelant (évite les doubles traitements). */
+export async function claim(key: string): Promise<boolean> {
+  if (redis) return (await redis.set(key, Date.now(), { nx: true })) === "OK";
+  if (mem.kv.has(key)) return false;
+  mem.kv.set(key, Date.now());
+  return true;
+}
+
 /** Sans expiration (achats à vie). */
 export async function setPermanent(key: string, value: unknown) {
   if (redis) return void (await redis.set(key, value));

@@ -114,6 +114,7 @@ L'équipe a développé avec l'aide d'un assistant de code IA (**Claude Code**).
 |---|---|
 | `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis (posées automatiquement par l'intégration Vercel) |
 | `STRIPE_SECRET_KEY` | Paiement du Pass Sortie et de Buddly+ |
+| `STRIPE_WEBHOOK_SECRET` | Webhook Stripe (`/api/stripe/webhook`) : active l'achat même si l'acheteur ferme l'onglet avant de revenir |
 | `RESEND_API_KEY` | Relance des retardataires par e-mail (Buddly+), expéditeur `bud@buddly.io` |
 | `ANTHROPIC_API_KEY` | « Le mot de Bud » (sinon texte calculé) |
 | `GOOGLE_MAPS_API_KEY` | Google Places (New) : photos, notes, avis, horaires d'ouverture, autocomplétion d'adresse |
