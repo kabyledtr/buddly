@@ -161,7 +161,7 @@ export default function Hero() {
           <path d="M0 150C170 92 400 74 640 112S1040 162 1210 96C1320 52 1390 18 1440 0" fill="none" stroke="url(#edge-lg)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" className="hidden lg:block" />
         </svg>
         <div className="bg-[#efe5fd]">
-          <div className="mx-auto grid max-w-6xl gap-6 -mt-3 px-4 pb-12 pt-0 sm:grid-cols-3 lg:-mt-6 lg:pb-16 sm:px-6">
+          <div className="mx-auto grid max-w-6xl gap-6 -mt-3 px-4 pb-14 pt-0 sm:grid-cols-3 lg:-mt-6 lg:pb-20 sm:px-6">
             {FEATURES.map((f) => (
               <div key={f.title} className="flex items-start gap-4">
                 <span className="grid size-16 shrink-0 place-items-center rounded-full bg-paper/80">
