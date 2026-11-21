@@ -26,9 +26,10 @@ export default async function Image({ params }: { params: Promise<{ id: string }
     }
   } catch {}
 
-  const bud = await readFile(join(process.cwd(), "public/pet-love.png"));
-  const fredoka = await readFile(join(process.cwd(), "app/fonts/fredoka-bold.ttf"));
-  const budSrc = `data:image/png;base64,${bud.toString("base64")}`;
+  // Bud et la police : lus sur le disque ; si l'un manque, on génère quand même l'image (jamais d'aperçu vide)
+  const bud = await readFile(join(process.cwd(), "public/pet-love.png")).catch(() => null);
+  const fredoka = await readFile(join(process.cwd(), "app/fonts/fredoka-bold.ttf")).catch(() => null);
+  const budSrc = bud ? `data:image/png;base64,${bud.toString("base64")}` : null;
 
   return new ImageResponse(
     (
@@ -67,10 +68,14 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         </div>
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flex: 1 }}>
-          <img src={budSrc} width={360} height={385} alt="" />
+          {budSrc ? (
+            <img src={budSrc} width={360} height={385} alt="" />
+          ) : (
+            <div style={{ width: 300, height: 300, borderRadius: 999, background: "#8b55e3", display: "flex" }} />
+          )}
         </div>
       </div>
     ),
-    { ...size, fonts: [{ name: "Fredoka", data: fredoka, weight: 700, style: "normal" }] },
+    { ...size, ...(fredoka ? { fonts: [{ name: "Fredoka", data: fredoka, weight: 700 as const, style: "normal" as const }] } : {}) },
   );
 }
