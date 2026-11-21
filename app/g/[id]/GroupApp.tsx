@@ -49,6 +49,7 @@ export default function GroupApp({ id }: { id: string }) {
   const [tab, setTab] = useState<"swipe" | "results">("swipe");
   const [toast, setToast] = useState("");
   const [localVotes, setLocalVotes] = useState<Record<string, 0 | 1>>({});
+  const [inviteStep, setInviteStep] = useState(false); // écran « Invite ta bande » juste après la création
 
   useEffect(() => {
     let m: string | null = null;
@@ -57,6 +58,7 @@ export default function GroupApp({ id }: { id: string }) {
     } catch {}
     setMemberId(m);
     const q = new URLSearchParams(location.search);
+    if (q.get("nouveau")) setInviteStep(true);
     if (q.get("paiement") === "ok") {
       setToast("Pass Sortie activé ! Tout est débloqué pour le groupe.");
       setTab("results");
@@ -134,6 +136,13 @@ export default function GroupApp({ id }: { id: string }) {
       </Screen>
     );
 
+  if (inviteStep && state.group.isCreator)
+    return (
+      <Screen>
+        <InviteStep state={state} onDone={() => setInviteStep(false)} />
+      </Screen>
+    );
+
   const votes = { ...state.myVotes, ...localVotes };
   const remaining = state.deck.filter((p) => votes[p.id] === undefined);
 
@@ -160,7 +169,6 @@ export default function GroupApp({ id }: { id: string }) {
       </div>
 
       <Members state={state} />
-      {state.members.length === 1 && <InviteCard state={state} />}
 
       <div className="mt-5 grid grid-cols-2 rounded-full bg-lilac p-1 text-sm font-semibold">
         {(["swipe", "results"] as const).map((t) => (
@@ -240,41 +248,60 @@ function Invite({ state }: { state: State }) {
   );
 }
 
-/** Carte affichée tant que l'organisateur est seul : le plus important est d'inviter le groupe. */
-function InviteCard({ state }: { state: State }) {
+/** Écran affiché juste après la création : on invite la bande avant de swiper. */
+function InviteStep({ state, onDone }: { state: State; onDone: () => void }) {
   const [copied, setCopied] = useState(false);
   const { url, text } = inviteMessage(state);
   const pretty = url.replace(/^https?:\/\//, "");
+
+  async function share() {
+    haptic("tick");
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: state.group.name, text, url });
+        return;
+      } catch {}
+    }
+    try {
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    } catch {}
+  }
+
   return (
-    <div className="mt-4 flex items-center gap-3 rounded-[1.75rem] bg-plum p-4 text-paper">
-      <Image src="/pet-wave.png" alt="" width={700} height={665} sizes="80px" className="size-14 shrink-0 object-contain" />
-      <div className="min-w-0 flex-1">
-        <p className="font-display text-lg font-bold leading-tight">Invite ta bande</p>
-        <p className="truncate text-xs text-lilac">{pretty}</p>
-        <div className="mt-2 flex gap-2">
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full bg-[#25d366] px-3 py-1.5 text-xs font-bold text-white"
-          >
-            WhatsApp
-          </a>
-          <button
-            type="button"
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(`${text}\n${url}`);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-              } catch {}
-            }}
-            className="rounded-full bg-paper/15 px-3 py-1.5 text-xs font-bold"
-          >
-            {copied ? "Copié !" : "Copier le message"}
-          </button>
-        </div>
-      </div>
+    <div className="flex min-h-[70svh] flex-col items-center justify-center text-center">
+      <Image src="/pet-wave.png" alt="" width={700} height={665} sizes="180px" priority className="buddy-bob h-36 w-auto" />
+      <h1 className="mt-4 font-display text-3xl font-bold text-plum">Invite ta bande</h1>
+      <p className="mt-2 max-w-xs text-muted">
+        Envoie le lien. Chacun swipe de son côté, et je garde ce qui plaît à tout le monde.
+      </p>
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(url);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2200);
+          } catch {}
+        }}
+        className="mt-6 max-w-full truncate rounded-full border border-plum/15 bg-paper px-5 py-2.5 text-sm font-semibold text-plum"
+      >
+        {copied ? "Lien copié !" : pretty}
+      </button>
+      <button
+        type="button"
+        onClick={share}
+        className="mt-4 flex w-full max-w-xs items-center justify-center gap-2 rounded-full bg-coral py-3.5 font-semibold text-paper shadow-[0_8px_0_-2px_#d9604b] transition active:translate-y-0.5"
+      >
+        <svg viewBox="0 0 24 24" className="size-5" aria-hidden>
+          <path d="M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        Partager le lien
+      </button>
+      <button type="button" onClick={onDone} className="mt-5 text-sm font-semibold text-plum underline-offset-4 hover:underline">
+        Je commence à swiper
+      </button>
     </div>
   );
 }

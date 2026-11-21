@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -16,6 +16,9 @@ const body = localFont({
   weight: "100 1000",
   display: "swap",
 });
+
+// La page va jusqu'aux bords de l'écran (zone de la barre d'accueil de l'iPhone comprise)
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export const metadata: Metadata = {
   title: "Buddly — Swipez, Matchez, Sortez !",

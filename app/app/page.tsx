@@ -55,7 +55,7 @@ function Star({ className, color }: { className: string; color: string }) {
 
 function Decor() {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0">
+    <div aria-hidden className="pointer-events-none fixed inset-0">
       {/* bulles discrètes en haut à droite */}
       <span className="wz-blob absolute -right-20 -top-20 size-56 rounded-full bg-lilac/70" />
       <span className="wz-blob absolute right-10 top-40 size-5 rounded-full bg-violet/30 [animation-delay:-3s]" />
@@ -213,7 +213,7 @@ export default function CreateGroup() {
       <Decor />
       <div className="relative">
         <AppHeader />
-        <main className="mx-auto max-w-xl px-4 pb-8">
+        <main className="mx-auto max-w-xl px-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
           {/* progression */}
           <div className="flex items-center gap-3">
             <button
