@@ -116,6 +116,9 @@ Puis ouvrir http://localhost:3000.
 app/
   layout.tsx      Mise en page, polices, métadonnées SEO
   page.tsx        Landing page
+  LegalPage.tsx   Gabarit des pages légales + footer
+  mentions-legales/page.tsx  Mentions légales
+  cgv/page.tsx    Conditions générales de vente
   SwipeDemo.tsx   Démo interactive du swipe de groupe
   globals.css     Charte de couleurs (Tailwind)
 public/

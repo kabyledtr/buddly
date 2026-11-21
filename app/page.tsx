@@ -1,5 +1,6 @@
 import Image from "next/image";
 import SwipeDemo from "./SwipeDemo";
+import { Footer } from "./LegalPage";
 
 const STEPS = [
   {
@@ -169,12 +170,7 @@ export default function Home() {
         </a>
       </section>
 
-      <footer className="border-t border-plum/10">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p>© {new Date().getFullYear()} Buddly</p>
-          <p>Fait avec ♥ pendant la FounderRace</p>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }
