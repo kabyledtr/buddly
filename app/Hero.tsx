@@ -100,7 +100,7 @@ export default function Hero() {
       <Nav />
 
       <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pb-6 pt-6 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:items-end lg:pb-0 lg:pt-4">
-        <div className="relative z-10 pb-0 sm:pb-6 lg:pb-36 lg:pt-6">
+        <div className="relative z-10 pb-0 sm:pb-6 lg:pb-40 lg:pt-6">
           <h1 className="font-display text-[3.4rem] font-bold leading-[0.98] tracking-tight text-ink sm:text-7xl lg:text-[5rem]">
             Sortez plus,
             <span className="relative mt-2 inline-block">
@@ -145,10 +145,10 @@ export default function Hero() {
       </div>
 
       {/* vagues */}
-      <div className="relative z-10 -mt-16 sm:-mt-20 lg:-mt-28">
-        <svg viewBox="0 0 1440 120" preserveAspectRatio="none" className="block h-[60px] w-full sm:h-[90px] lg:h-[120px]" aria-hidden>
-          <path d="M0 60C240 0 520 0 780 40S1220 50 1440 0V120H0z" fill="#f5eefd" />
-          <path d="M0 88C280 38 560 46 840 76S1260 52 1440 14V120H0z" fill="#efe5fd" />
+      <div className="relative z-10 -mt-20 sm:-mt-28 lg:-mt-56">
+        <svg viewBox="0 0 1440 120" preserveAspectRatio="none" className="block h-[70px] w-full sm:h-[110px] lg:h-[150px]" aria-hidden>
+          <path d="M0 100C380 92 720 72 980 46S1340 2 1440 -24V120H0z" fill="#f5eefd" />
+          <path d="M0 114C380 110 700 98 960 72S1320 22 1440 0V120H0z" fill="#efe5fd" />
         </svg>
         <div className="bg-[#efe5fd]">
           <div className="mx-auto grid max-w-6xl gap-6 px-4 pb-10 pt-0 sm:grid-cols-3 sm:px-6">
