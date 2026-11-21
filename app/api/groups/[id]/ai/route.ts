@@ -46,10 +46,10 @@ Recommande UN lieu en 2 phrases maximum, en français, en tutoyant le groupe. Ex
       headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
       body: JSON.stringify({
         model: process.env.ANTHROPIC_MODEL || "claude-haiku-5-5",
-        max_tokens: 200,
+        max_tokens: 3000,
         messages: [{ role: "user", content: prompt }],
       }),
-      signal: AbortSignal.timeout(20000),
+      signal: AbortSignal.timeout(25000),
     });
     const j = await r.json();
     const text: string | undefined = j.content?.find((c: { type: string }) => c.type === "text")?.text?.trim();

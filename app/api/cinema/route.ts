@@ -60,7 +60,7 @@ export async function GET(req: Request) {
         headers: { "x-api-key": claude, "anthropic-version": "2023-06-01", "content-type": "application/json" },
         body: JSON.stringify({
           model: process.env.ANTHROPIC_MODEL || "claude-haiku-5-5",
-          max_tokens: 600,
+          max_tokens: 4000,
           messages: [
             {
               role: "user",
