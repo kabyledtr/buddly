@@ -22,18 +22,18 @@ import { Reveal, Words } from "./Reveal";
 const STEPS = [
   {
     n: "1",
-    title: "Crée le groupe",
-    text: "Un lien d'invitation dans la conv WhatsApp, et tout le monde rejoint en 10 secondes. Pas besoin de compte pour voter.",
+    title: "3 questions, et c'est lancé",
+    text: "Quand, où, ce qui vous tente et votre budget. Bud déniche de vrais restos, bars et activités ouverts à ce moment-là, avec photos et avis.",
   },
   {
     n: "2",
-    title: "Chacun donne ses envies",
-    text: "Budget, quartier, distance max, dispos, type d'activité. Chacun de son côté, sans débat.",
+    title: "Tu partages le lien",
+    text: "Dans le groupe, où tu veux. Tes amis rejoignent depuis leur téléphone, sans appli ni mot de passe, avec leurs envies et leur budget.",
   },
   {
     n: "3",
-    title: "Swipez, ça matche",
-    text: "Des restos et activités réels autour de vous. L'IA apprend les goûts du groupe et fait remonter le lieu qui plaît à tous.",
+    title: "Chacun swipe, Bud tranche",
+    text: "Oui ou non, chacun de son côté. Ce qui plaît à tout le monde, c'est un match. Sinon, Bud choisit le meilleur compromis pour toute la bande.",
   },
 ];
 
@@ -80,7 +80,7 @@ export default function Home() {
           {DEMO ? "Une sortie, de la création au match, sur le téléphone de tes amis." : "Exactement ce que tes amis verront sur leur téléphone."}
         </Reveal>
         {DEMO ? (
-          <div className="mx-auto mt-10" style={{ maxWidth: `min(100%, calc(78svh * ${DEMO.width} / ${DEMO.height}))` }}>
+          <div className="mx-auto mt-10" style={{ maxWidth: `min(100%, 960px, calc(78svh * ${DEMO.width} / ${DEMO.height}))` }}>
             <DemoVideo
               src="/demo.mp4"
               webm={DEMO.webm ? "/demo.webm" : undefined}
