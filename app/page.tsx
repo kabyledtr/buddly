@@ -4,6 +4,19 @@ import Hero from "./Hero";
 import { Footer } from "./LegalPage";
 import ScrollReveal from "./ScrollReveal";
 import PhoneScroll from "./PhoneScroll";
+import DemoVideo from "./DemoVideo";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
+// Vidéo de démo : utilisée dès que public/demo.json existe (créé à la compression), sinon la démo interactive.
+const DEMO: { width: number; height: number; webm?: boolean } | null = (() => {
+  const f = join(process.cwd(), "public/demo.json");
+  try {
+    return existsSync(f) ? JSON.parse(readFileSync(f, "utf8")) : null;
+  } catch {
+    return null;
+  }
+})();
 import { Reveal, Words } from "./Reveal";
 
 const STEPS = [
@@ -61,17 +74,29 @@ export default function Home() {
       {/* DÉMO */}
       <section id="fonctionnalites" className="mx-auto max-w-6xl xl:max-w-7xl scroll-mt-8 px-4 py-20 text-center sm:px-6">
         <h2 className="font-display text-4xl font-bold text-plum sm:text-5xl">
-          <Words text="Essaie, c'est" accent="toi qui swipes." />
+          {DEMO ? <Words text="Voilà à quoi" accent="ça ressemble." /> : <Words text="Essaie, c'est" accent="toi qui swipes." />}
         </h2>
         <Reveal as="p" delay={120} className="mx-auto mt-3 max-w-xl text-muted">
-          Exactement ce que tes amis verront sur leur téléphone.
+          {DEMO ? "Une sortie, de la création au match, sur le téléphone de tes amis." : "Exactement ce que tes amis verront sur leur téléphone."}
         </Reveal>
-        <div className="mx-auto mt-10 max-w-sm text-left">
-          <Reveal variant="pop" tilt={-5}>
-            <SwipeDemo />
-            <p className="mt-4 text-center text-sm text-muted">Glisse la carte ou utilise les boutons</p>
-          </Reveal>
-        </div>
+        {DEMO ? (
+          <div className="mx-auto mt-10" style={{ maxWidth: `min(100%, calc(78svh * ${DEMO.width} / ${DEMO.height}))` }}>
+            <DemoVideo
+              src="/demo.mp4"
+              webm={DEMO.webm ? "/demo.webm" : undefined}
+              poster="/demo-poster.webp"
+              width={DEMO.width}
+              height={DEMO.height}
+            />
+          </div>
+        ) : (
+          <div className="mx-auto mt-10 max-w-sm text-left">
+            <Reveal variant="pop" tilt={-5}>
+              <SwipeDemo />
+              <p className="mt-4 text-center text-sm text-muted">Glisse la carte ou utilise les boutons</p>
+            </Reveal>
+          </div>
+        )}
       </section>
 
       {/* PROBLÈME */}
