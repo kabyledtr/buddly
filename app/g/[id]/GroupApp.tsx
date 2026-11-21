@@ -58,7 +58,13 @@ export default function GroupApp({ id }: { id: string }) {
     } catch {}
     setMemberId(m);
     const q = new URLSearchParams(location.search);
-    if (q.get("nouveau")) setInviteStep(true);
+    // l'écran d'invitation reste tant que l'organisateur ne l'a pas validé (même si la page se recharge après le partage)
+    try {
+      if (q.get("nouveau")) sessionStorage.setItem(`buddly:invite:${id}`, "1");
+      if (sessionStorage.getItem(`buddly:invite:${id}`)) setInviteStep(true);
+    } catch {
+      if (q.get("nouveau")) setInviteStep(true);
+    }
     if (q.get("paiement") === "ok") {
       setToast("Pass Sortie activé ! Tout est débloqué pour le groupe.");
       setTab("results");
@@ -139,7 +145,15 @@ export default function GroupApp({ id }: { id: string }) {
   if (inviteStep && state.group.isCreator)
     return (
       <Screen>
-        <InviteStep state={state} onDone={() => setInviteStep(false)} />
+        <InviteStep
+          state={state}
+          onDone={() => {
+            try {
+              sessionStorage.removeItem(`buddly:invite:${id}`);
+            } catch {}
+            setInviteStep(false);
+          }}
+        />
       </Screen>
     );
 
@@ -251,6 +265,7 @@ function Invite({ state }: { state: State }) {
 /** Écran affiché juste après la création : on invite la bande avant de swiper. */
 function InviteStep({ state, onDone }: { state: State; onDone: () => void }) {
   const [copied, setCopied] = useState(false);
+  const [shared, setShared] = useState(false);
   const { url, text } = inviteMessage(state);
   const pretty = url.replace(/^https?:\/\//, "");
 
@@ -259,12 +274,14 @@ function InviteStep({ state, onDone }: { state: State; onDone: () => void }) {
     if (navigator.share) {
       try {
         await navigator.share({ title: state.group.name, text, url });
+        setShared(true);
         return;
       } catch {}
     }
     try {
       await navigator.clipboard.writeText(`${text}\n${url}`);
       setCopied(true);
+      setShared(true);
       setTimeout(() => setCopied(false), 2200);
     } catch {}
   }
@@ -297,11 +314,21 @@ function InviteStep({ state, onDone }: { state: State; onDone: () => void }) {
         <svg viewBox="0 0 24 24" className="size-5" aria-hidden>
           <path d="M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        Partager le lien
+        {shared ? "Partager encore" : "Partager le lien"}
       </button>
-      <button type="button" onClick={onDone} className="mt-5 text-sm font-semibold text-plum underline-offset-4 hover:underline">
-        Je commence à swiper
-      </button>
+      {shared ? (
+        <button
+          type="button"
+          onClick={onDone}
+          className="mt-3 w-full max-w-xs rounded-full bg-plum py-3.5 font-semibold text-paper shadow-[0_8px_0_-2px_#2a1650] transition active:translate-y-0.5"
+        >
+          C&apos;est bon, c&apos;est partagé
+        </button>
+      ) : (
+        <button type="button" onClick={onDone} className="mt-5 text-sm font-semibold text-muted underline-offset-4 hover:underline">
+          Plus tard, je swipe d&apos;abord
+        </button>
+      )}
     </div>
   );
 }

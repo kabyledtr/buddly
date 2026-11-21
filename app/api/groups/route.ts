@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { addMember, hasPlus, isEmail, newId, normEmail, saveGroup } from "@/lib/group";
+import { addMember, hasPlus, isEmail, newId, normEmail, saveGroup, consumePassCredit } from "@/lib/group";
 import { findPlaces, geocode } from "@/lib/places";
 import { DIET_LABEL, type Budget, type Category, type Diet, type Group, type Member } from "@/lib/types";
 
@@ -46,6 +46,8 @@ export async function POST(req: Request) {
       { status: 422 },
     );
 
+  // Pass acheté à l'avance : utilisé seulement une fois la sortie sûre d'être créée
+  const pass = !plus && (await consumePassCredit(email));
   const creator: Member = { id: newId(12), name: creatorName, email, budget, likes: categories, joinedAt: Date.now() };
   const group: Group = {
     id: newId(8),
@@ -60,8 +62,8 @@ export async function POST(req: Request) {
     categories,
     createdAt: Date.now(),
     creatorId: creator.id,
-    premium: plus,
-    tier: plus ? "plus" : "free",
+    premium: plus || pass,
+    tier: plus ? "plus" : pass ? "pass" : "free",
     places,
   };
   await saveGroup(group);

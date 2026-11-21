@@ -142,6 +142,7 @@ export default function CreateGroup() {
   const [budget, setBudget] = useState<Budget>(2);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState(""); // retour de paiement depuis la page Tarifs
 
   // Chaque étape a son entrée dans l'historique : le bouton retour du téléphone revient à l'étape d'avant.
   function goStep(n: number) {
@@ -149,7 +150,15 @@ export default function CreateGroup() {
     window.history.pushState(null, "", n ? `/app?etape=${n + 1}` : "/app");
   }
   useEffect(() => {
-    if (location.search.includes("etape")) window.history.replaceState(null, "", "/app"); // les réponses ne sont pas gardées
+    const pay = new URLSearchParams(location.search).get("paiement");
+    const NOTICES: Record<string, string> = {
+      plus: "Buddly+ est activé à vie. Crée ta sortie avec l'e-mail utilisé au paiement : tout sera débloqué.",
+      pass: "Ton Pass Sortie est prêt. Il s'appliquera à la sortie que tu crées avec l'e-mail utilisé au paiement.",
+      bientot: "Le paiement arrive très bientôt. En attendant, tu peux créer ta sortie gratuitement.",
+      erreur: "Le paiement n'a pas pu être vérifié. Si tu as été débité, écris à contact@buddly.io.",
+    };
+    if (pay && NOTICES[pay]) setNotice(NOTICES[pay]);
+    if (location.search.includes("etape") || pay) window.history.replaceState(null, "", "/app"); // les réponses ne sont pas gardées
     const sync = () => {
       const e = Number(new URLSearchParams(location.search).get("etape"));
       setError("");
@@ -243,6 +252,10 @@ export default function CreateGroup() {
           </div>
 
           {!loading && (
+            <>
+            {notice && step === 0 && (
+              <p className="mb-3 rounded-[1.75rem] bg-plum px-5 py-3.5 text-sm font-medium text-paper">{notice}</p>
+            )}
             <form key={step} onSubmit={next} className="wz-step mt-2 space-y-4 rounded-[2.5rem] border border-plum/10 bg-paper/70 p-5 sm:p-7">
               {step === 0 && (
                 <>
@@ -347,6 +360,7 @@ export default function CreateGroup() {
               </button>
               {step === 0 && <p className="text-center text-xs text-muted">Gratuit pour toi et un pote. Sans mot de passe, sans carte bancaire.</p>}
             </form>
+            </>
           )}
         </main>
       </div>

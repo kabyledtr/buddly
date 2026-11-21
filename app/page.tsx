@@ -123,22 +123,22 @@ export default function Home() {
           <h2 className="text-center font-display text-4xl font-bold text-plum sm:text-5xl">
             <Words text="Simple et" accent="sans surprise" />
           </h2>
-          <div className="mt-12 grid items-center gap-5 md:grid-cols-3">
-            <Reveal variant="left" className="rounded-3xl bg-paper p-7">
+          <div className="mt-12 grid items-stretch gap-5 md:grid-cols-3">
+            <Reveal variant="left" className="flex flex-col rounded-3xl bg-paper p-7">
               <h3 className="font-display text-2xl font-semibold">Gratuit</h3>
               <p className="mt-2"><span className="font-display text-5xl font-bold">0 €</span></p>
-              <ul className="mt-6 space-y-3 text-muted">
+              <ul className="mb-8 mt-6 space-y-3 text-muted">
                 {FREE.map((f, i) => (
                   <Reveal as="li" key={f} delay={250 + i * 70} className="flex gap-2">
                     <span className="text-violet">✓</span>{f}
                   </Reveal>
                 ))}
               </ul>
-              <a href="/app" className="mt-8 block rounded-full border-2 border-plum py-3 text-center font-semibold text-plum hover:bg-lilac">
+              <a href="/app" className="mt-auto block rounded-full border-2 border-plum py-3 text-center font-semibold text-plum hover:bg-lilac">
                 Commencer
               </a>
             </Reveal>
-            <Reveal variant="right" delay={120} className="relative rounded-3xl bg-plum p-8 text-paper shadow-xl ring-4 ring-coral/40 md:order-last md:-my-4 md:py-10">
+            <Reveal variant="right" delay={120} className="relative flex flex-col rounded-3xl bg-plum p-7 text-paper shadow-xl ring-4 ring-coral/40 md:order-last">
               <Reveal
                 as="span"
                 variant="pop"
@@ -149,39 +149,37 @@ export default function Home() {
                 Recommandé
               </Reveal>
               <h3 className="font-display text-2xl font-semibold">Buddly+</h3>
-              <p className="mt-2">
+              <p className="mt-2 flex flex-wrap items-baseline gap-x-2">
                 <span className="font-display text-5xl font-bold">3,99 €</span>
-                <span className="text-lilac"> à vie</span>
+                <span className="text-lilac">à vie</span>
+                <span className="text-sm font-semibold text-coral">soit 0,67 € / pers.</span>
               </p>
-              <p className="mt-3 text-sm font-semibold">
-                Divisé par ta bande de 6, ça fait 67 centimes chacun. Pour ne plus jamais entendre « je sais pas, comme vous voulez ».
-              </p>
-              <ul className="mt-6 space-y-3 text-lilac">
+              <ul className="mb-8 mt-6 space-y-3 text-lilac">
                 {PLUS.map((f, i) => (
                   <Reveal as="li" key={f} delay={370 + i * 70} className="flex gap-2">
                     <span className="text-coral">✓</span>{f}
                   </Reveal>
                 ))}
               </ul>
-              <a href="/app" className="mt-8 block rounded-full bg-coral py-3 text-center font-semibold hover:brightness-105">
-                Créer une sortie
+              <a href="/api/checkout?offre=plus" className="mt-auto block rounded-full bg-coral py-3 text-center font-semibold hover:brightness-105">
+                Passer à Buddly+
               </a>
             </Reveal>
-            <Reveal variant="up" delay={60} className="rounded-3xl bg-paper p-7">
+            <Reveal variant="up" delay={60} className="flex flex-col rounded-3xl bg-paper p-7">
               <h3 className="font-display text-2xl font-semibold">Pass Sortie</h3>
               <p className="mt-2">
                 <span className="font-display text-5xl font-bold">2,99 €</span>
                 <span className="text-muted"> / sortie</span>
               </p>
-              <ul className="mt-6 space-y-3 text-muted">
+              <ul className="mb-8 mt-6 space-y-3 text-muted">
                 {PASS.map((f, i) => (
                   <Reveal as="li" key={f} delay={300 + i * 70} className="flex gap-2">
                     <span className="text-violet">✓</span>{f}
                   </Reveal>
                 ))}
               </ul>
-              <a href="/app" className="mt-8 block rounded-full border-2 border-plum py-3 text-center font-semibold text-plum hover:bg-lilac">
-                Créer une sortie
+              <a href="/api/checkout?offre=pass" className="mt-auto block rounded-full border-2 border-plum py-3 text-center font-semibold text-plum hover:bg-lilac">
+                Prendre le Pass
               </a>
             </Reveal>
           </div>

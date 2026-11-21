@@ -1,4 +1,4 @@
-import { getJSON, hgetall, hset, setJSON } from "./store";
+import { getJSON, hgetall, hset, setJSON, setPermanent } from "./store";
 import {
   TIERS,
   tierOf,
@@ -64,6 +64,15 @@ export const maxMembers = (g: Group) => TIERS[tierOf(g)].members;
 export const normEmail = (e: unknown) => String(e ?? "").trim().toLowerCase().slice(0, 120);
 export const isEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
 export const plusKey = (email: string) => `plus:email:${email}`;
+export const passKey = (email: string) => `pass:email:${email}`; // Pass achetés depuis la page Tarifs, pas encore utilisés
+
+/** Utilise un Pass acheté à l'avance (depuis la page Tarifs) pour une nouvelle sortie. */
+export async function consumePassCredit(email: string): Promise<boolean> {
+  const n = (await getJSON<number>(passKey(email))) ?? 0;
+  if (n <= 0) return false;
+  await setPermanent(passKey(email), n - 1);
+  return true;
+}
 
 export async function hasPlus(email: unknown): Promise<boolean> {
   const e = normEmail(email);
