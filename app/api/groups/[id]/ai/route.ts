@@ -52,7 +52,11 @@ Recommande UN lieu en 2 phrases maximum, en français, en tutoyant le groupe. Ex
       signal: AbortSignal.timeout(20000),
     });
     const j = await r.json();
-    const text: string = j.content?.find((c: { type: string }) => c.type === "text")?.text?.trim() || fallback;
+    const text: string | undefined = j.content?.find((c: { type: string }) => c.type === "text")?.text?.trim();
+    if (!text) {
+      console.error("anthropic", r.status, j.error?.message);
+      return NextResponse.json({ text: fallback, ai: false, reason: j.error?.type ?? r.status });
+    }
     await setJSON(cacheKey, { sig: signature, text });
     return NextResponse.json({ text, ai: true });
   } catch {
