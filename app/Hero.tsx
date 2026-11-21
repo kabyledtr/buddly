@@ -34,7 +34,7 @@ function Laurel({ flip = false }: { flip?: boolean }) {
 
 function PetScene() {
   return (
-    <div className="relative mx-auto w-full max-w-[600px] lg:mr-[-60px]">
+    <div className="relative mx-auto w-full max-w-[460px] sm:max-w-[600px] lg:mb-12 lg:mr-0 lg:w-[125%] lg:max-w-none">
       {/* nuage lilas irrégulier en fond */}
       <svg
         viewBox="0 0 600 520"
@@ -113,7 +113,7 @@ export default function Hero() {
             chacun swipe des restos et activités autour de vous : quand tout le groupe dit oui, c&apos;est
             un match.
           </p>
-          <div className="mt-7 flex flex-wrap items-center gap-3">
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
             <a
               href="#tarifs"
               className="rounded-full bg-coral px-6 py-3.5 font-semibold text-paper shadow-[0_8px_0_-2px_#d9604b] transition hover:translate-y-0.5 hover:shadow-[0_5px_0_-2px_#d9604b]"
@@ -128,7 +128,7 @@ export default function Hero() {
               Voir la démo
             </a>
           </div>
-          <div className="mt-6 flex items-center gap-3">
+          <div className="mt-6 flex items-center justify-center gap-3 sm:justify-start">
             <Laurel />
             <p className="text-center text-sm leading-tight text-muted">
               <b className="text-ink">Gratuit</b> jusqu&apos;à 4 amis
