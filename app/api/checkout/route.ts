@@ -44,7 +44,7 @@ export async function GET(req: Request) {
   if (!r.ok || !s.url) {
     console.error("stripe", s.error?.message);
     // raison sans aucune partie de la clé : aide à corriger la configuration
-    const raison = key.startsWith("pk_") ? "cle-publique" : r.status === 401 ? "cle-refusee" : s.error?.code ?? "stripe";
+    const raison = key.startsWith("pk_") ? "cle-publique" : r.status === 401 ? "cle-refusee" : `${r.status}-${s.error?.code ?? ""}-${String(s.error?.message ?? "").replace(/(sk|rk|pk)_\w+/g, "***").slice(0, 120)}`;
     return NextResponse.redirect(new URL(`/app?paiement=erreur&raison=${encodeURIComponent(raison)}`, url.origin), 303);
   }
   return NextResponse.redirect(s.url, 303);
