@@ -128,6 +128,20 @@ function Buddly({ step, loading }: { step: number; loading: boolean }) {
   );
 }
 
+const DRAFT_KEY = "buddly:draft";
+const EMAIL_KEY = "buddly:email";
+type Draft = {
+  creatorName: string;
+  email: string;
+  name: string;
+  slot: Slot | null;
+  spot: Spot | null;
+  radius: number;
+  cats: Category[];
+  diets: Diet[];
+  budget: Budget;
+};
+
 export default function CreateGroup() {
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -143,6 +157,7 @@ export default function CreateGroup() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState(""); // retour de paiement depuis la page Tarifs
+  const [ready, setReady] = useState(false); // brouillon relu (évite d'afficher des champs vides puis remplis)
 
   // Chaque étape a son entrée dans l'historique : le bouton retour du téléphone revient à l'étape d'avant.
   function goStep(n: number) {
@@ -158,7 +173,29 @@ export default function CreateGroup() {
       erreur: "Le paiement n'a pas pu être vérifié. Si tu as été débité, écris à contact@buddly.io.",
     };
     if (pay && NOTICES[pay]) setNotice(NOTICES[pay]);
-    if (location.search.includes("etape") || pay) window.history.replaceState(null, "", "/app"); // les réponses ne sont pas gardées
+
+    // Brouillon : ce qui a été tapé est gardé dans l'onglet ; en revenant en arrière (même depuis le swipe), tout est rempli.
+    let draft: Draft | null = null;
+    try {
+      draft = JSON.parse(sessionStorage.getItem(DRAFT_KEY) ?? "null");
+      const saved = localStorage.getItem(EMAIL_KEY);
+      if (saved) setEmail(saved);
+    } catch {}
+    if (draft) {
+      setCreatorName(draft.creatorName ?? "");
+      if (draft.email) setEmail(draft.email);
+      setName(draft.name ?? "");
+      setSlot(draft.slot ?? null);
+      setSpot(draft.spot ?? null);
+      if (draft.radius) setRadius(draft.radius);
+      if (draft.cats?.length) setCats(draft.cats);
+      setDiets(draft.diets ?? []);
+      if (draft.budget) setBudget(draft.budget);
+      const e = Number(new URLSearchParams(location.search).get("etape"));
+      if (e >= 2 && e <= 3) setStep(e - 1);
+    } else if (location.search.includes("etape")) window.history.replaceState(null, "", "/app");
+    if (pay) window.history.replaceState(null, "", "/app");
+    setReady(true);
     const sync = () => {
       const e = Number(new URLSearchParams(location.search).get("etape"));
       setError("");
@@ -167,6 +204,15 @@ export default function CreateGroup() {
     window.addEventListener("popstate", sync);
     return () => window.removeEventListener("popstate", sync);
   }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    try {
+      const d: Draft = { creatorName, email, name, slot, spot, radius, cats, diets, budget };
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify(d));
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) localStorage.setItem(EMAIL_KEY, email.trim());
+    } catch {}
+  }, [ready, creatorName, email, name, slot, spot, radius, cats, diets, budget]);
 
   function next(e?: React.FormEvent) {
     e?.preventDefault();
@@ -251,7 +297,7 @@ export default function CreateGroup() {
             <Buddly step={step} loading={loading} />
           </div>
 
-          {!loading && (
+          {!loading && ready && (
             <>
             {notice && step === 0 && (
               <p className="mb-3 rounded-[1.75rem] bg-plum px-5 py-3.5 text-sm font-medium text-paper">{notice}</p>

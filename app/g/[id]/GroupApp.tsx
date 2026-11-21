@@ -639,18 +639,22 @@ function Deck({
   onDone: () => void;
 }) {
   const [dx, setDx] = useState(0);
-  const [dy, setDy] = useState(0);
   const [leaving, setLeaving] = useState(false);
   const [bursts, setBursts] = useState<{ id: number; sparks: Spark[] }[]>([]);
   const start = useRef<{ x: number; y: number } | null>(null);
   const crossed = useRef(false);
   const place = remaining[0];
-  const after = remaining[2]?.photos?.[0];
+  const upcoming = remaining
+    .slice(1, 5)
+    .map((p) => p.photos?.[0])
+    .filter(Boolean)
+    .join("|");
   useEffect(() => {
-    if (!after) return;
-    const img = new window.Image();
-    img.src = photoSrc(after);
-  }, [after]);
+    for (const n of upcoming.split("|").filter(Boolean)) {
+      const img = new window.Image();
+      img.src = photoSrc(n);
+    }
+  }, [upcoming]);
 
   if (!place)
     return (
@@ -675,7 +679,6 @@ function Deck({
     setTimeout(() => {
       setLeaving(false);
       setDx(0);
-      setDy(0);
       crossed.current = false;
       onVote(place, like);
     }, 240);
@@ -687,7 +690,6 @@ function Deck({
     else if (dx < -90) decide(false);
     else {
       setDx(0);
-      setDy(0);
     }
   };
 
@@ -718,9 +720,9 @@ function Deck({
           place={place}
           date={date}
           active
-          className="cursor-grab touch-none active:cursor-grabbing"
+          className="cursor-grab touch-pan-y active:cursor-grabbing"
           style={{
-            transform: `translate(${dx}px, ${dy}px) rotate(${dx / 16}deg)`,
+            transform: `translateX(${dx}px) rotate(${dx / 16}deg)`,
             transition: dragging ? "none" : leaving ? "transform .24s cubic-bezier(.4,.1,.8,.4)" : "transform .35s cubic-bezier(.2,1.4,.4,1)",
           }}
           badge={dx > 40 ? "like" : dx < -40 ? "nope" : null}
@@ -732,8 +734,9 @@ function Deck({
           onPointerMove={(e) => {
             if (start.current === null) return;
             const x = e.clientX - start.current.x;
+            // on ne bouge la carte que si le geste est surtout horizontal (sinon c'est un scroll)
+            if (Math.abs(x) < 8 && Math.abs(e.clientY - start.current.y) > Math.abs(x)) return;
             setDx(x);
-            setDy((e.clientY - start.current.y) * 0.25);
             const over = Math.abs(x) > 90;
             if (over && !crossed.current) haptic("tick");
             crossed.current = over;
@@ -898,7 +901,7 @@ function Card({
                 aria-label="Photo précédente"
                 onPointerDown={stop}
                 onClick={() => setI((i - 1 + photos.length) % photos.length)}
-                className="absolute left-3 top-[40%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/95 text-plum shadow-[0_6px_16px_-6px_rgba(67,32,122,0.55)] transition active:scale-90"
+                className="absolute left-3 top-[30%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/95 text-plum shadow-[0_6px_16px_-6px_rgba(67,32,122,0.55)] transition active:scale-90"
               >
                 <svg viewBox="0 0 24 24" className="size-5" aria-hidden><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
@@ -907,7 +910,7 @@ function Card({
                 aria-label="Photo suivante"
                 onPointerDown={stop}
                 onClick={() => setI((i + 1) % photos.length)}
-                className="absolute right-3 top-[40%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/95 text-plum shadow-[0_6px_16px_-6px_rgba(67,32,122,0.55)] transition active:scale-90"
+                className="absolute right-3 top-[30%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/95 text-plum shadow-[0_6px_16px_-6px_rgba(67,32,122,0.55)] transition active:scale-90"
               >
                 <svg viewBox="0 0 24 24" className="size-5" aria-hidden><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
