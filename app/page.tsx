@@ -3,6 +3,7 @@ import SwipeDemo from "./SwipeDemo";
 import Hero from "./Hero";
 import { Footer } from "./LegalPage";
 import ScrollReveal from "./ScrollReveal";
+import PhoneScroll from "./PhoneScroll";
 import { Reveal, Words } from "./Reveal";
 
 const STEPS = [
@@ -57,6 +58,22 @@ export default function Home() {
       <ScrollReveal />
       <Hero />
 
+      {/* DÉMO */}
+      <section id="fonctionnalites" className="mx-auto max-w-6xl xl:max-w-7xl scroll-mt-8 px-4 py-20 text-center sm:px-6">
+        <h2 className="font-display text-4xl font-bold text-plum sm:text-5xl">
+          <Words text="Essaie, c'est" accent="toi qui swipes." />
+        </h2>
+        <Reveal as="p" delay={120} className="mx-auto mt-3 max-w-xl text-muted">
+          Exactement ce que tes amis verront sur leur téléphone.
+        </Reveal>
+        <div className="mx-auto mt-10 max-w-sm text-left">
+          <Reveal variant="pop" tilt={-5}>
+            <SwipeDemo />
+            <p className="mt-4 text-center text-sm text-muted">Glisse la carte ou utilise les boutons</p>
+          </Reveal>
+        </div>
+      </section>
+
       {/* PROBLÈME */}
       <section className="bg-plum py-20 text-paper">
         <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 sm:px-6">
@@ -78,13 +95,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FONCTIONNALITÉS */}
-      <section id="fonctionnalites" className="mx-auto max-w-6xl xl:max-w-7xl scroll-mt-8 px-4 py-20 sm:px-6">
+      {/* COMMENT ÇA MARCHE */}
+      <section id="comment" className="mx-auto max-w-6xl xl:max-w-7xl scroll-mt-8 px-4 py-20 sm:px-6">
         <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.1fr]">
-          <Reveal variant="pop" tilt={-5}>
-            <SwipeDemo />
-            <p className="mt-4 text-center text-sm text-muted">Essaie : glisse la carte ou utilise les boutons</p>
-          </Reveal>
+          <PhoneScroll />
           <div>
             <h2 className="font-display text-4xl font-bold text-plum sm:text-5xl">
               <Words text="Comment ça marche" />

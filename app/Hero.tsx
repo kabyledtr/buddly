@@ -78,9 +78,6 @@ export function Nav() {
         <a href="#faq" className="hover:text-violet">FAQ</a>
       </nav>
       <div className="flex items-center gap-2">
-        <a href="/app" className="hidden rounded-full bg-lilac px-5 py-2.5 text-sm font-semibold text-plum hover:bg-[#e2d3fc] sm:block">
-          Ouvrir l&apos;app
-        </a>
         <a href="/app" className="rounded-full bg-plum px-5 py-2.5 text-sm font-semibold text-paper hover:bg-ink">
           Commencer gratuitement
         </a>
