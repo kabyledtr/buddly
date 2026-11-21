@@ -501,6 +501,7 @@ function Card({
           <span className="mr-auto rounded-full bg-[#1f9d55]/90 px-3 py-1 text-xs font-semibold">{place.openLabel}</span>
         )}
         {place.special && <span className="rounded-full bg-coral px-3 py-1 text-xs font-bold">Original</span>}
+        {place.diet && <span className="rounded-full bg-paper px-3 py-1 text-xs font-bold text-plum">{place.diet}</span>}
         <span className="rounded-full bg-black/35 px-3 py-1 text-xs font-semibold backdrop-blur">{km(place.distance)}</span>
       </div>
 

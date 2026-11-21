@@ -23,6 +23,16 @@ export type Place = {
   mapsUri?: string;
   cinema?: boolean;
   special?: boolean; // activité originale (escape game, karaoké…)
+  diet?: string; // « Halal », « Vegan »… quand le lieu a été trouvé pour un régime
+};
+
+export type Diet = "halal" | "casher" | "vegetarien" | "vegan" | "sansgluten";
+export const DIET_LABEL: Record<Diet, string> = {
+  halal: "Halal",
+  casher: "Casher",
+  vegetarien: "Végétarien",
+  vegan: "Vegan",
+  sansgluten: "Sans gluten",
 };
 
 export type When = { date?: string; from?: string; to?: string; label: string };
@@ -32,6 +42,7 @@ export type Group = {
   name: string;
   when: string;
   slot?: When;
+  diets?: Diet[];
   area: string;
   lat: number;
   lon: number;

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { addMember, newId, saveGroup } from "@/lib/group";
 import { findPlaces, geocode } from "@/lib/places";
-import type { Budget, Category, Group, Member } from "@/lib/types";
+import { DIET_LABEL, type Budget, type Category, type Diet, type Group, type Member } from "@/lib/types";
 
 export const maxDuration = 60;
 
@@ -17,7 +17,8 @@ export async function POST(req: Request) {
   const from = /^\d{2}:\d{2}$/.test(b.from ?? "") ? String(b.from) : undefined;
   const to = /^\d{2}:\d{2}$/.test(b.to ?? "") ? String(b.to) : undefined;
   const creatorName = String(b.creatorName ?? "").trim().slice(0, 24);
-  const radius = Math.min(5000, Math.max(300, Number(b.radius) || 1500));
+  const radius = Math.min(10000, Math.max(300, Number(b.radius) || 1500));
+  const diets = (Array.isArray(b.diets) ? b.diets : []).filter((d: Diet) => d in DIET_LABEL) as Diet[];
   const categories = (Array.isArray(b.categories) ? b.categories : CATS).filter((c: Category) => CATS.includes(c));
   const budget = ([1, 2, 3].includes(Number(b.budget)) ? Number(b.budget) : 2) as Budget;
   if (!creatorName) return NextResponse.json({ error: "Indique ton prénom." }, { status: 400 });
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
     area = "Autour de moi";
   }
 
-  const places = await findPlaces(lat, lon, radius, categories, { date, from });
+  const places = await findPlaces(lat, lon, radius, categories, { date, from, diets });
   if (places.length < 5)
     return NextResponse.json(
       { error: "Pas assez de lieux ouverts et bien notés ici. Augmente la distance, change l'horaire ou ajoute des envies." },
@@ -48,6 +49,7 @@ export async function POST(req: Request) {
     name,
     when,
     slot: date ? { date, from, to, label: when } : undefined,
+    diets,
     area,
     lat,
     lon,

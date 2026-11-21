@@ -1,4 +1,4 @@
-import type { Budget, Category, Place } from "./types";
+import type { Budget, Category, Diet, Place } from "./types";
 import { googlePlaces, hasGoogle } from "./google";
 
 const UA = "Buddly/1.0 (https://buddly.io)";
@@ -242,7 +242,7 @@ export async function findPlaces(
   lon: number,
   radius: number,
   cats: Category[],
-  slot?: { date?: string; from?: string },
+  slot?: { date?: string; from?: string; diets?: Diet[] },
   max = 40,
 ) {
   if (hasGoogle) {

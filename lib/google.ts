@@ -1,4 +1,4 @@
-import type { Budget, Category, Place } from "./types";
+import { DIET_LABEL, type Budget, type Category, type Diet, type Place } from "./types";
 
 /** Google Places API (New) : photos, notes, avis, horaires. Clé : GOOGLE_MAPS_API_KEY. */
 const KEY = process.env.GOOGLE_MAPS_API_KEY;
@@ -68,7 +68,16 @@ const text = (q: string, lat: number, lon: number, radius: number) =>
   }).catch(() => [] as GPlace[]);
 
 // Activités originales cherchées en plus des catégories classiques
-const SPECIAL_QUERIES = ["escape game", "karaoké", "laser game", "bar à jeux de société", "réalité virtuelle", "atelier créatif", "blind test quiz bar", "bowling"];
+const SPECIAL_QUERIES: [string, string][] = [
+  ["escape game", "Escape game"],
+  ["karaoké", "Karaoké"],
+  ["laser game", "Laser game"],
+  ["bar à jeux de société", "Bar à jeux"],
+  ["réalité virtuelle", "Réalité virtuelle"],
+  ["atelier créatif", "Atelier"],
+  ["blind test quiz bar", "Blind test"],
+  ["bowling", "Bowling"],
+];
 const SPECIAL_KIND: [RegExp, string][] = [
   [/escape/i, "Escape game"],
   [/karaok/i, "Karaoké"],
@@ -181,13 +190,18 @@ export async function googlePlaces(
   lon: number,
   radius: number,
   cats: Category[],
-  slot?: { date?: string; from?: string },
+  slot?: { date?: string; from?: string; diets?: Diet[] },
   max = 40,
 ): Promise<Place[]> {
-  const jobs: Promise<{ list: GPlace[]; special: boolean; source: Category }>[] = [];
-  const add = (source: Category, p: Promise<GPlace[]>, special = false) =>
-    jobs.push(p.then((list) => ({ list, special, source })));
-  if (cats.includes("resto")) add("resto", nearby(["restaurant"], lat, lon, radius));
+  const jobs: Promise<{ list: GPlace[]; special: boolean; source: Category; diet?: string }>[] = [];
+  const add = (source: Category, p: Promise<GPlace[]>, special = false, diet?: string) =>
+    jobs.push(p.then((list) => ({ list, special, source, diet })));
+  const diets = slot?.diets ?? [];
+  if (cats.includes("resto")) {
+    // régime alimentaire du groupe : on ne propose que des restos compatibles
+    if (diets.length) for (const d of diets) add("resto", text(`restaurant ${DIET_LABEL[d].toLowerCase()}`, lat, lon, radius), false, DIET_LABEL[d]);
+    else add("resto", nearby(["restaurant"], lat, lon, radius));
+  }
   if (cats.includes("bar")) {
     add("bar", nearby(["bar", "night_club"], lat, lon, radius));
     add("bar", text("bar à cocktails", lat, lon, radius));
@@ -198,13 +212,13 @@ export async function googlePlaces(
   }
   if (cats.includes("activite")) {
     add("activite", nearby(ACTIVITY_TYPES, lat, lon, radius));
-    for (const q of SPECIAL_QUERIES) add("activite", text(q, lat, lon, radius), true);
+    for (const [q, label] of SPECIAL_QUERIES) add("activite", text(q, lat, lon, radius), true, label);
   }
   const results = await Promise.all(jobs);
 
   const seen = new Set<string>();
   const byCat = new Map<Category, Place[]>();
-  for (const { list, special, source } of results) {
+  for (const { list, special, source, diet } of results) {
     for (const g of list) {
       if (seen.has(g.id) || g.businessStatus !== "OPERATIONAL") continue;
       // qualité : bien noté et assez d'avis
@@ -216,6 +230,12 @@ export async function googlePlaces(
         closeLabel = o.closeLabel;
       }
       const p = toPlace(g, lat, lon, closeLabel, special, source);
+      if (p && diet) {
+        if (special) p.kind = SPECIAL_KIND.find(([re]) => re.test(p.name))?.[1] ?? diet;
+        else p.diet = diet;
+      }
+      // régime demandé : seuls les restos trouvés pour ce régime sont gardés
+      if (p && diets.length && p.category === "resto" && !p.diet) continue;
       if (!p || p.distance > radius * 1.6) continue;
       seen.add(g.id);
       byCat.set(p.category, [...(byCat.get(p.category) ?? []), p]);
