@@ -39,7 +39,7 @@ ${members.map((m) => `- ${m.name} : ${EUROS[m.budget]}, aime ${m.likes.map((c) =
 Lieux les mieux classés après les votes (oui / non sur ${members.length} membres) :
 ${top.map((r, i) => `${i + 1}. ${r.place.name} (${r.place.kind}, ${"€".repeat(r.place.price)}, ${r.place.distance} m) : ${r.likes} oui (${r.likedBy.join(", ") || "personne"}), ${r.nopes} non`).join("\n")}
 
-Recommande UN lieu en 2 phrases maximum, en français, en tutoyant le groupe. Explique pourquoi en citant les envies ou le budget de membres précis.${
+Recommande UN lieu en 2 phrases maximum, en français, en tutoyant le groupe : celui qui convient le mieux à TOUT le groupe, pas seulement à la majorité (votes, envies et budget de chacun ; évite un lieu au-dessus du budget de quelqu'un s'il existe une bonne alternative). Explique pourquoi en citant les envies ou le budget de membres précis.${
     planB
       ? " Si deux lieux ont autant de oui, tranche clairement entre eux. Puis ajoute une dernière phrase qui commence exactement par « Plan B : » et propose un autre lieu de la liste au cas où le premier serait complet, avec la raison en quelques mots."
       : ""

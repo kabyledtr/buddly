@@ -10,7 +10,7 @@ import { CATEGORY_LABEL, type Budget, type Category, type Place } from "@/lib/ty
 
 type Ranked = { place: Place; likes: number; nopes: number; likedBy: string[]; unanimous: boolean };
 type State = {
-  group: { id: string; name: string; when: string; area: string; premium: boolean; tier: Tier; size: number | null; isCreator: boolean; totalPlaces: number; slot?: { date?: string }; eventsStatus: "pending" | "done" | null; wantsEvents: boolean };
+  group: { id: string; name: string; when: string; area: string; premium: boolean; tier: Tier; size: number | null; categories: Category[]; isCreator: boolean; totalPlaces: number; slot?: { date?: string }; eventsStatus: "pending" | "done" | null; wantsEvents: boolean };
   deck: Place[];
   members: { id: string; name: string; done: number }[];
   me: string | null;
@@ -556,7 +556,7 @@ function Join({ state, onJoined }: { state: State; onJoined: (m: string) => void
           </Field>
           <Field label="Tes envies">
             <div className="flex flex-wrap gap-2">
-              {(Object.keys(CATEGORY_LABEL) as Category[]).map((c) => (
+              {(state.group.categories?.length ? state.group.categories : (Object.keys(CATEGORY_LABEL) as Category[])).map((c) => (
                 <Chip key={c} active={likes.includes(c)} onClick={() => setLikes((s) => (s.includes(c) ? s.filter((x) => x !== c) : [...s, c]))}>
                   {CATEGORY_LABEL[c]}
                 </Chip>

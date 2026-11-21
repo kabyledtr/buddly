@@ -15,6 +15,25 @@ const PRESETS = [
 ];
 const TIMES = Array.from({ length: 48 }, (_, i) => `${String(Math.floor(i / 2)).padStart(2, "0")}:${i % 2 ? "30" : "00"}`);
 
+const toMin = (t: string) => {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+};
+const fromMin = (m: number) => `${String(Math.floor(m / 60) % 24).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+
+/**
+ * Créneau proposé pour un jour donné : aujourd'hui, un créneau fini (ou qui finit dans moins de 30 min) disparaît,
+ * et un créneau déjà commencé démarre à la prochaine demi-heure.
+ */
+function presetOn(p: { from: string; to: string }, date: string, today: string, nowMin: number) {
+  if (date !== today) return { from: p.from, to: p.to };
+  let end = toMin(p.to);
+  if (end <= toMin(p.from)) end += 1440; // finit après minuit
+  if (end - 30 <= nowMin) return null;
+  const start = toMin(p.from) > nowMin ? p.from : fromMin(Math.ceil((nowMin + 1) / 30) * 30);
+  return { from: start, to: p.to };
+}
+
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const hh = (t: string) => t.replace(":00", "h").replace(":", "h");
 
@@ -63,6 +82,24 @@ export default function DatePicker({ value, onChange }: { value: Slot | null; on
   const days = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
   const todayIso = iso(now);
   const canPrev = cursor > new Date(now.getFullYear(), now.getMonth(), 1);
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const presets = PRESETS.map((p) => ({ ...p, slot: presetOn(p, date, todayIso, nowMin) })).filter((p) => p.slot);
+  const times = date === todayIso ? TIMES.filter((t) => toMin(t) > nowMin) : TIMES;
+
+  // Le créneau choisi n'existe plus (ex. « Apéro » à 20h45) : on passe au premier encore possible, sinon à demain.
+  useEffect(() => {
+    if (!open || custom) return;
+    if (presets.some((p) => p.slot!.from === from && p.slot!.to === to)) return;
+    if (presets[0]) {
+      setFrom(presets[0].slot!.from);
+      setTo(presets[0].slot!.to);
+    } else {
+      const t = new Date();
+      t.setDate(t.getDate() + 1);
+      setDate(iso(t));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, date, custom]);
 
   function confirm() {
     onChange({ date, from, to, label: slotLabel(date, from, to) });
@@ -128,16 +165,16 @@ export default function DatePicker({ value, onChange }: { value: Slot | null; on
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">
-          {PRESETS.map((p) => {
-            const active = !custom && p.from === from && p.to === to;
+          {presets.map((p) => {
+            const active = !custom && p.slot!.from === from && p.slot!.to === to;
             return (
               <button
                 key={p.name}
                 type="button"
                 onClick={() => {
                   setCustom(false);
-                  setFrom(p.from);
-                  setTo(p.to);
+                  setFrom(p.slot!.from);
+                  setTo(p.slot!.to);
                 }}
                 className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition ${active ? "bg-coral text-paper" : "bg-lilac/70 text-plum hover:bg-lilac"}`}
               >
@@ -156,7 +193,7 @@ export default function DatePicker({ value, onChange }: { value: Slot | null; on
         {custom && (
           <div className="mt-3 flex items-center gap-2 text-sm">
             <select value={from} onChange={(e) => setFrom(e.target.value)} className="rounded-full border-2 border-plum/15 bg-paper px-3 py-1.5 font-semibold outline-none focus:border-violet">
-              {TIMES.map((t) => (
+              {times.map((t) => (
                 <option key={t}>{t}</option>
               ))}
             </select>

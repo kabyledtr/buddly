@@ -98,21 +98,28 @@ export type Ranked = {
   score: number;
 };
 
-/** Matching : part de « oui » dans le groupe, pondérée par les préférences de chacun. */
+/**
+ * Matching : chaque personne compte autant, avec ses votes, ses envies et son budget.
+ * - les « oui » du groupe d'abord (un « non » pèse lourd, un lieu aimé par tous gagne un bonus) ;
+ * - envies : part du groupe qui a envie de ce type de sortie ;
+ * - budget : on pénalise selon l'écart avec le budget de chacun, bonus si ça rentre dans le budget de tout le monde ;
+ * - puis la qualité (note Google) et la distance pour départager.
+ */
 export function rank(g: Group, members: Member[], votes: Votes): Ranked[] {
-  const n = members.length;
+  const n = Math.max(1, members.length);
   return deckFor(g)
     .map((place) => {
       const likedBy = members.filter((m) => votes[m.id]?.[place.id] === 1).map((m) => m.name);
       const nopes = members.filter((m) => votes[m.id]?.[place.id] === 0).length;
       const likes = likedBy.length;
-      const pref =
-        members.reduce(
-          (s, m) => s + (m.likes.includes(place.category) ? 6 : 0) - (place.price > m.budget ? 8 : 0),
-          0,
-        ) / Math.max(1, n);
-      const score = (likes / Math.max(1, n)) * 100 - nopes * 15 + pref - place.distance / 200;
-      return { place, likes, nopes, likedBy, unanimous: n >= 2 && likes === n, score };
+      const unanimous = members.length >= 2 && likes === members.length;
+      const wants = members.filter((m) => m.likes.includes(place.category)).length / n;
+      const over = members.reduce((s, m) => s + Math.max(0, place.price - m.budget), 0) / n;
+      const fitsAll = members.every((m) => place.price <= m.budget);
+      const quality = place.rating ? (place.rating - 4.2) * 12 : 0;
+      const score =
+        (likes / n) * 100 - nopes * 18 + (unanimous ? 25 : 0) + wants * 14 - over * 14 + (fitsAll ? 6 : 0) + quality - place.distance / 250;
+      return { place, likes, nopes, likedBy, unanimous, score };
     })
     .filter((r) => r.likes > 0)
     .sort((a, b) => b.score - a.score);

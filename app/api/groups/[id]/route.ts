@@ -33,6 +33,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       premium: tier !== "free",
       tier,
       size: g.size ?? null,
+      categories: g.categories,
       isCreator: g.creatorId === me,
       totalPlaces: g.places.length,
       eventsStatus: g.eventsStatus ?? null,
