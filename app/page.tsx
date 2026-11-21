@@ -33,7 +33,7 @@ const STEPS = [
   {
     n: "3",
     title: "Chacun swipe, Bud tranche",
-    text: "Oui ou non, chacun de son côté. Ce qui plaît à tout le monde, c'est un match. Sinon, Bud choisit le meilleur compromis pour toute la bande.",
+    text: "Oui ou non, chacun de son côté. Ce qui plaît à tout le monde, c'est un match. Sinon, Bud choisit le meilleur compromis pour tout le groupe.",
   },
 ];
 
@@ -47,7 +47,7 @@ const PERSONAS = [
   {
     pet: "/pet-wave.png",
     who: "Les étudiants",
-    text: "Petit budget, grande bande, et des envies qui partent dans tous les sens. Bud fait remonter ce qui rentre dans le budget de chacun.",
+    text: "Petit budget, grand groupe, et des envies qui partent dans tous les sens. Bud fait remonter ce qui rentre dans le budget de chacun.",
   },
   {
     pet: "/pet-love.png",
@@ -78,7 +78,7 @@ const FAQ: [string, string][] = [
   ["Mes amis doivent-ils créer un compte ?", "Non. Ils rejoignent avec le lien d'invitation, leur prénom et leur e-mail, sans mot de passe, et votent tout de suite."],
   ["Les lieux proposés sont-ils réels ?", "Oui : des restaurants, bars et activités existants autour de vous, filtrés selon le budget, la distance et les envies du groupe."],
   ["Comment fonctionne le match ?", "Chacun swipe de son côté. Dès qu'un lieu plaît à tout le groupe, Buddly vous l'annonce. Sinon, l'IA propose le meilleur compromis."],
-  ["Que change Buddly+ ?", "Pour 3,99 € une seule fois, toutes tes sorties sont débloquées à vie : jusqu'à 15 personnes, 40 adresses, tous les résultats, le plan B de Bud et la relance des retardataires. Divisé par une bande de 6, ça fait 67 centimes chacun."],
+  ["Que change Buddly+ ?", "Pour 3,99 € une seule fois, toutes tes sorties sont débloquées à vie : jusqu'à 15 personnes, 40 adresses, tous les résultats, le plan B de Bud et la relance des retardataires. Divisé par un groupe de 6, ça fait 67 centimes chacun."],
   ["C'est un abonnement ?", "Non. Buddly+ (3,99 €) et le Pass Sortie (2,99 €, une seule sortie) sont des paiements uniques sécurisés par Stripe. Rien n'est prélevé ensuite."],
   ["Comment Buddly+ me reconnaît sur une nouvelle sortie ?", "Grâce à ton e-mail : crée ou rejoins une sortie avec la même adresse, et elle est débloquée automatiquement."],
 ];
@@ -141,7 +141,7 @@ export default function Home() {
       {/* POUR QUI */}
       <section className="mx-auto max-w-6xl xl:max-w-7xl px-4 pt-20 sm:px-6">
         <h2 className="max-w-3xl font-display text-4xl font-bold leading-tight text-plum sm:text-5xl">
-          <Words text="Fait pour les bandes qui sortent souvent" accent="et décident mal." />
+          <Words text="Pour les potes qui adorent sortir," accent="mais jamais choisir." />
         </h2>
         <Reveal as="p" delay={120} className="mt-3 max-w-2xl text-muted">
           Des 18-30 ans en ville, qui s&apos;organisent dans une conv de groupe et veulent juste passer une bonne soirée ensemble.
