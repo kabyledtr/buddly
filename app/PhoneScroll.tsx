@@ -4,12 +4,13 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Deux captures du téléphone : la carte au repos se transforme en carte glissée vers « oui » à mesure
- * qu'on fait défiler la page, et revient quand on remonte.
+ * Deux captures du téléphone, exactement superposées : quand on descend jusqu'au téléphone, la carte au repos
+ * laisse place (fondu complet) à la carte glissée vers « oui » ; en remontant, elle revient.
+ * Le fondu est déclenché par un seuil, jamais « coupé » à mi-chemin, et sans zoom ni rotation (pas de flou).
  */
 export default function PhoneScroll() {
   const ref = useRef<HTMLDivElement>(null);
-  const [p, setP] = useState(0);
+  const [swiped, setSwiped] = useState(false);
 
   useEffect(() => {
     let raf = 0;
@@ -19,11 +20,9 @@ export default function PhoneScroll() {
         const el = ref.current;
         if (!el) return;
         const r = el.getBoundingClientRect();
-        const vh = window.innerHeight;
-        // 0 quand le téléphone arrive aux 3/4 de l'écran, 1 quand il passe au tiers haut
-        const v = (vh * 0.75 - (r.top + r.height / 2)) / (vh * 0.4);
-        const t = Math.min(1, Math.max(0, v));
-        setP(t * t * (3 - 2 * t)); // transition douce
+        const center = (r.top + r.height / 2) / window.innerHeight; // 1 = bas de l'écran, 0 = haut
+        // marge entre les deux seuils : pas de clignotement si on s'arrête pile au milieu
+        setSwiped((s) => (s ? center < 0.62 : center < 0.48));
       });
     };
     update();
@@ -36,6 +35,7 @@ export default function PhoneScroll() {
     };
   }, []);
 
+  const img = "pointer-events-none object-contain transition-opacity duration-700 ease-in-out [will-change:opacity]";
   return (
     <div ref={ref} className="relative mx-auto aspect-[1/2] w-full max-w-[290px] select-none">
       <Image
@@ -44,8 +44,8 @@ export default function PhoneScroll() {
         fill
         sizes="290px"
         draggable={false}
-        className="pointer-events-none object-contain drop-shadow-[0_30px_40px_rgba(67,32,122,0.25)]"
-        style={{ opacity: 1 - p, transform: `scale(${1 - 0.03 * p}) rotate(${-2 * p}deg)` }}
+        className={img}
+        style={{ opacity: swiped ? 0 : 1 }}
       />
       <Image
         src="/phone-swipe.webp"
@@ -53,8 +53,8 @@ export default function PhoneScroll() {
         fill
         sizes="290px"
         draggable={false}
-        className="pointer-events-none object-contain drop-shadow-[0_30px_40px_rgba(67,32,122,0.25)]"
-        style={{ opacity: p, transform: `scale(${0.97 + 0.03 * p}) rotate(${2 * (1 - p)}deg)` }}
+        className={img}
+        style={{ opacity: swiped ? 1 : 0 }}
       />
     </div>
   );
