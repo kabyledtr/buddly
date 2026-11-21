@@ -39,10 +39,10 @@ const STEPS = [
 const PETS = ["/pet-wave.png", "/pet-think.png", "/pet-love.png", "/pet-happy.png"];
 
 const LOADING = [
-  "Je fouille le quartier…",
-  "Je vérifie qui est ouvert à cette heure-là…",
-  "Je lis les avis pour garder les meilleurs…",
-  "Je prépare vos cartes à swiper…",
+  "Je fouille le quartier",
+  "Je vérifie qui est ouvert à cette heure-là",
+  "Je lis les avis pour garder les meilleurs",
+  "Je prépare vos cartes à swiper",
 ];
 
 function Star({ className, color }: { className: string; color: string }) {
@@ -110,10 +110,10 @@ function Buddly({ step, loading }: { step: number; loading: boolean }) {
         {loading ? (
           <p className="font-medium text-ink">
             {LOADING[msg]}
-            <span className="ml-1 inline-flex gap-0.5">
-              <span className="wz-dot">.</span>
-              <span className="wz-dot [animation-delay:.2s]">.</span>
-              <span className="wz-dot [animation-delay:.4s]">.</span>
+            <span className="ml-1.5 inline-flex items-center gap-1 whitespace-nowrap align-middle" aria-hidden>
+              <span className="wz-dot size-1.5 rounded-full bg-plum" />
+              <span className="wz-dot size-1.5 rounded-full bg-plum [animation-delay:.2s]" />
+              <span className="wz-dot size-1.5 rounded-full bg-plum [animation-delay:.4s]" />
             </span>
           </p>
         ) : (

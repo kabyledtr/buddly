@@ -875,7 +875,7 @@ function Card({
 
       {/* infos */}
       <div className="absolute inset-x-0 bottom-0 z-10 p-5">
-        <p className="text-xs font-bold uppercase tracking-wider text-paper/85">
+        <p className="text-sm font-semibold text-paper/85">
           {place.kind}
           {place.event && <span className="text-coral"> · Atelier du jour</span>}
           {place.diet && <span className="text-[#b9f5cf]"> · {place.diet}</span>}
@@ -1136,7 +1136,7 @@ function Results({ id, state }: { id: string; state: State }) {
           </>
         )}
         <div className="relative">
-        <p className="text-sm font-bold uppercase tracking-wide">
+        <p className="font-display text-lg font-semibold">
           {top.unanimous ? "C'est un match !" : "Meilleur compromis"}
         </p>
         <h2 className="mt-2 font-display text-4xl font-bold leading-tight">{top.place.name}</h2>
@@ -1288,8 +1288,8 @@ function Paywall({
   return (
     <div className="space-y-3">
       <div className="relative rounded-3xl bg-plum p-6 text-paper shadow-xl ring-4 ring-coral/40">
-        <span className="absolute -top-3 right-5 rounded-full bg-coral px-3 py-1 text-xs font-bold uppercase tracking-wide">Recommandé</span>
-        <p className="text-sm font-bold uppercase tracking-wide text-coral">Buddly+ à vie</p>
+        <span className="absolute -top-3 right-5 rounded-full bg-coral px-3 py-1 text-xs font-bold">Recommandé</span>
+        <p className="font-display text-lg font-semibold text-coral">Buddly+ à vie</p>
         <p className="mt-1 flex items-baseline gap-2">
           <span className="font-display text-4xl font-bold">{euros(prices.plus)}</span>
           <span className="text-sm text-lilac">une fois, pour toujours</span>
