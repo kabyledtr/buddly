@@ -33,7 +33,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
+      <head>
+        {/* Active les animations au scroll avant le premier rendu (sans JS, tout reste visible) */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('rv')" }} />
+      </head>
       <body className={`${display.variable} ${body.variable} antialiased`}>
         {children}
       </body>

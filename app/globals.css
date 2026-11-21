@@ -27,3 +27,117 @@ body {
 .font-display {
   font-family: var(--font-fredoka), system-ui, sans-serif;
 }
+
+/* ───────────── Animations au scroll ─────────────
+   [data-reveal] est caché tant que <ScrollReveal /> ne l'a pas vu ;
+   la classe .rv sur <html> (posée avant le rendu) évite tout contenu
+   invisible si le JS ne tourne pas. */
+
+.rv {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --shift: 28px;
+}
+
+.rv [data-reveal]:not([data-reveal="words"]) {
+  transition:
+    opacity 0.7s var(--ease-out),
+    transform 0.8s var(--ease-out);
+  transition-delay: var(--d, 0ms);
+}
+
+/* État caché (avant entrée, ou après sortie) */
+.rv [data-reveal]:not([data-in="true"]):not([data-reveal="words"]) {
+  opacity: 0;
+  /* sortie plus vive, sans délai */
+  transition-duration: 0.4s, 0.5s;
+  transition-delay: 0ms;
+}
+.rv [data-reveal="up"]:not([data-in="true"]) { transform: translateY(var(--shift)); }
+.rv [data-reveal="up"][data-from="above"]:not([data-in="true"]) { transform: translateY(calc(var(--shift) * -1)); }
+
+.rv [data-reveal="left"]:not([data-in="true"]) { transform: translateX(-48px) rotate(-1.5deg); }
+.rv [data-reveal="right"]:not([data-in="true"]) { transform: translateX(48px) rotate(1.5deg); }
+
+.rv [data-reveal="pop"] { transition-timing-function: var(--ease-out), var(--ease-pop); }
+.rv [data-reveal="pop"]:not([data-in="true"]) {
+  transform: translateY(18px) scale(0.88) rotate(var(--tilt, -4deg));
+}
+.rv [data-reveal="pop"][data-from="above"]:not([data-in="true"]) {
+  transform: translateY(-18px) scale(0.92) rotate(calc(var(--tilt, -4deg) * -1));
+}
+
+/* Titres mot à mot */
+.rw {
+  display: inline-block;
+  overflow: clip;
+  /* marge pour les jambages (p, g, j) et l'accent sur les majuscules */
+  padding: 0.12em 0.04em 0.14em;
+  margin: -0.12em -0.04em -0.14em;
+  vertical-align: bottom;
+}
+.rw > span {
+  display: inline-block;
+  transition: transform 0.75s var(--ease-out);
+  transition-delay: calc(var(--d, 0ms) + var(--i) * 55ms);
+}
+.rv [data-reveal="words"]:not([data-in="true"]) .rw > span {
+  transform: translateY(115%) rotate(8deg);
+  transition-duration: 0.45s;
+  transition-delay: calc(var(--i) * 18ms);
+}
+.rv [data-reveal="words"][data-from="above"]:not([data-in="true"]) .rw > span {
+  transform: translateY(-115%) rotate(-8deg);
+}
+
+/* Trait dessiné sous le mot accentué */
+.rw-scribble {
+  position: absolute;
+  left: -2%;
+  bottom: -0.18em;
+  width: 104%;
+  height: 0.32em;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  color: var(--color-coral);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.rw-scribble path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.6s var(--ease-out);
+  transition-delay: calc(var(--d, 0ms) + var(--i) * 55ms + 0.35s);
+}
+.rv [data-reveal="words"]:not([data-in="true"]) .rw-scribble path {
+  stroke-dashoffset: 1;
+  transition-duration: 0.25s;
+  transition-delay: 0ms;
+}
+
+/* Petit coucou de la mascotte à chaque entrée */
+@keyframes wave-hello {
+  0%, 100% { rotate: 0deg; }
+  20% { rotate: -9deg; }
+  40% { rotate: 7deg; }
+  60% { rotate: -4deg; }
+  80% { rotate: 2deg; }
+}
+.rv [data-reveal][data-in="true"] .hello {
+  animation: wave-hello 0.9s ease-in-out calc(var(--d, 0ms) + 0.45s) both;
+  transform-origin: 50% 85%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rv [data-reveal],
+  .rv [data-reveal] .rw > span,
+  .rv [data-reveal] .rw-scribble path {
+    opacity: 1 !important;
+    transform: none !important;
+    stroke-dashoffset: 0 !important;
+    transition: none !important;
+  }
+  .rv .hello { animation: none !important; }
+}

@@ -90,10 +90,32 @@ L'équipe a développé avec l'aide d'un assistant de code IA (**Claude Code**).
 
 ---
 
+## L'application (MVP)
+
+1. **Créer une sortie** (`/app`) : prénom, quartier ou position, distance, envies, budget. Buddly récupère de vrais lieux autour du point de rendez-vous.
+2. **Inviter** : un lien `/g/<id>` à partager (WhatsApp, etc.). Les amis rejoignent sans compte, avec leurs envies et leur budget.
+3. **Swiper** : chacun vote oui / non sur les mêmes adresses. Les résultats se mettent à jour en direct.
+4. **Matching** : un lieu aimé par tout le monde est un match. Sinon, un score combine les votes, les envies et le budget de chacun, puis la distance.
+5. **Le mot de Buddy (IA)** : un modèle Claude (Anthropic) explique quel lieu choisir et pourquoi, à partir des votes et des préférences du groupe.
+6. **Paywall** : le **Pass Sortie à 0,99 €** (paiement unique via Stripe Checkout) débloque le classement complet, 40 adresses au lieu de 15 et jusqu'à 15 amis.
+
+### Sources de données
+- Lieux : Geoapify Places (si `GEOAPIFY_KEY`), sinon Nominatim puis Overpass. Toutes basées sur OpenStreetMap (© contributeurs OSM, ODbL).
+- Stockage : Upstash Redis (intégration Vercel). En local sans configuration, stockage en mémoire.
+
+### Variables d'environnement
+| Variable | Rôle |
+|---|---|
+| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis (posées automatiquement par l'intégration Vercel) |
+| `STRIPE_SECRET_KEY` | Paiement du Pass Sortie |
+| `ANTHROPIC_API_KEY` | « Le mot de Buddy » (sinon texte calculé) |
+| `GEOAPIFY_KEY` | Source de lieux rapide (optionnelle) |
+
 ## Stack technique
 
 - [Next.js 15](https://nextjs.org) (App Router) avec React 19 et TypeScript
 - [Tailwind CSS 4](https://tailwindcss.com)
+- Upstash Redis, Stripe Checkout, API Claude (Anthropic), données OpenStreetMap
 - Hébergement sur [Vercel](https://vercel.com), domaine `buddly.io`
 - Déploiement continu : chaque push sur `main` redéploie le site
 

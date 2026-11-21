@@ -2,6 +2,8 @@ import Image from "next/image";
 import SwipeDemo from "./SwipeDemo";
 import Hero from "./Hero";
 import { Footer } from "./LegalPage";
+import ScrollReveal from "./ScrollReveal";
+import { Reveal, Words } from "./Reveal";
 
 const STEPS = [
   {
@@ -21,73 +23,89 @@ const STEPS = [
   },
 ];
 
-const FREE = ["1 groupe actif", "Jusqu'à 4 amis par groupe", "20 lieux à swiper par sortie", "Matching de base"];
+const PROBLEMS = [
+  ["Le débat", "Une soirée qui se joue sur des dizaines de messages, et une décision prise à 21h passées."],
+  ["L'annulation", "Sans accord, la sortie glisse à « la semaine prochaine »… puis n'a jamais lieu."],
+  ["La routine", "Toujours les mêmes lieux, parce que personne n'ose proposer autre chose."],
+];
+const TILTS = [-4, 3, -2];
+
+const FREE = ["Jusqu'à 4 amis par groupe", "15 adresses réelles à swiper", "Le lieu qui plaît le plus au groupe", "Le conseil IA de Buddy"];
 const PREMIUM = [
-  "Groupes illimités",
   "Jusqu'à 15 amis par groupe",
-  "Swipes illimités",
-  "Recommandations IA selon les goûts du groupe",
-  "Point de rendez-vous équitable pour tous",
+  "40 adresses à swiper",
+  "Le classement complet du groupe",
+  "Qui a aimé quoi, lieu par lieu",
 ];
 
 const FAQ: [string, string][] = [
   ["Mes amis doivent-ils créer un compte ?", "Non. Ils rejoignent le groupe avec le lien d'invitation et peuvent voter tout de suite."],
   ["Les lieux proposés sont-ils réels ?", "Oui : des restaurants, bars et activités existants autour de vous, filtrés selon le budget, la distance et les envies du groupe."],
   ["Comment fonctionne le match ?", "Chacun swipe de son côté. Dès qu'un lieu plaît à tout le groupe, Buddly vous l'annonce. Sinon, l'IA propose le meilleur compromis."],
-  ["Que débloque Premium ?", "Groupes et swipes illimités, jusqu'à 15 amis par groupe, des recommandations IA plus fines et un point de rendez-vous équitable pour tous."],
-  ["Puis-je résilier quand je veux ?", "Oui, l'abonnement est sans engagement et se résilie à tout moment depuis votre compte."],
+  ["Que débloque le Pass Sortie ?", "Pour 0,99 € une seule fois, toute la sortie est débloquée pour le groupe : jusqu'à 15 amis, 40 adresses à swiper et le classement complet."],
+  ["C'est un abonnement ?", "Non. Le Pass Sortie est un paiement unique de 0,99 € par sortie, sécurisé par Stripe. Rien n'est prélevé ensuite."],
 ];
 
 export default function Home() {
   return (
     <main className="overflow-x-hidden">
+      <ScrollReveal />
       <Hero />
 
       {/* PROBLÈME */}
       <section className="bg-plum py-20 text-paper">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <h2 className="max-w-2xl font-display text-4xl font-bold leading-tight sm:text-5xl">
-            Le plus dur dans une sortie, ce n&apos;est pas d&apos;y aller. C&apos;est de choisir.
+            <Words text="Le plus dur dans une sortie, ce n'est pas d'y aller." accent="C'est de choisir." />
           </h2>
           <div className="mt-12 grid gap-4 sm:grid-cols-3">
-            {[
-              ["Le débat", "Une soirée qui se joue sur des dizaines de messages, et une décision prise à 21h passées."],
-              ["L'annulation", "Sans accord, la sortie glisse à « la semaine prochaine »… puis n'a jamais lieu."],
-              ["La routine", "Toujours les mêmes lieux, parce que personne n'ose proposer autre chose."],
-            ].map(([big, small]) => (
-              <div key={big} className="rounded-3xl bg-paper/10 p-6">
+            {PROBLEMS.map(([big, small], i) => (
+              <Reveal key={big} variant="pop" delay={i * 110} tilt={TILTS[i]} className="rounded-3xl bg-paper/10 p-6">
                 <p className="font-display text-4xl font-bold text-coral">{big}</p>
                 <p className="mt-2 text-lilac">{small}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
-          <p className="mt-8 max-w-2xl text-lilac">
+          <Reveal as="p" delay={150} className="mt-8 max-w-2xl text-lilac">
             Le budget de l&apos;un, le régime de l&apos;autre, celui qui habite à 40 minutes, celle qui ne
             peut que samedi. Personne ne veut trancher, alors personne ne tranche.
-          </p>
+          </Reveal>
         </div>
       </section>
 
       {/* FONCTIONNALITÉS */}
       <section id="fonctionnalites" className="mx-auto max-w-6xl scroll-mt-8 px-4 py-20 sm:px-6">
         <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.1fr]">
-          <div>
+          <Reveal variant="pop" tilt={-5}>
             <SwipeDemo />
             <p className="mt-4 text-center text-sm text-muted">Essaie : glisse la carte ou utilise les boutons</p>
-          </div>
+          </Reveal>
           <div>
-            <h2 className="font-display text-4xl font-bold text-plum sm:text-5xl">Comment ça marche</h2>
+            <h2 className="font-display text-4xl font-bold text-plum sm:text-5xl">
+              <Words text="Comment ça marche" />
+            </h2>
             <div className="mt-8 space-y-4">
-              {STEPS.map((s) => (
-                <div key={s.n} className="flex gap-5 rounded-3xl bg-paper p-6 shadow-[0_2px_0_rgba(67,32,122,0.08)]">
-                  <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-lilac font-display text-xl font-bold text-plum">
+              {STEPS.map((s, i) => (
+                <Reveal
+                  key={s.n}
+                  variant="right"
+                  delay={i * 120}
+                  className="flex gap-5 rounded-3xl bg-paper p-6 shadow-[0_2px_0_rgba(67,32,122,0.08)]"
+                >
+                  <Reveal
+                    as="span"
+                    variant="pop"
+                    delay={i * 120 + 220}
+                    tilt={-12}
+                    className="grid size-11 shrink-0 place-items-center rounded-2xl bg-lilac font-display text-xl font-bold text-plum"
+                  >
                     {s.n}
-                  </span>
+                  </Reveal>
                   <div>
                     <h3 className="font-display text-2xl font-semibold">{s.title}</h3>
                     <p className="mt-1 text-muted">{s.text}</p>
                   </div>
-                </div>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -97,61 +115,87 @@ export default function Home() {
       {/* TARIFS */}
       <section id="tarifs" className="scroll-mt-8 bg-lilac/60 py-20">
         <div className="mx-auto max-w-4xl px-4 sm:px-6">
-          <h2 className="text-center font-display text-4xl font-bold text-plum sm:text-5xl">Simple et sans surprise</h2>
+          <h2 className="text-center font-display text-4xl font-bold text-plum sm:text-5xl">
+            <Words text="Simple et" accent="sans surprise" />
+          </h2>
           <div className="mt-12 grid gap-5 md:grid-cols-2">
-            <div className="rounded-3xl bg-paper p-8">
+            <Reveal variant="left" className="rounded-3xl bg-paper p-8">
               <h3 className="font-display text-2xl font-semibold">Gratuit</h3>
               <p className="mt-2"><span className="font-display text-5xl font-bold">0 €</span></p>
               <ul className="mt-6 space-y-3 text-muted">
-                {FREE.map((f) => <li key={f} className="flex gap-2"><span className="text-violet">✓</span>{f}</li>)}
+                {FREE.map((f, i) => (
+                  <Reveal as="li" key={f} delay={250 + i * 70} className="flex gap-2">
+                    <span className="text-violet">✓</span>{f}
+                  </Reveal>
+                ))}
               </ul>
-              <a href="#" className="mt-8 block rounded-full border-2 border-plum py-3 text-center font-semibold text-plum hover:bg-lilac">
+              <a href="/app" className="mt-8 block rounded-full border-2 border-plum py-3 text-center font-semibold text-plum hover:bg-lilac">
                 Commencer
               </a>
-            </div>
-            <div className="relative rounded-3xl bg-plum p-8 text-paper">
-              <span className="absolute -top-3 right-6 rounded-full bg-coral px-3 py-1 text-xs font-bold">Le plus choisi</span>
-              <h3 className="font-display text-2xl font-semibold">Premium</h3>
+            </Reveal>
+            <Reveal variant="right" delay={120} className="relative rounded-3xl bg-plum p-8 text-paper">
+              <Reveal
+                as="span"
+                variant="pop"
+                delay={650}
+                tilt={14}
+                className="absolute -top-3 right-6 rounded-full bg-coral px-3 py-1 text-xs font-bold"
+              >
+                Le plus choisi
+              </Reveal>
+              <h3 className="font-display text-2xl font-semibold">Pass Sortie</h3>
               <p className="mt-2">
-                <span className="font-display text-5xl font-bold">4,99 €</span>
-                <span className="text-lilac"> / mois</span>
+                <span className="font-display text-5xl font-bold">0,99 €</span>
+                <span className="text-lilac"> / sortie</span>
               </p>
               <ul className="mt-6 space-y-3 text-lilac">
-                {PREMIUM.map((f) => <li key={f} className="flex gap-2"><span className="text-coral">✓</span>{f}</li>)}
+                {PREMIUM.map((f, i) => (
+                  <Reveal as="li" key={f} delay={370 + i * 70} className="flex gap-2">
+                    <span className="text-coral">✓</span>{f}
+                  </Reveal>
+                ))}
               </ul>
-              <a href="#" className="mt-8 block rounded-full bg-coral py-3 text-center font-semibold hover:brightness-105">
-                Passer Premium
+              <a href="/app" className="mt-8 block rounded-full bg-coral py-3 text-center font-semibold hover:brightness-105">
+                Créer une sortie
               </a>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
       {/* FAQ */}
       <section id="faq" className="mx-auto max-w-3xl scroll-mt-8 px-4 py-20 sm:px-6">
-        <h2 className="text-center font-display text-4xl font-bold text-plum sm:text-5xl">Questions fréquentes</h2>
+        <h2 className="text-center font-display text-4xl font-bold text-plum sm:text-5xl">
+          <Words text="Questions fréquentes" />
+        </h2>
         <div className="mt-10 space-y-3">
-          {FAQ.map(([q, a]) => (
-            <details key={q} className="group rounded-2xl bg-paper p-5 open:shadow-[0_2px_0_rgba(67,32,122,0.08)]">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-lg font-semibold">
-                {q}
-                <span className="text-2xl text-violet transition group-open:rotate-45">+</span>
-              </summary>
-              <p className="mt-3 text-muted">{a}</p>
-            </details>
+          {FAQ.map(([q, a], i) => (
+            <Reveal key={q} delay={i * 70}>
+              <details className="group rounded-2xl bg-paper p-5 open:shadow-[0_2px_0_rgba(67,32,122,0.08)]">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-lg font-semibold">
+                  {q}
+                  <span className="text-2xl text-violet transition group-open:rotate-45">+</span>
+                </summary>
+                <p className="mt-3 text-muted">{a}</p>
+              </details>
+            </Reveal>
           ))}
         </div>
       </section>
 
       {/* CTA */}
       <section className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6">
-        <Image src="/pet.png" alt="Buddy, la mascotte de Buddly" width={512} height={512} className="mx-auto size-28 rounded-[1.75rem]" />
+        <Reveal variant="pop" tilt={-8} className="mx-auto w-fit">
+          <Image src="/pet.png" alt="Buddy, la mascotte de Buddly" width={512} height={512} className="hello size-28 rounded-[1.75rem]" />
+        </Reveal>
         <h2 className="mx-auto mt-6 max-w-xl font-display text-4xl font-bold text-plum sm:text-5xl">
-          Ce soir, c&apos;est Buddly qui tranche.
+          <Words text="Ce soir, c'est Buddly qui" accent="tranche." delay={150} />
         </h2>
-        <a href="#tarifs" className="mt-8 inline-block rounded-full bg-coral px-7 py-4 font-semibold text-paper">
-          Créer mon groupe gratuitement
-        </a>
+        <Reveal variant="pop" delay={500} tilt={0} className="mt-8">
+          <a href="/app" className="inline-block rounded-full bg-coral px-7 py-4 font-semibold text-paper">
+            Créer mon groupe gratuitement
+          </a>
+        </Reveal>
       </section>
 
       <Footer />

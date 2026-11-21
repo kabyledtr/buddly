@@ -77,10 +77,10 @@ export function Nav() {
         <a href="#faq" className="hover:text-violet">FAQ</a>
       </nav>
       <div className="flex items-center gap-2">
-        <a href="#tarifs" className="hidden rounded-full bg-lilac px-5 py-2.5 text-sm font-semibold text-plum hover:bg-[#e2d3fc] sm:block">
-          Se connecter
+        <a href="/app" className="hidden rounded-full bg-lilac px-5 py-2.5 text-sm font-semibold text-plum hover:bg-[#e2d3fc] sm:block">
+          Ouvrir l&apos;app
         </a>
-        <a href="#tarifs" className="rounded-full bg-plum px-5 py-2.5 text-sm font-semibold text-paper hover:bg-ink">
+        <a href="/app" className="rounded-full bg-plum px-5 py-2.5 text-sm font-semibold text-paper hover:bg-ink">
           Commencer gratuitement
         </a>
       </div>
@@ -114,7 +114,7 @@ export default function Hero() {
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
             <a
-              href="#tarifs"
+              href="/app"
               className="rounded-full bg-coral px-6 py-3.5 font-semibold text-paper shadow-[0_8px_0_-2px_#d9604b] transition hover:translate-y-0.5 hover:shadow-[0_5px_0_-2px_#d9604b]"
             >
               Créer mon groupe

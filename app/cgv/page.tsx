@@ -10,57 +10,54 @@ export default function CGV() {
       <Section title="1. Objet">
         <p>
           Les présentes conditions régissent l&apos;utilisation du service Buddly, accessible sur buddly.io, et
-          la souscription à l&apos;offre payante Buddly Premium. Toute souscription implique leur acceptation.
+          l&apos;achat du Pass Sortie. Tout achat implique leur acceptation.
         </p>
       </Section>
 
       <Section title="2. Le service">
         <p>
-          Buddly permet de créer des groupes d&apos;amis, d&apos;indiquer ses préférences de sortie et de voter
-          (« swiper ») sur des restaurants et activités à proximité, afin de trouver un lieu qui convient à
-          tout le groupe.
+          Buddly permet de créer un groupe pour une sortie, d&apos;inviter des amis par lien, d&apos;indiquer ses
+          préférences et de voter (« swiper ») sur des restaurants, bars, cafés et activités à proximité, afin de
+          trouver un lieu qui convient à tout le groupe.
         </p>
         <ul className="list-disc space-y-1 pl-5">
-          <li><strong>Offre Gratuite</strong> : 1 groupe actif, jusqu&apos;à 4 amis par groupe, 20 lieux par sortie.</li>
+          <li><strong>Gratuit</strong> : jusqu&apos;à 4 amis par groupe, 15 adresses à swiper, le lieu préféré du groupe et le conseil de Buddy.</li>
           <li>
-            <strong>Offre Premium</strong> : groupes et swipes illimités, jusqu&apos;à 15 amis par groupe,
-            recommandations personnalisées par IA, point de rendez-vous équitable.
+            <strong>Pass Sortie</strong> : pour une sortie donnée, jusqu&apos;à 15 amis, 40 adresses à swiper et le
+            classement complet du groupe.
           </li>
         </ul>
         <p>
-          Les informations sur les lieux (horaires, prix, disponibilité) sont fournies à titre indicatif.
-          Buddly n&apos;est pas responsable des prestations fournies par les établissements.
+          Les informations sur les lieux proviennent de sources ouvertes (OpenStreetMap) et sont fournies à titre
+          indicatif ; les prix sont des estimations. Buddly n&apos;est pas responsable des prestations fournies par
+          les établissements.
         </p>
       </Section>
 
       <Section title="3. Prix et paiement">
         <p>
-          L&apos;offre Premium est proposée au prix de <strong>4,99 € TTC par mois</strong>. Le paiement
-          s&apos;effectue par carte bancaire via Stripe, prestataire de paiement sécurisé. L&apos;abonnement est
-          prélevé à la souscription puis chaque mois à la même date.
+          Le Pass Sortie est vendu <strong>0,99 € TTC</strong>, en paiement unique, pour un groupe. Il ne
+          s&apos;agit pas d&apos;un abonnement : aucun autre prélèvement n&apos;a lieu. Le paiement s&apos;effectue
+          par carte bancaire via Stripe, prestataire de paiement sécurisé ; Buddly ne stocke aucune donnée
+          bancaire.
         </p>
       </Section>
 
-      <Section title="4. Durée et résiliation">
+      <Section title="4. Accès">
         <p>
-          L&apos;abonnement est sans engagement et se renouvelle chaque mois. Il peut être résilié à tout moment
-          depuis votre compte ou en écrivant à{" "}
-          <a href={`mailto:${CONTACT_EMAIL}`} className="text-violet underline">{CONTACT_EMAIL}</a>. La
-          résiliation prend effet à la fin de la période en cours ; aucun prorata n&apos;est remboursé.
+          Le Pass Sortie est activé immédiatement après le paiement, pour tous les membres du groupe concerné, tant
+          que le groupe existe (30 jours après sa dernière activité).
         </p>
       </Section>
 
       <Section title="5. Droit de rétractation">
         <p>
-          Conformément à l&apos;article L221-18 du Code de la consommation, vous disposez de 14 jours après la
-          souscription pour vous rétracter et être remboursé, sans justification, en écrivant à{" "}
-          <a href={`mailto:${CONTACT_EMAIL}`} className="text-violet underline">{CONTACT_EMAIL}</a>.
-        </p>
-        <p>
-          Si vous demandez à accéder immédiatement aux fonctionnalités Premium, vous reconnaissez que
-          l&apos;exécution du service commence avant la fin de ce délai (article L221-28 du Code de la
-          consommation). En cas de rétractation, le montant correspondant au service déjà fourni pourra être
-          retenu.
+          Le Pass Sortie est un contenu numérique fourni immédiatement après l&apos;achat. En validant le paiement,
+          vous demandez cette exécution immédiate et reconnaissez perdre votre droit de rétractation, conformément à
+          l&apos;article L221-28, 13° du Code de la consommation. En cas de problème technique empêchant l&apos;accès
+          au Pass, écrivez à{" "}
+          <a href={`mailto:${CONTACT_EMAIL}`} className="text-violet underline">{CONTACT_EMAIL}</a> : vous serez
+          remboursé.
         </p>
       </Section>
 

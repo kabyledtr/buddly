@@ -37,12 +37,17 @@ export default function MentionsLegales() {
 
       <Section title="Données personnelles">
         <p>
-          Buddly collecte uniquement les données nécessaires au service : adresse e-mail, prénom, préférences
-          de sortie (budget, zone, disponibilités, activités) et votes. Ces données servent à faire
+          Buddly collecte uniquement les données nécessaires au service : prénom, préférences de sortie (budget,
+          zone, activités) et votes. Aucun compte ni adresse e-mail n&apos;est demandé. Ces données servent à faire
           fonctionner les groupes et le matching. Elles ne sont jamais vendues.
         </p>
         <p>
-          Les paiements sont traités par Stripe. Buddly ne stocke aucune donnée bancaire.
+          Les paiements sont traités par Stripe. Buddly ne stocke aucune donnée bancaire. Les recommandations
+          de Buddy sont générées par un modèle d&apos;IA (Anthropic) à partir des prénoms, préférences et votes du
+          groupe, sans autre donnée personnelle.
+        </p>
+        <p>
+          Données des lieux : © les contributeurs OpenStreetMap, sous licence ODbL (openstreetmap.org/copyright).
         </p>
         <p>
           Conformément au RGPD, vous disposez d&apos;un droit d&apos;accès, de rectification, d&apos;effacement et
@@ -55,7 +60,8 @@ export default function MentionsLegales() {
       <Section title="Cookies">
         <p>
           Le site n&apos;utilise pas de cookies publicitaires ni de traceurs tiers. Seuls des cookies
-          strictement nécessaires au fonctionnement du service (connexion) peuvent être déposés.
+          strictement nécessaires au fonctionnement du service peuvent être utilisés (stockage local pour te
+          reconnaître dans un groupe).
         </p>
       </Section>
     </LegalPage>
