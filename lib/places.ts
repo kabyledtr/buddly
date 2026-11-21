@@ -261,16 +261,33 @@ export async function findPlaces(
     ].join(":");
     const cached = await getJSON<Place[]>(key).catch(() => null);
     if (cached?.length) return cached;
+    // secours : derniers résultats Google trouvés dans le même secteur (~1 km), gardés 7 jours
+    const wideKey = ["gpw1", lat.toFixed(2), lon.toFixed(2), [...cats].sort().join("+"), [...(slot?.diets ?? [])].sort().join("+")].join(":");
+    let google: Place[] = [];
     try {
-      const g = await googlePlaces(lat, lon, radius, cats, slot, max);
-      if (g.length >= 8) {
-        await setCache(key, g, 60 * 60 * 24).catch(() => {});
-        return g;
+      google = await googlePlaces(lat, lon, radius, cats, slot, max);
+      if (google.length >= 8) {
+        await setCache(key, google, 60 * 60 * 24).catch(() => {});
+        await setCache(wideKey, google, 60 * 60 * 24 * 7).catch(() => {});
+        return google;
       }
     } catch (e) {
       console.error(e);
     }
+    const wide = await getJSON<Place[]>(wideKey).catch(() => null);
+    if (wide && wide.length >= 8) return wide;
+    // Google a répondu en partie : on garde ses lieux (photos, avis) et on complète avec OpenStreetMap
+    if (google.length) {
+      const extra = await openData(lat, lon, radius, cats).catch(() => [] as Place[]);
+      const names = new Set(google.map((p) => p.name.toLowerCase()));
+      return [...google, ...pick(extra.filter((p) => !names.has(p.name.toLowerCase())), max - google.length)];
+    }
   }
+  return pick(await openData(lat, lon, radius, cats), max);
+}
+
+/** Sources ouvertes (sans photos ni avis) : Geoapify, Nominatim puis Overpass. */
+async function openData(lat: number, lon: number, radius: number, cats: Category[]): Promise<Place[]> {
   let all: Place[] = [];
   if (GEOAPIFY) {
     try {
@@ -283,5 +300,5 @@ export async function findPlaces(
       all = [...all, ...(await fromOverpass(lat, lon, radius, cats))];
     } catch {}
   }
-  return pick(all, max);
+  return all;
 }

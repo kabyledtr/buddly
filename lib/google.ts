@@ -33,13 +33,18 @@ type GPlace = {
 };
 type Period = { open: { day: number; hour: number; minute: number }; close?: { day: number; hour: number; minute: number } };
 
-async function call(path: string, body: unknown): Promise<GPlace[]> {
+async function call(path: string, body: unknown, retry = true): Promise<GPlace[]> {
   const r = await fetch(`https://places.googleapis.com/v1/${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Goog-Api-Key": KEY!, "X-Goog-FieldMask": FIELDS },
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(10000),
   });
+  // refus passager (quota à la minute, surcharge) : une seconde chance
+  if ((r.status === 429 || r.status >= 500) && retry) {
+    await new Promise((res) => setTimeout(res, 700));
+    return call(path, body, false);
+  }
   if (!r.ok) throw new Error(`google ${r.status} ${await r.text()}`);
   return (await r.json()).places ?? [];
 }
