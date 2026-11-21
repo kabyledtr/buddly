@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getJSON, setJSON } from "@/lib/store";
 
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 type Film = { title: string; times: string[]; version?: string; genre?: string };
 
@@ -26,19 +26,20 @@ export async function GET(req: Request) {
   const day = new Date(`${date}T12:00:00`).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   const city = address.split(",").pop()?.trim() ?? "";
 
-  let results: { title: string; url: string; content: string }[] = [];
+  let results: { title: string; url: string; content: string; raw_content?: string }[] = [];
   try {
     const r = await fetch("https://api.tavily.com/search", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${tavily}` },
       body: JSON.stringify({
-        query: `séances films à l'affiche cinéma ${name} ${city} ${day}`,
+        query: `${name} ${city} séances programme films ${day}`,
         search_depth: "advanced",
-        max_results: 8,
+        max_results: 5,
         include_answer: false,
+        include_raw_content: true,
         topic: "general",
       }),
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(20000),
     });
     const j = await r.json();
     results = j.results ?? [];
@@ -51,7 +52,7 @@ export async function GET(req: Request) {
   const claude = process.env.ANTHROPIC_API_KEY;
   if (claude && results.length) {
     const sources = results
-      .map((x, i) => `[${i + 1}] ${x.title} (${x.url})\n${x.content.slice(0, 2500)}`)
+      .map((x, i) => `[${i + 1}] ${x.title} (${x.url})\n${(x.raw_content || x.content).slice(0, 6000)}`)
       .join("\n\n");
     try {
       const r = await fetch("https://api.anthropic.com/v1/messages", {
