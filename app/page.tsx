@@ -217,7 +217,6 @@ export default function Home() {
               height={560}
               className="hello relative z-10 w-full transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3"
             />
-            <span className="buddy-shadow" aria-hidden />
           </div>
         </Reveal>
         <h2 className="mx-auto mt-6 max-w-xl font-display text-4xl font-bold text-plum sm:text-5xl">

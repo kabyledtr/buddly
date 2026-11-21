@@ -328,7 +328,7 @@ function InviteStep({ state, onDone }: { state: State; onDone: () => void }) {
         </button>
       ) : (
         <button type="button" onClick={onDone} className="mt-5 text-sm font-semibold text-muted underline-offset-4 hover:underline">
-          Plus tard, je swipe d&apos;abord
+          Ma bande est déjà au courant
         </button>
       )}
     </div>
@@ -903,7 +903,7 @@ function Card({
                 aria-label="Photo précédente"
                 onPointerDown={stop}
                 onClick={() => setI((i - 1 + photos.length) % photos.length)}
-                className="absolute left-3 top-[36%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/95 text-plum shadow-[0_6px_16px_-6px_rgba(67,32,122,0.55)] transition active:scale-90"
+                className="absolute left-3 top-[46%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/95 text-plum shadow-[0_6px_16px_-6px_rgba(67,32,122,0.55)] transition active:scale-90"
               >
                 <svg viewBox="0 0 24 24" className="size-5" aria-hidden><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
@@ -912,7 +912,7 @@ function Card({
                 aria-label="Photo suivante"
                 onPointerDown={stop}
                 onClick={() => setI((i + 1) % photos.length)}
-                className="absolute right-3 top-[36%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/95 text-plum shadow-[0_6px_16px_-6px_rgba(67,32,122,0.55)] transition active:scale-90"
+                className="absolute right-3 top-[46%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/95 text-plum shadow-[0_6px_16px_-6px_rgba(67,32,122,0.55)] transition active:scale-90"
               >
                 <svg viewBox="0 0 24 24" className="size-5" aria-hidden><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
