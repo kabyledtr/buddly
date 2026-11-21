@@ -147,10 +147,21 @@ export default function Hero() {
       <div className="relative z-10 -mt-20 sm:-mt-32 lg:-mt-56">
         <svg viewBox="0 0 1440 200" preserveAspectRatio="none" className="block h-[90px] w-full sm:h-[140px] lg:h-[200px]" aria-hidden>
           <path d="M0 150C170 92 400 74 640 112S1040 162 1210 96C1320 52 1390 18 1440 0V200H0z" fill="#efe5fd" />
-          <path d="M0 150C170 92 400 74 640 112S1040 162 1210 96C1320 52 1390 18 1440 0" fill="none" stroke="#ffffff" strokeWidth="3" vectorEffect="non-scaling-stroke" />
+          <defs>
+            <linearGradient id="edge-lg" gradientUnits="userSpaceOnUse" x1="760" y1="0" x2="880" y2="0">
+              <stop offset="0" stopColor="#fff" stopOpacity="0" />
+              <stop offset="1" stopColor="#fff" />
+            </linearGradient>
+            <linearGradient id="edge-sm" gradientUnits="userSpaceOnUse" x1="60" y1="0" x2="220" y2="0">
+              <stop offset="0" stopColor="#fff" stopOpacity="0" />
+              <stop offset="1" stopColor="#fff" />
+            </linearGradient>
+          </defs>
+          <path d="M0 150C170 92 400 74 640 112S1040 162 1210 96C1320 52 1390 18 1440 0" fill="none" stroke="url(#edge-sm)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" className="lg:hidden" />
+          <path d="M0 150C170 92 400 74 640 112S1040 162 1210 96C1320 52 1390 18 1440 0" fill="none" stroke="url(#edge-lg)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" className="hidden lg:block" />
         </svg>
         <div className="bg-[#efe5fd]">
-          <div className="mx-auto grid max-w-6xl gap-6 px-4 pb-12 pt-2 sm:grid-cols-3 lg:pb-16 sm:px-6">
+          <div className="mx-auto grid max-w-6xl gap-6 -mt-3 px-4 pb-12 pt-0 sm:grid-cols-3 lg:-mt-6 lg:pb-16 sm:px-6">
             {FEATURES.map((f) => (
               <div key={f.title} className="flex items-start gap-4">
                 <span className="grid size-16 shrink-0 place-items-center rounded-full bg-paper/80">
