@@ -21,18 +21,18 @@ const NAME_IDEAS = ["Dîner entre potes", "Afterwork", "Sortie du samedi", "Anni
 const STEPS = [
   {
     pet: "/pet-wave.png",
-    title: "Salut, moi c'est Buddly !",
-    say: "Je t'aide à organiser ta sortie entre potes, sans les 100 messages dans le groupe. On commence ?",
+    title: "Salut, moi c'est Bud !",
+    say: "On trouve votre spot en 3 clics. Zéro débat, promis.",
   },
   {
     pet: "/pet-think.png",
     title: "Quand et où ?",
-    say: "Je ne te proposerai que des lieux ouverts à ce moment-là, autour de votre point de rendez-vous.",
+    say: "Je ne garde que les lieux ouverts à ce moment-là.",
   },
   {
     pet: "/pet-love.png",
-    title: "Vos envies",
-    say: "Dernière étape ! Dis-moi ce qui vous fait envie, je m'occupe du reste.",
+    title: "Vos envies !",
+    say: "Dernière ligne droite, je m'occupe du reste.",
   },
 ];
 
@@ -68,9 +68,9 @@ function Buddly({ step, loading }: { step: number; loading: boolean }) {
   return (
     <div className={loading ? "flex flex-col items-center gap-4 pt-10 text-center" : "flex items-end gap-3"}>
       <div key={pet} className="wz-pet shrink-0">
-        <Image src={pet} alt="Buddly" width={700} height={700} priority draggable={false} className={`${loading ? "h-52" : "h-28 sm:h-32"} w-auto select-none`} />
+        <Image src={pet} alt="Bud" width={700} height={700} priority draggable={false} className={`${loading ? "h-52" : "h-24 sm:h-28"} w-auto select-none`} />
       </div>
-      <div key={loading ? "l" + msg : step} className={`wz-bubble relative rounded-3xl bg-paper ${loading ? "" : "mb-6 rounded-bl-md"} px-5 py-4 shadow-[0_12px_30px_-14px_rgba(67,32,122,0.35)]`}>
+      <div key={loading ? "l" + msg : step} className={`wz-bubble relative rounded-[1.75rem] bg-paper ${loading ? "" : "mb-5 rounded-bl-md"} px-5 py-4 shadow-[0_12px_30px_-14px_rgba(67,32,122,0.35)]`}>
         {loading ? (
           <p className="font-medium text-ink">
             {LOADING[msg]}
@@ -82,8 +82,8 @@ function Buddly({ step, loading }: { step: number; loading: boolean }) {
           </p>
         ) : (
           <>
-            <p className="font-display text-xl font-bold leading-tight text-plum">{s.title}</p>
-            <p className="mt-1 text-[15px] leading-snug text-muted">{s.say}</p>
+            <p className="font-display text-lg font-bold leading-tight text-plum sm:text-xl">{s.title}</p>
+            <p className="mt-0.5 text-sm leading-snug text-muted sm:text-[15px]">{s.say}</p>
           </>
         )}
       </div>
@@ -157,7 +157,7 @@ export default function CreateGroup() {
       <Bubbles />
       <div className="relative">
         <AppHeader />
-        <main className="mx-auto max-w-xl px-4 pb-16">
+        <main className="mx-auto max-w-xl px-4 pb-8">
           {/* progression */}
           <div className="flex items-center gap-3">
             <button
@@ -182,12 +182,12 @@ export default function CreateGroup() {
             <span className="w-10 text-right text-sm font-semibold text-muted">{Math.min(step + 1, 3)}/3</span>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-3">
             <Buddly step={step} loading={loading} />
           </div>
 
           {!loading && (
-            <form key={step} onSubmit={next} className="wz-step mt-6 space-y-6 rounded-[2rem] bg-paper/80 p-5 shadow-[0_20px_50px_-30px_rgba(67,32,122,0.45)] backdrop-blur sm:p-7">
+            <form key={step} onSubmit={next} className="wz-step mt-2 space-y-4 rounded-[2.5rem] border border-plum/10 bg-paper/70 p-5 sm:p-7">
               {step === 0 && (
                 <>
                   <Field label="Ton prénom">
@@ -229,7 +229,7 @@ export default function CreateGroup() {
                             type="button"
                             aria-pressed={active}
                             onClick={() => setRadius(r.v)}
-                            className={`rounded-2xl border-2 px-3 py-2.5 text-left transition ${
+                            className={`rounded-full border-2 px-4 py-2 text-left transition ${
                               active ? "border-plum bg-plum text-paper" : "border-plum/15 bg-paper text-ink hover:border-plum/40"
                             }`}
                           >
@@ -274,10 +274,10 @@ export default function CreateGroup() {
 
               {error && <p className="rounded-2xl bg-peach px-4 py-3 text-sm font-medium text-[#a2402f]">{error}</p>}
 
-              <button className="w-full rounded-full bg-coral py-4 font-semibold text-paper shadow-[0_8px_0_-2px_#d9604b] transition hover:translate-y-0.5 hover:shadow-[0_5px_0_-2px_#d9604b]">
+              <button className="w-full rounded-full bg-coral py-3.5 font-semibold text-paper shadow-[0_8px_0_-2px_#d9604b] transition hover:translate-y-0.5 hover:shadow-[0_5px_0_-2px_#d9604b]">
                 {step < 2 ? "Continuer" : "Trouver nos adresses"}
               </button>
-              {step === 0 && <p className="text-center text-sm text-muted">Gratuit jusqu&apos;à 4 amis. Sans compte, sans carte bancaire.</p>}
+              {step === 0 && <p className="text-center text-xs text-muted">Gratuit jusqu&apos;à 4 amis. Sans compte, sans carte bancaire.</p>}
             </form>
           )}
         </main>

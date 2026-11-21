@@ -102,7 +102,7 @@ export default function AddressInput({ value, onChange }: { value: Spot | null; 
         <button
           type="button"
           onClick={locate}
-          className="flex shrink-0 items-center gap-2 rounded-2xl bg-lilac px-4 text-sm font-semibold text-plum transition hover:bg-[#e2d3fc]"
+          className="flex shrink-0 items-center gap-2 rounded-full bg-lilac px-4 text-sm font-semibold text-plum transition hover:bg-[#e2d3fc]"
           aria-label="Utiliser ma position"
         >
           {locating ? (
@@ -117,10 +117,10 @@ export default function AddressInput({ value, onChange }: { value: Spot | null; 
       </div>
 
       {open && items.length > 0 && (
-        <ul className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-plum/10 bg-paper shadow-[0_20px_50px_-20px_rgba(67,32,122,0.4)]">
+        <ul className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-[1.75rem] border border-plum/10 bg-paper shadow-[0_20px_50px_-20px_rgba(67,32,122,0.4)]">
           {items.map((it, i) => (
             <li key={i}>
-              <button type="button" onClick={() => pick(it)} className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-lilac/60">
+              <button type="button" onClick={() => pick(it)} className="flex w-full items-start gap-3 px-5 py-3 text-left hover:bg-lilac/60">
                 <svg viewBox="0 0 24 24" className="mt-0.5 size-4 shrink-0 text-coral" fill="currentColor" aria-hidden>
                   <path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" />
                 </svg>

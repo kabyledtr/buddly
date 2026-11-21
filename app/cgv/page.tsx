@@ -21,7 +21,7 @@ export default function CGV() {
           trouver un lieu qui convient à tout le groupe.
         </p>
         <ul className="list-disc space-y-1 pl-5">
-          <li><strong>Gratuit</strong> : jusqu&apos;à 4 amis par groupe, 15 adresses à swiper, le lieu préféré du groupe et le conseil de Buddly.</li>
+          <li><strong>Gratuit</strong> : jusqu&apos;à 4 amis par groupe, 15 adresses à swiper, le lieu préféré du groupe et le conseil de Bud, la mascotte.</li>
           <li>
             <strong>Pass Sortie</strong> : pour une sortie donnée, jusqu&apos;à 15 amis, 40 adresses à swiper et le
             classement complet du groupe.

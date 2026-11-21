@@ -53,7 +53,7 @@ function PetScene() {
       <div className="relative aspect-[1100/950] w-full select-none [-webkit-touch-callout:none]">
         <Image
           src="/pet-phones.png"
-          alt="Buddly, la mascotte, tient deux téléphones"
+          alt="Bud, la mascotte de Buddly, tient deux téléphones"
           width={1100}
           height={950}
           priority

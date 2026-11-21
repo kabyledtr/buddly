@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 export type Slot = { date: string; from: string; to: string; label: string };
 
@@ -23,7 +24,7 @@ export function slotLabel(date: string, from: string, to: string) {
   const tomorrow = iso(new Date(Date.now() + 864e5));
   const day =
     date === today
-      ? "Ce soir"
+      ? "Aujourd'hui"
       : date === tomorrow
         ? "Demain"
         : d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" }).replace(/^./, (c) => c.toUpperCase());
@@ -37,13 +38,17 @@ export default function DatePicker({ value, onChange }: { value: Slot | null; on
   const [date, setDate] = useState(value?.date ?? iso(now));
   const [from, setFrom] = useState(value?.from ?? "20:00");
   const [to, setTo] = useState(value?.to ?? "23:30");
-  const ref = useRef<HTMLDivElement>(null);
+  const [custom, setCustom] = useState(false);
 
   useEffect(() => {
     if (!open) return;
-    const close = (e: MouseEvent) => !ref.current?.contains(e.target as Node) && setOpen(false);
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("keydown", esc);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", esc);
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   const first = (cursor.getDay() + 6) % 7; // lundi = 0
@@ -56,14 +61,119 @@ export default function DatePicker({ value, onChange }: { value: Slot | null; on
     setOpen(false);
   }
 
+  const sheet = (
+    <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-label="Choisir le jour et le créneau">
+      <button type="button" aria-label="Fermer" onClick={() => setOpen(false)} className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]" />
+      <div className="relative w-full max-w-sm rounded-t-[2.25rem] bg-paper px-5 pb-6 pt-3 shadow-2xl sm:rounded-[2.25rem] sm:pt-5">
+        <span className="mx-auto mb-3 block h-1.5 w-10 rounded-full bg-ink/10 sm:hidden" />
+
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            disabled={!canPrev}
+            onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
+            className="grid size-9 place-items-center rounded-full text-lg text-plum hover:bg-lilac disabled:opacity-25"
+            aria-label="Mois précédent"
+          >
+            ‹
+          </button>
+          <p className="font-display text-lg font-semibold capitalize text-plum">
+            {MONTHS[cursor.getMonth()]} {cursor.getFullYear()}
+          </p>
+          <button
+            type="button"
+            onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
+            className="grid size-9 place-items-center rounded-full text-lg text-plum hover:bg-lilac"
+            aria-label="Mois suivant"
+          >
+            ›
+          </button>
+        </div>
+
+        <div className="mt-2 grid grid-cols-7 gap-y-1 text-center">
+          {DAYS.map((d, i) => (
+            <span key={i} className="text-[11px] font-semibold text-muted">
+              {d}
+            </span>
+          ))}
+          {Array.from({ length: first }).map((_, i) => (
+            <span key={"e" + i} />
+          ))}
+          {Array.from({ length: days }, (_, i) => {
+            const d = iso(new Date(cursor.getFullYear(), cursor.getMonth(), i + 1));
+            const past = d < todayIso;
+            const sel = d === date;
+            return (
+              <button
+                key={d}
+                type="button"
+                disabled={past}
+                onClick={() => setDate(d)}
+                className={`mx-auto grid size-9 place-items-center rounded-full text-sm font-semibold transition ${
+                  sel ? "bg-plum text-paper" : past ? "text-ink/20" : d === todayIso ? "text-coral ring-2 ring-coral/40" : "text-ink hover:bg-lilac"
+                }`}
+              >
+                {i + 1}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          {PRESETS.map((p) => {
+            const active = !custom && p.from === from && p.to === to;
+            return (
+              <button
+                key={p.name}
+                type="button"
+                onClick={() => {
+                  setCustom(false);
+                  setFrom(p.from);
+                  setTo(p.to);
+                }}
+                className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition ${active ? "bg-coral text-paper" : "bg-lilac/70 text-plum hover:bg-lilac"}`}
+              >
+                {p.name}
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => setCustom(true)}
+            className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition ${custom ? "bg-coral text-paper" : "bg-lilac/70 text-plum hover:bg-lilac"}`}
+          >
+            Autre
+          </button>
+        </div>
+        {custom && (
+          <div className="mt-3 flex items-center gap-2 text-sm">
+            <select value={from} onChange={(e) => setFrom(e.target.value)} className="rounded-full border-2 border-plum/15 bg-paper px-3 py-1.5 font-semibold outline-none focus:border-violet">
+              {TIMES.map((t) => (
+                <option key={t}>{t}</option>
+              ))}
+            </select>
+            <span className="text-muted">→</span>
+            <select value={to} onChange={(e) => setTo(e.target.value)} className="rounded-full border-2 border-plum/15 bg-paper px-3 py-1.5 font-semibold outline-none focus:border-violet">
+              {TIMES.map((t) => (
+                <option key={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <button type="button" onClick={confirm} className="mt-5 w-full rounded-full bg-plum py-3.5 font-semibold text-paper hover:bg-ink">
+          {slotLabel(date, from, to)}
+        </button>
+      </div>
+    </div>
+  );
+
   return (
-    <div ref={ref} className="relative">
+    <>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
-        className={`flex w-full items-center gap-3 rounded-2xl border-2 bg-paper px-4 py-3 text-left transition ${
-          open ? "border-violet" : "border-plum/15 hover:border-plum/40"
-        }`}
+        onClick={() => setOpen(true)}
+        className="flex w-full items-center gap-3 rounded-full border-2 border-plum/15 bg-paper px-5 py-3 text-left transition hover:border-plum/40"
       >
         <svg viewBox="0 0 24 24" className="size-5 shrink-0 text-violet" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden>
           <rect x="3.5" y="5" width="17" height="15.5" rx="3.5" />
@@ -71,110 +181,7 @@ export default function DatePicker({ value, onChange }: { value: Slot | null; on
         </svg>
         <span className={value ? "font-semibold text-ink" : "text-muted/70"}>{value?.label ?? "Choisir le jour et l'heure"}</span>
       </button>
-
-      {open && (
-        <div className="absolute inset-x-0 top-full z-30 mt-2 rounded-3xl border border-plum/10 bg-paper p-5 shadow-[0_24px_60px_-20px_rgba(67,32,122,0.45)]">
-          <div className="flex items-center justify-between">
-            <button
-              type="button"
-              disabled={!canPrev}
-              onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
-              className="grid size-9 place-items-center rounded-full text-plum hover:bg-lilac disabled:opacity-30"
-              aria-label="Mois précédent"
-            >
-              ‹
-            </button>
-            <p className="font-display text-lg font-semibold capitalize text-plum">
-              {MONTHS[cursor.getMonth()]} {cursor.getFullYear()}
-            </p>
-            <button
-              type="button"
-              onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
-              className="grid size-9 place-items-center rounded-full text-plum hover:bg-lilac"
-              aria-label="Mois suivant"
-            >
-              ›
-            </button>
-          </div>
-
-          <div className="mt-3 grid grid-cols-7 gap-1 text-center">
-            {DAYS.map((d, i) => (
-              <span key={i} className="pb-1 text-xs font-semibold text-muted">
-                {d}
-              </span>
-            ))}
-            {Array.from({ length: first }).map((_, i) => (
-              <span key={"e" + i} />
-            ))}
-            {Array.from({ length: days }, (_, i) => {
-              const d = iso(new Date(cursor.getFullYear(), cursor.getMonth(), i + 1));
-              const past = d < todayIso;
-              const sel = d === date;
-              return (
-                <button
-                  key={d}
-                  type="button"
-                  disabled={past}
-                  onClick={() => setDate(d)}
-                  className={`aspect-square rounded-full text-sm font-semibold transition ${
-                    sel
-                      ? "bg-plum text-paper shadow-[0_4px_0_-1px_#2a1548]"
-                      : past
-                        ? "text-ink/20"
-                        : d === todayIso
-                          ? "text-coral ring-2 ring-coral/40 hover:bg-peach"
-                          : "text-ink hover:bg-lilac"
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="mt-5 border-t border-plum/10 pt-4">
-            <p className="text-sm font-semibold text-ink">Créneau</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {PRESETS.map((p) => {
-                const active = p.from === from && p.to === to;
-                return (
-                  <button
-                    key={p.name}
-                    type="button"
-                    onClick={() => {
-                      setFrom(p.from);
-                      setTo(p.to);
-                    }}
-                    className={`rounded-full border-2 px-3 py-1.5 text-sm font-semibold ${
-                      active ? "border-coral bg-coral text-paper" : "border-plum/15 text-ink hover:border-coral/50"
-                    }`}
-                  >
-                    {p.name} <span className={active ? "text-paper/80" : "text-muted"}>{hh(p.from)}–{hh(p.to)}</span>
-                  </button>
-                );
-              })}
-            </div>
-            <div className="mt-3 flex items-center gap-2 text-sm">
-              <span className="text-muted">De</span>
-              <select value={from} onChange={(e) => setFrom(e.target.value)} className="rounded-xl border-2 border-plum/15 bg-paper px-2 py-1.5 font-semibold text-ink outline-none focus:border-violet">
-                {TIMES.map((t) => (
-                  <option key={t}>{t}</option>
-                ))}
-              </select>
-              <span className="text-muted">à</span>
-              <select value={to} onChange={(e) => setTo(e.target.value)} className="rounded-xl border-2 border-plum/15 bg-paper px-2 py-1.5 font-semibold text-ink outline-none focus:border-violet">
-                {TIMES.map((t) => (
-                  <option key={t}>{t}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <button type="button" onClick={confirm} className="mt-5 w-full rounded-full bg-plum py-3 font-semibold text-paper hover:bg-ink">
-            {slotLabel(date, from, to)}
-          </button>
-        </div>
-      )}
-    </div>
+      {open && createPortal(sheet, document.body)}
+    </>
   );
 }

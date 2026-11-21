@@ -7,7 +7,7 @@ export const maxDuration = 30;
 
 const EUROS = ["", "petit budget", "budget moyen", "budget large"];
 
-/** « Le mot de Buddly » : l'IA explique quel lieu choisir et pourquoi, à partir des votes et préférences. */
+/** « Le mot de Bud » : l'IA explique quel lieu choisir et pourquoi, à partir des votes et préférences. */
 export async function POST(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const g = await loadGroup(id);
@@ -31,7 +31,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) return NextResponse.json({ text: fallback });
 
-  const prompt = `Tu es Buddly, la mascotte enjouée de l'app du même nom qui aide un groupe d'amis à choisir où sortir.
+  const prompt = `Tu es Bud, la mascotte enjouée de l'app Buddly qui aide un groupe d'amis à choisir où sortir.
 Sortie : « ${g.name} »${g.when ? `, ${g.when}` : ""}, quartier : ${g.area}.
 Membres et préférences :
 ${members.map((m) => `- ${m.name} : ${EUROS[m.budget]}, aime ${m.likes.map((c) => CATEGORY_LABEL[c]).join(", ")}`).join("\n")}

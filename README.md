@@ -81,7 +81,7 @@ L'équipe a développé avec l'aide d'un assistant de code IA (**Claude Code**).
 ### Ressources tierces
 
 - **Polices** : Fredoka et DM Sans (Google Fonts), hébergées dans le projet (`app/fonts`), sous licence SIL Open Font License.
-- **Logo et mascotte** (`public/logo.png`, `public/pet.png`) : créés par l'équipe Buddly.
+- **Logo et mascotte Bud** (`public/logo.png`, `public/pet*.png`) : créés par l'équipe Buddly.
 - **Données de la démo** : les lieux affichés dans la démo de la page d'accueil (noms, quartiers, prix) sont fictifs et servent uniquement d'illustration.
 
 ### Outils partenaires FounderRace
@@ -96,7 +96,7 @@ L'équipe a développé avec l'aide d'un assistant de code IA (**Claude Code**).
 2. **Inviter** : un lien `/g/<id>` à partager (WhatsApp, etc.). Les amis rejoignent sans compte, avec leurs envies et leur budget.
 3. **Swiper** : chacun vote oui / non sur les mêmes adresses. Les résultats se mettent à jour en direct.
 4. **Matching** : un lieu aimé par tout le monde est un match. Sinon, un score combine les votes, les envies et le budget de chacun, puis la distance.
-5. **Le mot de Buddly (IA)** : un modèle Claude (Anthropic) explique quel lieu choisir et pourquoi, à partir des votes et des préférences du groupe.
+5. **Le mot de Bud (IA)** : un modèle Claude (Anthropic) explique quel lieu choisir et pourquoi, à partir des votes et des préférences du groupe.
 6. **Paywall** : le **Pass Sortie à 0,99 €** (paiement unique via Stripe Checkout) débloque le classement complet, 40 adresses au lieu de 15 et jusqu'à 15 amis.
 
 ### Sources de données
@@ -109,7 +109,7 @@ L'équipe a développé avec l'aide d'un assistant de code IA (**Claude Code**).
 |---|---|
 | `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis (posées automatiquement par l'intégration Vercel) |
 | `STRIPE_SECRET_KEY` | Paiement du Pass Sortie |
-| `ANTHROPIC_API_KEY` | « Le mot de Buddly » (sinon texte calculé) |
+| `ANTHROPIC_API_KEY` | « Le mot de Bud » (sinon texte calculé) |
 | `GOOGLE_MAPS_API_KEY` | Google Places (New) : photos, notes, avis, horaires d'ouverture, autocomplétion d'adresse |
 | `TAVILY_API_KEY` | Films à l'affiche dans un cinéma précis (recherche web, outil partenaire) |
 | `GEOAPIFY_KEY` | Source de lieux de secours (optionnelle) |

@@ -43,7 +43,7 @@ export default function MentionsLegales() {
         </p>
         <p>
           Les paiements sont traités par Stripe. Buddly ne stocke aucune donnée bancaire. Les recommandations
-          de Buddly sont générées par un modèle d&apos;IA (Anthropic) à partir des prénoms, préférences et votes du
+          de Bud sont générées par un modèle d&apos;IA (Anthropic) à partir des prénoms, préférences et votes du
           groupe, sans autre donnée personnelle.
         </p>
         <p>
