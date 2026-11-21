@@ -974,6 +974,13 @@ function Card({
   const [rawI, setI] = useState(0);
   const i = Math.min(rawI, Math.max(0, photos.length - 1));
   const [loaded, setLoaded] = useState<string | null>(null);
+  const current = photos[i];
+  // filet de sécurité : si l'évènement « chargée » se perd (photo déjà en cache sur certains téléphones), on l'affiche quand même
+  useEffect(() => {
+    if (!current || loaded === current) return;
+    const t = setTimeout(() => setLoaded(current), 1500);
+    return () => clearTimeout(t);
+  }, [current, loaded]);
   const [films, setFilms] = useState<{ films: { title: string; times: string[]; version?: string; genre?: string }[]; note?: string; unavailable?: boolean } | null>(null);
   const [showFilms, setShowFilms] = useState(false);
   const [loadingFilms, setLoadingFilms] = useState(false);
@@ -1017,6 +1024,9 @@ function Card({
           draggable={false}
           decoding="async"
           fetchPriority={active ? "high" : "auto"}
+          ref={(el) => {
+            if (el?.complete && el.naturalWidth > 0 && loaded !== photos[i]) setLoaded(photos[i]);
+          }}
           onLoad={() => setLoaded(photos[i])}
           onError={() => setBad((b) => [...b, photos[i]])}
           className={`pointer-events-none absolute inset-0 size-full object-cover transition-opacity duration-300 ${
