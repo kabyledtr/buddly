@@ -1,5 +1,6 @@
 import type { Budget, Category, Diet, Place } from "./types";
 import { googlePlaces, hasGoogle } from "./google";
+import { getJSON, setCache } from "./store";
 
 const UA = "Buddly/1.0 (https://buddly.io)";
 const GEOAPIFY = process.env.GEOAPIFY_KEY;
@@ -246,9 +247,26 @@ export async function findPlaces(
   max = 40,
 ) {
   if (hasGoogle) {
+    // Cache 24 h par zone (~150 m), rayon, envies, régimes et créneau : une sortie au même endroit ne recoûte rien.
+    const key = [
+      "gp1",
+      lat.toFixed(3),
+      lon.toFixed(3),
+      radius,
+      [...cats].sort().join("+"),
+      [...(slot?.diets ?? [])].sort().join("+"),
+      slot?.date ?? "",
+      slot?.from?.slice(0, 2) ?? "",
+      max,
+    ].join(":");
+    const cached = await getJSON<Place[]>(key).catch(() => null);
+    if (cached?.length) return cached;
     try {
       const g = await googlePlaces(lat, lon, radius, cats, slot, max);
-      if (g.length >= 8) return g;
+      if (g.length >= 8) {
+        await setCache(key, g, 60 * 60 * 24).catch(() => {});
+        return g;
+      }
     } catch (e) {
       console.error(e);
     }

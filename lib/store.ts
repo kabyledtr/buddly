@@ -25,6 +25,12 @@ export async function setJSON(key: string, value: unknown) {
   mem.kv.set(key, value);
 }
 
+/** Avec une durée de vie précise, en secondes (caches). */
+export async function setCache(key: string, value: unknown, seconds: number) {
+  if (redis) return void (await redis.set(key, value, { ex: seconds }));
+  mem.kv.set(key, value);
+}
+
 /** Sans expiration (achats à vie). */
 export async function setPermanent(key: string, value: unknown) {
   if (redis) return void (await redis.set(key, value));

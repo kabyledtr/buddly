@@ -58,35 +58,25 @@ const nearby = (types: string[], lat: number, lon: number, radius: number) =>
     locationRestriction: circle(lat, lon, radius),
   }).catch(() => [] as GPlace[]);
 
-const text = (q: string, lat: number, lon: number, radius: number) =>
+const text = (q: string, lat: number, lon: number, radius: number, count = 10) =>
   call("places:searchText", {
     textQuery: q,
-    maxResultCount: 10,
+    maxResultCount: count,
     languageCode: "fr",
     regionCode: "FR",
     locationBias: circle(lat, lon, radius),
   }).catch(() => [] as GPlace[]);
 
 // Activités originales cherchées en plus des catégories classiques
+// Regroupées par thème : chaque recherche Google est facturée, une recherche large en ramène 20.
 const SPECIAL_QUERIES: [string, string][] = [
-  ["escape game", "Escape game"],
-  ["karaoké", "Karaoké"],
-  ["laser game", "Laser game"],
-  ["bar à jeux de société", "Bar à jeux"],
-  ["réalité virtuelle", "Réalité virtuelle"],
-  ["atelier créatif", "Atelier"],
-  ["blind test quiz bar", "Blind test"],
-  ["bowling", "Bowling"],
-  ["atelier poterie céramique", "Atelier poterie"],
-  ["cours de cuisine atelier pâtisserie", "Cours de cuisine"],
-  ["atelier DIY bougie parfum peinture", "Atelier"],
-  ["dégustation de vin œnologie bière", "Dégustation"],
-  ["salle d'escalade bloc", "Escalade"],
-  ["mini-golf billard fléchettes", "Jeux"],
-  ["karting paintball accrobranche", "Sensations"],
+  ["escape game laser game réalité virtuelle", "Escape game"],
+  ["karaoké bar à jeux de société blind test", "Karaoké"],
+  ["atelier poterie céramique peinture bougie DIY", "Atelier"],
+  ["cours de cuisine pâtisserie dégustation de vin", "Cours de cuisine"],
+  ["bowling billard mini-golf salle d'arcade", "Jeux"],
+  ["escalade karting accrobranche paintball lancer de hache", "Sensations"],
   ["comedy club stand-up théâtre d'impro", "Stand-up"],
-  ["salle d'arcade jeux vidéo", "Arcade"],
-  ["lancer de hache", "Lancer de hache"],
 ];
 const SPECIAL_KIND: [RegExp, string][] = [
   [/escape/i, "Escape game"],
@@ -262,7 +252,7 @@ export async function googlePlaces(
   }
   if (cats.includes("activite")) {
     add("activite", nearby(ACTIVITY_TYPES, lat, lon, radius));
-    for (const [q, label] of SPECIAL_QUERIES) add("activite", text(q, lat, lon, radius), true, label);
+    for (const [q, label] of SPECIAL_QUERIES) add("activite", text(q, lat, lon, radius, 20), true, label);
   }
   const results = await Promise.all(jobs);
 
