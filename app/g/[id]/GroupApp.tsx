@@ -226,7 +226,9 @@ function Screen({ children, right }: { children: React.ReactNode; right?: React.
 
 function inviteMessage(state: State) {
   const g = state.group;
-  const url = SITE_URL + groupPath(g.id, g.name);
+  // le lien pointe vers le site où la sortie existe (buddly.io en prod, l'adresse locale pendant les tests)
+  const origin = typeof window !== "undefined" ? window.location.origin : SITE_URL;
+  const url = origin + groupPath(g.id, g.name);
   const me = state.members.find((m) => m.id === state.me)?.name;
   const when = g.when ? g.when.charAt(0).toLowerCase() + g.when.slice(1) : "";
   const spot = g.area.split(",")[0];
@@ -901,7 +903,7 @@ function Card({
                 aria-label="Photo précédente"
                 onPointerDown={stop}
                 onClick={() => setI((i - 1 + photos.length) % photos.length)}
-                className="absolute left-3 top-[30%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/95 text-plum shadow-[0_6px_16px_-6px_rgba(67,32,122,0.55)] transition active:scale-90"
+                className="absolute left-3 top-[36%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/95 text-plum shadow-[0_6px_16px_-6px_rgba(67,32,122,0.55)] transition active:scale-90"
               >
                 <svg viewBox="0 0 24 24" className="size-5" aria-hidden><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
@@ -910,7 +912,7 @@ function Card({
                 aria-label="Photo suivante"
                 onPointerDown={stop}
                 onClick={() => setI((i + 1) % photos.length)}
-                className="absolute right-3 top-[30%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/95 text-plum shadow-[0_6px_16px_-6px_rgba(67,32,122,0.55)] transition active:scale-90"
+                className="absolute right-3 top-[36%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/95 text-plum shadow-[0_6px_16px_-6px_rgba(67,32,122,0.55)] transition active:scale-90"
               >
                 <svg viewBox="0 0 24 24" className="size-5" aria-hidden><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
