@@ -15,7 +15,7 @@ const PRODUCT: Record<PaidTier, { name: string; description: (group: string) => 
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const key = process.env.STRIPE_SECRET_KEY;
+  const key = process.env.STRIPE_SECRET_KEY?.trim().replace(/^["']|["']$/g, "");
   if (!key) return NextResponse.json({ error: "Le paiement n'est pas encore activé." }, { status: 503 });
 
   const g = await loadGroup(id);

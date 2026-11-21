@@ -23,7 +23,7 @@ function verify(body: string, header: string | null, secret: string): boolean {
  * Événements à cocher dans Stripe : checkout.session.completed et checkout.session.async_payment_succeeded.
  */
 export async function POST(req: Request) {
-  const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  const secret = process.env.STRIPE_WEBHOOK_SECRET?.trim().replace(/^["']|["']$/g, "");
   if (!secret) return NextResponse.json({ error: "webhook non configuré" }, { status: 503 });
 
   const body = await req.text();

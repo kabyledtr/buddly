@@ -19,7 +19,7 @@ const PRODUCT: Record<PaidTier, { name: string; description: string }> = {
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const tier: PaidTier = url.searchParams.get("offre") === "pass" ? "pass" : "plus";
-  const key = process.env.STRIPE_SECRET_KEY;
+  const key = process.env.STRIPE_SECRET_KEY?.trim().replace(/^["']|["']$/g, "");
   if (!key) return NextResponse.redirect(new URL(`/app?paiement=bientot&offre=${tier}`, url.origin), 303);
 
   const form = new URLSearchParams({

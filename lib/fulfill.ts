@@ -10,7 +10,7 @@ export type CheckoutSession = {
 };
 
 export async function fetchSession(id: string): Promise<CheckoutSession | null> {
-  const key = process.env.STRIPE_SECRET_KEY;
+  const key = process.env.STRIPE_SECRET_KEY?.trim().replace(/^["']|["']$/g, "");
   if (!key) return null;
   const r = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(id)}`, {
     headers: { Authorization: `Bearer ${key}` },
