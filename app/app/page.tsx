@@ -3,7 +3,9 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { AppHeader, Chip, Field, Spinner, inputCls, memberKey } from "../AppShell";
+import { AppHeader, BudgetPicker, Chip, Field, Spinner, inputCls, memberKey } from "../AppShell";
+import AddressInput, { type Spot } from "./AddressInput";
+import DatePicker, { type Slot } from "./DatePicker";
 import { CATEGORY_LABEL, type Budget, type Category } from "@/lib/types";
 
 const RADII = [
@@ -17,43 +19,38 @@ export default function CreateGroup() {
   const router = useRouter();
   const [creatorName, setCreatorName] = useState("");
   const [name, setName] = useState("");
-  const [when, setWhen] = useState("");
-  const [area, setArea] = useState("");
-  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
+  const [slot, setSlot] = useState<Slot | null>(null);
+  const [spot, setSpot] = useState<Spot | null>(null);
   const [radius, setRadius] = useState(1000);
   const [cats, setCats] = useState<Category[]>(["resto", "bar"]);
   const [budget, setBudget] = useState<Budget>(2);
   const [loading, setLoading] = useState(false);
-  const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
-
-  function locate() {
-    if (!navigator.geolocation) return setError("La géolocalisation n'est pas disponible.");
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (p) => {
-        setCoords({ lat: p.coords.latitude, lon: p.coords.longitude });
-        setArea("Autour de moi");
-        setLocating(false);
-        setError("");
-      },
-      () => {
-        setLocating(false);
-        setError("Position refusée : tape plutôt ton quartier ou ta ville.");
-      },
-      { timeout: 10000 },
-    );
-  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    if (!slot) return setError("Choisis le jour et l'heure de la sortie.");
+    if (!spot) return setError("Choisis une adresse dans la liste ou utilise ta position.");
     setLoading(true);
     try {
       const r = await fetch("/api/groups", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ creatorName, name, when, area, radius, categories: cats, budget, ...(coords ?? {}) }),
+        body: JSON.stringify({
+          creatorName,
+          name,
+          when: slot.label,
+          date: slot.date,
+          from: slot.from,
+          to: slot.to,
+          area: spot.label,
+          lat: spot.lat,
+          lon: spot.lon,
+          radius,
+          categories: cats,
+          budget,
+        }),
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error ?? "Erreur");
@@ -84,45 +81,18 @@ export default function CreateGroup() {
             <input required maxLength={24} value={creatorName} onChange={(e) => setCreatorName(e.target.value)} placeholder="Léa" className={inputCls} />
           </Field>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="La sortie">
-              <input maxLength={60} value={name} onChange={(e) => setName(e.target.value)} placeholder="Dîner entre potes" className={inputCls} />
-            </Field>
-            <Field label="Quand ?">
-              <input maxLength={40} value={when} onChange={(e) => setWhen(e.target.value)} placeholder="Vendredi soir" className={inputCls} />
-            </Field>
-          </div>
+          <Field label="La sortie">
+            <input maxLength={60} value={name} onChange={(e) => setName(e.target.value)} placeholder="Dîner entre potes" className={inputCls} />
+          </Field>
+
+          <Field label="Quand ?">
+            <DatePicker value={slot} onChange={setSlot} />
+          </Field>
 
           <Field label="Où ?">
-            <div className="flex gap-2">
-              <input
-                required={!coords}
-                value={area}
-                onChange={(e) => {
-                  setArea(e.target.value);
-                  setCoords(null);
-                }}
-                placeholder="Oberkampf, Paris"
-                className={inputCls}
-              />
-              <button
-                type="button"
-                onClick={locate}
-                className="grid shrink-0 place-items-center rounded-2xl border-2 border-plum/15 bg-paper px-4 text-plum hover:border-violet"
-                aria-label="Utiliser ma position"
-                title="Utiliser ma position"
-              >
-                {locating ? (
-                  <Spinner />
-                ) : (
-                  <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                    <circle cx="12" cy="12" r="3.5" />
-                    <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
-                  </svg>
-                )}
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2 pt-1">
+            <AddressInput value={spot} onChange={setSpot} />
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <span className="text-sm text-muted">Dans un rayon de</span>
               {RADII.map(([v, l]) => (
                 <Chip key={v} active={radius === v} onClick={() => setRadius(v)}>
                   {l}
@@ -146,13 +116,7 @@ export default function CreateGroup() {
           </Field>
 
           <Field label="Ton budget">
-            <div className="flex gap-2">
-              {([1, 2, 3] as Budget[]).map((b) => (
-                <Chip key={b} active={budget === b} onClick={() => setBudget(b)}>
-                  {"€".repeat(b)}
-                </Chip>
-              ))}
-            </div>
+            <BudgetPicker value={budget} onChange={setBudget} />
           </Field>
 
           {error && <p className="rounded-2xl bg-peach px-4 py-3 text-sm font-medium text-[#a2402f]">{error}</p>}

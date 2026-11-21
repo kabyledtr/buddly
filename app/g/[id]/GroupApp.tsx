@@ -3,12 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AppHeader, Chip, Field, Spinner, inputCls, memberKey } from "../../AppShell";
+import { AppHeader, BudgetPicker, Chip, Field, Spinner, inputCls, memberKey } from "../../AppShell";
+import "./celebrate.css";
 import { CATEGORY_LABEL, type Budget, type Category, type Place } from "@/lib/types";
 
 type Ranked = { place: Place; likes: number; nopes: number; likedBy: string[]; unanimous: boolean };
 type State = {
-  group: { id: string; name: string; when: string; area: string; premium: boolean; isCreator: boolean; totalPlaces: number };
+  group: { id: string; name: string; when: string; area: string; premium: boolean; isCreator: boolean; totalPlaces: number; slot?: { date?: string } };
   deck: Place[];
   members: { id: string; name: string; done: number }[];
   me: string | null;
@@ -113,10 +114,7 @@ export default function GroupApp({ id }: { id: string }) {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ memberId: state!.me, placeId: p.id, like }),
     });
-    if (remaining.length === 1) {
-      setTab("results");
-      refresh();
-    }
+    if (remaining.length === 1) refresh();
   }
 
   return (
@@ -145,7 +143,7 @@ export default function GroupApp({ id }: { id: string }) {
 
       <div className="mt-5">
         {tab === "swipe" ? (
-          <Deck remaining={remaining} total={state.deck.length} onVote={vote} onDone={() => setTab("results")} />
+          <Deck remaining={remaining} total={state.deck.length} date={state.group.slot?.date} onVote={vote} onDone={() => setTab("results")} />
         ) : (
           <Results id={id} state={state} />
         )}
@@ -280,13 +278,7 @@ function Join({ state, onJoined }: { state: State; onJoined: (m: string) => void
             </div>
           </Field>
           <Field label="Ton budget">
-            <div className="flex gap-2">
-              {([1, 2, 3] as Budget[]).map((b) => (
-                <Chip key={b} active={budget === b} onClick={() => setBudget(b)}>
-                  {"€".repeat(b)}
-                </Chip>
-              ))}
-            </div>
+            <BudgetPicker value={budget} onChange={setBudget} />
           </Field>
           {error && <p className="rounded-2xl bg-peach px-4 py-3 text-sm font-medium text-[#a2402f]">{error}</p>}
           <button
@@ -306,11 +298,13 @@ function Join({ state, onJoined }: { state: State; onJoined: (m: string) => void
 function Deck({
   remaining,
   total,
+  date,
   onVote,
   onDone,
 }: {
   remaining: Place[];
   total: number;
+  date?: string;
   onVote: (p: Place, like: boolean) => void;
   onDone: () => void;
 }) {
@@ -318,17 +312,7 @@ function Deck({
   const start = useRef<number | null>(null);
   const place = remaining[0];
 
-  if (!place)
-    return (
-      <div className="rounded-3xl bg-paper p-8 text-center">
-        <Image src="/pet.png" alt="" width={80} height={80} className="mx-auto size-20 rounded-2xl" />
-        <h2 className="mt-4 font-display text-2xl font-bold text-plum">Tu as tout swipé !</h2>
-        <p className="mt-1 text-muted">Regarde ce qui plaît au groupe.</p>
-        <button onClick={onDone} className="mt-5 rounded-full bg-coral px-6 py-3 font-semibold text-paper">
-          Voir les résultats
-        </button>
-      </div>
-    );
+  if (!place) return <Celebrate onDone={onDone} />;
 
   const decide = (like: boolean) => {
     setDx(0);
@@ -347,11 +331,13 @@ function Deck({
       <p className="mb-3 text-center text-sm font-medium text-muted">
         {total - remaining.length + 1} / {total}
       </p>
-      <div className="relative mx-auto h-[420px] max-w-sm select-none">
+      <div className="relative mx-auto h-[540px] max-w-sm select-none">
         {remaining[1] && <Card place={remaining[1]} className="scale-95 opacity-60" />}
         <Card
           key={place.id}
           place={place}
+          date={date}
+          active
           className="cursor-grab touch-none active:cursor-grabbing"
           style={{
             transform: `translateX(${dx}px) rotate(${dx / 18}deg)`,
@@ -359,7 +345,7 @@ function Deck({
           }}
           badge={dx > 40 ? "like" : dx < -40 ? "nope" : null}
           onPointerDown={(e) => {
-            if ((e.target as HTMLElement).closest("a")) return;
+            if ((e.target as HTMLElement).closest("a,button,[data-noswipe]")) return;
             start.current = e.clientX;
             (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
           }}
@@ -384,48 +370,298 @@ function Deck({
           ♥
         </button>
       </div>
-      <p className="mt-6 text-center text-xs text-muted">Données des lieux © contributeurs OpenStreetMap</p>
+      <p className="mt-6 text-center text-xs text-muted">
+        {place.photos ? "Photos, notes et avis : Google" : "Données des lieux © contributeurs OpenStreetMap"}
+      </p>
     </div>
   );
 }
+
+const photoSrc = (n: string, w = 1600) => `/api/photo?n=${encodeURIComponent(n)}&w=${w}`;
+
+function Stars({ value, count, light = true }: { value: number; count?: number; light?: boolean }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span className="relative inline-block text-[15px] leading-none tracking-[1px]" aria-label={`${value} sur 5`}>
+        <span className={light ? "text-paper/35" : "text-ink/15"}>★★★★★</span>
+        <span className="absolute inset-0 overflow-hidden text-[#ffc93f]" style={{ width: `${(value / 5) * 100}%` }}>
+          ★★★★★
+        </span>
+      </span>
+      <b className="text-sm">{value.toFixed(1).replace(".", ",")}</b>
+      {count != null && <span className="text-xs opacity-80">({count.toLocaleString("fr-FR")} avis)</span>}
+    </span>
+  );
+}
+
+const BUDGET_TXT = ["", "Petit budget", "Raisonnable", "On se fait plaisir"];
 
 function Card({
   place,
   className = "",
   badge,
+  active = false,
+  date,
   ...rest
-}: { place: Place; className?: string; badge?: "like" | "nope" | null } & React.HTMLAttributes<HTMLDivElement>) {
+}: { place: Place; className?: string; badge?: "like" | "nope" | null; active?: boolean; date?: string } & React.HTMLAttributes<HTMLDivElement>) {
+  const photos = place.photos ?? [];
+  const [i, setI] = useState(0);
+  const [films, setFilms] = useState<{ films: { title: string; times: string[] }[]; answer?: string; unavailable?: boolean } | null>(null);
+  const [showFilms, setShowFilms] = useState(false);
+  const [loadingFilms, setLoadingFilms] = useState(false);
+  const stop = (e: React.SyntheticEvent) => e.stopPropagation();
+
+  // précharge la photo suivante
+  const next = photos[i + 1];
+  useEffect(() => {
+    if (!active || !next) return;
+    const img = new window.Image();
+    img.src = photoSrc(next);
+  }, [active, next]);
+
+  async function openFilms() {
+    setShowFilms(true);
+    if (films) return;
+    setLoadingFilms(true);
+    try {
+      const r = await fetch(
+        `/api/cinema?name=${encodeURIComponent(place.name)}&address=${encodeURIComponent(place.address ?? "")}${date ? `&date=${date}` : ""}`,
+      );
+      setFilms(await r.json());
+    } catch {
+      setFilms({ films: [] });
+    }
+    setLoadingFilms(false);
+  }
+
   return (
     <div
       {...rest}
-      className={`absolute inset-0 flex flex-col overflow-hidden rounded-[2rem] bg-gradient-to-br ${BG[place.category]} p-6 text-paper shadow-[0_24px_50px_-20px_rgba(67,32,122,0.5)] ${className}`}
+      className={`absolute inset-0 overflow-hidden rounded-[2rem] bg-gradient-to-br ${BG[place.category]} text-paper shadow-[0_24px_50px_-20px_rgba(67,32,122,0.5)] ${className}`}
     >
+      {/* photos */}
+      {photos.length > 0 && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={photos[i]}
+          src={photoSrc(photos[i])}
+          alt={`${place.name}, photo ${i + 1}`}
+          draggable={false}
+          className="pointer-events-none absolute inset-0 size-full object-cover"
+          loading={active ? "eager" : "lazy"}
+        />
+      )}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/30" />
+
+      {/* indicateurs + flèches */}
+      {photos.length > 1 && (
+        <>
+          <div className="absolute inset-x-4 top-3 z-10 flex gap-1">
+            {photos.map((_, k) => (
+              <span key={k} className={`h-1 flex-1 rounded-full ${k === i ? "bg-paper" : "bg-paper/40"}`} />
+            ))}
+          </div>
+          {active && (
+            <>
+              <button
+                type="button"
+                aria-label="Photo précédente"
+                onPointerDown={stop}
+                onClick={() => setI((i - 1 + photos.length) % photos.length)}
+                className="absolute left-3 top-[38%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/85 text-xl font-bold text-plum shadow-md backdrop-blur transition hover:scale-105"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                aria-label="Photo suivante"
+                onPointerDown={stop}
+                onClick={() => setI((i + 1) % photos.length)}
+                className="absolute right-3 top-[38%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/85 text-xl font-bold text-plum shadow-md backdrop-blur transition hover:scale-105"
+              >
+                ›
+              </button>
+            </>
+          )}
+        </>
+      )}
+
       {badge && (
         <span
-          className={`absolute top-6 rounded-xl border-[3px] px-3 py-1 font-display text-2xl font-bold ${
-            badge === "like" ? "left-6 -rotate-12 border-paper" : "right-6 rotate-12 border-ink text-ink"
+          className={`absolute top-10 z-20 rounded-xl border-[3px] px-3 py-1 font-display text-2xl font-bold ${
+            badge === "like" ? "left-6 -rotate-12 border-[#7dffa8] text-[#7dffa8]" : "right-6 rotate-12 border-coral text-coral"
           }`}
         >
           {badge === "like" ? "OUI" : "BOF"}
         </span>
       )}
-      <div className="flex justify-end gap-2">
-        <span className="rounded-full bg-paper/25 px-3 py-1 text-xs font-semibold">{"€".repeat(place.price)}</span>
-        <span className="rounded-full bg-paper/25 px-3 py-1 text-xs font-semibold">{km(place.distance)}</span>
+
+      <div className="absolute left-4 right-4 top-7 z-10 flex flex-wrap justify-end gap-2">
+        {place.openLabel && (
+          <span className="mr-auto rounded-full bg-[#1f9d55]/90 px-3 py-1 text-xs font-semibold">{place.openLabel}</span>
+        )}
+        {place.special && <span className="rounded-full bg-coral px-3 py-1 text-xs font-bold">Original</span>}
+        <span className="rounded-full bg-black/35 px-3 py-1 text-xs font-semibold backdrop-blur">{km(place.distance)}</span>
       </div>
-      <div className="mt-auto">
-        <p className="text-sm font-semibold uppercase tracking-wide opacity-90">{place.kind}</p>
-        <h3 className="mt-1 font-display text-4xl font-bold leading-[1.05]">{place.name}</h3>
-        {place.address && <p className="mt-2 text-sm opacity-90">{place.address}</p>}
-        <a
-          href={mapUrl(place)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-paper/20 px-3 py-1.5 text-xs font-semibold hover:bg-paper/30"
-        >
-          Voir sur la carte ↗
-        </a>
+
+      {/* infos */}
+      <div className="absolute inset-x-0 bottom-0 z-10 p-5">
+        <p className="text-xs font-bold uppercase tracking-wider text-paper/85">{place.kind}</p>
+        <h3 className="mt-1 font-display text-[2rem] font-bold leading-[1.05]">{place.name}</h3>
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+          {place.rating != null && <Stars value={place.rating} count={place.ratingCount} />}
+          <span className="text-sm font-semibold">
+            {place.priceRange ?? BUDGET_TXT[place.price]}
+          </span>
+        </div>
+        {place.review && (
+          <p className="mt-2 line-clamp-2 text-[13px] italic leading-snug text-paper/90">
+            « {place.review.text} » <span className="not-italic text-paper/70">— {place.review.author}</span>
+          </p>
+        )}
+        {place.address && <p className="mt-1.5 truncate text-xs text-paper/75">{place.address}</p>}
+        <div className="mt-3 flex flex-wrap gap-2">
+          {place.cinema && active && (
+            <button
+              type="button"
+              onPointerDown={stop}
+              onClick={openFilms}
+              className="rounded-full bg-paper px-3 py-1.5 text-xs font-bold text-plum"
+            >
+              Films à l&apos;affiche
+            </button>
+          )}
+          <a
+            href={place.mapsUri ?? mapUrl(place)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full bg-paper/20 px-3 py-1.5 text-xs font-semibold backdrop-blur hover:bg-paper/30"
+          >
+            Voir sur la carte ↗
+          </a>
+        </div>
       </div>
+
+      {/* films du cinéma */}
+      {showFilms && (
+        <div data-noswipe onPointerDown={stop} className="absolute inset-0 z-30 flex flex-col bg-ink/95 p-5 backdrop-blur">
+          <div className="flex items-center justify-between">
+            <p className="font-display text-xl font-bold">À l&apos;affiche{date ? ` le ${new Date(`${date}T12:00:00`).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}` : ""}</p>
+            <button type="button" onClick={() => setShowFilms(false)} className="grid size-9 place-items-center rounded-full bg-paper/15 text-lg" aria-label="Fermer">
+              ✕
+            </button>
+          </div>
+          <p className="text-sm text-paper/70">{place.name}</p>
+          <div className="mt-4 flex-1 space-y-2 overflow-y-auto">
+            {loadingFilms ? (
+              <p className="flex items-center gap-2 text-sm text-paper/80">
+                <Spinner className="size-4" /> Buddy cherche les séances…
+              </p>
+            ) : films?.films.length ? (
+              films.films.map((f) => (
+                <div key={f.title} className="rounded-2xl bg-paper/10 p-3">
+                  <p className="font-semibold">{f.title}</p>
+                  {f.times.length > 0 && (
+                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                      {f.times.map((t) => (
+                        <span key={t} className="rounded-full bg-coral px-2 py-0.5 text-xs font-bold">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-paper/80">
+                {films?.answer ?? (films?.unavailable ? "La recherche de séances n'est pas encore activée." : "Pas de programme trouvé pour cette date.")}
+              </p>
+            )}
+          </div>
+          <a
+            href={place.website ?? place.mapsUri ?? mapUrl(place)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 rounded-full bg-paper py-2.5 text-center text-sm font-bold text-plum"
+          >
+            Programme complet ↗
+          </a>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- fin du deck ---------- */
+
+function Celebrate({ onDone }: { onDone: () => void }) {
+  const canvas = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const c = canvas.current!;
+    const ctx = c.getContext("2d")!;
+    const dpr = window.devicePixelRatio || 1;
+    const resize = () => {
+      c.width = innerWidth * dpr;
+      c.height = innerHeight * dpr;
+    };
+    resize();
+    const colors = ["#f7806a", "#8b55e3", "#ffc93f", "#c9b3ff", "#43207a", "#7dffa8"];
+    type P = { x: number; y: number; vx: number; vy: number; life: number; color: string; size: number };
+    let parts: P[] = [];
+    const burst = () => {
+      const x = (0.15 + Math.random() * 0.7) * c.width;
+      const y = (0.12 + Math.random() * 0.35) * c.height;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      for (let k = 0; k < 46; k++) {
+        const a = (Math.PI * 2 * k) / 46 + Math.random() * 0.2;
+        const s = (2.2 + Math.random() * 3.2) * dpr;
+        parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1, color: Math.random() < 0.25 ? "#fff" : color, size: (2 + Math.random() * 2.5) * dpr });
+      }
+    };
+    const timers = [0, 350, 800, 1250, 1700, 2300, 2900].map((t) => setTimeout(burst, t));
+    let raf = 0;
+    const tick = () => {
+      ctx.clearRect(0, 0, c.width, c.height);
+      parts = parts.filter((p) => p.life > 0);
+      for (const p of parts) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.06 * dpr;
+        p.vx *= 0.985;
+        p.life -= 0.012;
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+    const stop = setTimeout(() => cancelAnimationFrame(raf), 5200);
+    addEventListener("resize", resize);
+    return () => {
+      timers.forEach(clearTimeout);
+      clearTimeout(stop);
+      cancelAnimationFrame(raf);
+      removeEventListener("resize", resize);
+    };
+  }, []);
+
+  return (
+    <div className="relative overflow-hidden rounded-[2rem] bg-paper px-6 pb-8 pt-6 text-center">
+      <canvas ref={canvas} className="pointer-events-none fixed inset-0 z-40 size-full" aria-hidden />
+      <div className="relative mx-auto h-56 w-60">
+        <Image src="/pet-cool.png" alt="Buddy avec ses lunettes de soleil" width={900} height={816} priority className="buddy-bob relative z-10 mx-auto h-48 w-auto select-none" draggable={false} />
+        <span className="buddy-shadow absolute bottom-5 left-1/2 h-4 w-36 rounded-[50%] bg-plum/25 blur-[3px]" />
+      </div>
+      <h2 className="font-display text-3xl font-bold text-plum">Tu as tout swipé !</h2>
+      <p className="mt-1 text-muted">Buddy fait les comptes : regarde ce qui plaît au groupe.</p>
+      <button onClick={onDone} className="mt-5 rounded-full bg-coral px-7 py-3.5 font-semibold text-paper shadow-[0_6px_0_-1px_#d9604b]">
+        Voir les résultats
+      </button>
     </div>
   );
 }
@@ -486,21 +722,35 @@ function Results({ id, state }: { id: string; state: State }) {
       )}
 
       {/* meilleur lieu */}
-      <div className={`overflow-hidden rounded-[2rem] bg-gradient-to-br ${BG[top.place.category]} p-6 text-paper`}>
+      <div className={`relative overflow-hidden rounded-[2rem] bg-gradient-to-br ${BG[top.place.category]} p-6 text-paper`}>
+        {top.place.photos?.[0] && (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={photoSrc(top.place.photos[0], 1200)} alt="" className="absolute inset-0 size-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/20" />
+          </>
+        )}
+        <div className="relative">
         <p className="text-sm font-bold uppercase tracking-wide">
           {top.unanimous ? "C'est un match !" : "Meilleur compromis"}
         </p>
         <h2 className="mt-2 font-display text-4xl font-bold leading-tight">{top.place.name}</h2>
         <p className="mt-1 text-sm opacity-90">
-          {top.place.kind} · {"€".repeat(top.place.price)} · {km(top.place.distance)}
+          {top.place.kind} · {top.place.priceRange ?? BUDGET_TXT[top.place.price]} · {km(top.place.distance)}
           {top.place.address ? ` · ${top.place.address}` : ""}
         </p>
         <p className="mt-3 text-sm font-semibold">
           {top.likes}/{state.members.length} oui : {top.likedBy.join(", ")}
         </p>
-        <a href={mapUrl(top.place)} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block rounded-full bg-paper px-4 py-2 text-sm font-semibold text-plum">
+        {top.place.rating != null && (
+          <div className="mt-2">
+            <Stars value={top.place.rating} count={top.place.ratingCount} />
+          </div>
+        )}
+        <a href={top.place.mapsUri ?? mapUrl(top.place)} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block rounded-full bg-paper px-4 py-2 text-sm font-semibold text-plum">
           Y aller ↗
         </a>
+        </div>
       </div>
 
       {/* IA */}

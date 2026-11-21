@@ -1,4 +1,5 @@
 import type { Budget, Category, Place } from "./types";
+import { googlePlaces, hasGoogle } from "./google";
 
 const UA = "Buddly/1.0 (https://buddly.io)";
 const GEOAPIFY = process.env.GEOAPIFY_KEY;
@@ -236,7 +237,22 @@ function pick(all: Place[], max: number): Place[] {
   return out;
 }
 
-export async function findPlaces(lat: number, lon: number, radius: number, cats: Category[], max = 40) {
+export async function findPlaces(
+  lat: number,
+  lon: number,
+  radius: number,
+  cats: Category[],
+  slot?: { date?: string; from?: string },
+  max = 40,
+) {
+  if (hasGoogle) {
+    try {
+      const g = await googlePlaces(lat, lon, radius, cats, slot, max);
+      if (g.length >= 8) return g;
+    } catch (e) {
+      console.error(e);
+    }
+  }
   let all: Place[] = [];
   if (GEOAPIFY) {
     try {

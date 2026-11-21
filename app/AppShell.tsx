@@ -52,3 +52,40 @@ export const inputCls =
 export function Spinner({ className = "" }: { className?: string }) {
   return <span className={`inline-block size-5 animate-spin rounded-full border-[3px] border-current border-t-transparent ${className}`} />;
 }
+
+export function BudgetPicker({ value, onChange }: { value: 1 | 2 | 3; onChange: (b: 1 | 2 | 3) => void }) {
+  const opts = [
+    { v: 1, title: "Petit budget", hint: "moins de 15 € / pers" },
+    { v: 2, title: "Raisonnable", hint: "15 à 30 € / pers" },
+    { v: 3, title: "On se fait plaisir", hint: "plus de 30 € / pers" },
+  ] as const;
+  return (
+    <div className="grid gap-2 sm:grid-cols-3">
+      {opts.map((o) => {
+        const active = value === o.v;
+        return (
+          <button
+            key={o.v}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onChange(o.v)}
+            className={`flex items-center gap-3 rounded-2xl border-2 px-4 py-3 text-left transition sm:flex-col sm:items-start sm:gap-1 ${
+              active ? "border-plum bg-plum text-paper" : "border-plum/15 bg-paper text-ink hover:border-plum/40"
+            }`}
+          >
+            <span
+              aria-hidden
+              className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold tracking-widest ${active ? "bg-coral text-paper" : "bg-peach text-[#c4543f]"}`}
+            >
+              {"€".repeat(o.v)}
+            </span>
+            <span>
+              <span className="block font-semibold">{o.title}</span>
+              <span className={`block text-xs ${active ? "text-lilac" : "text-muted"}`}>{o.hint}</span>
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}

@@ -13,6 +13,9 @@ export async function POST(req: Request) {
 
   const name = String(b.name ?? "").trim().slice(0, 60) || "Notre sortie";
   const when = String(b.when ?? "").trim().slice(0, 40);
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(b.date ?? "") ? String(b.date) : undefined;
+  const from = /^\d{2}:\d{2}$/.test(b.from ?? "") ? String(b.from) : undefined;
+  const to = /^\d{2}:\d{2}$/.test(b.to ?? "") ? String(b.to) : undefined;
   const creatorName = String(b.creatorName ?? "").trim().slice(0, 24);
   const radius = Math.min(5000, Math.max(300, Number(b.radius) || 1500));
   const categories = (Array.isArray(b.categories) ? b.categories : CATS).filter((c: Category) => CATS.includes(c));
@@ -32,10 +35,10 @@ export async function POST(req: Request) {
     area = "Autour de moi";
   }
 
-  const places = await findPlaces(lat, lon, radius, categories);
+  const places = await findPlaces(lat, lon, radius, categories, { date, from });
   if (places.length < 5)
     return NextResponse.json(
-      { error: "Pas assez de lieux trouvés ici. Augmente la distance ou ajoute des types de sortie." },
+      { error: "Pas assez de lieux ouverts et bien notés ici. Augmente la distance, change l'horaire ou ajoute des envies." },
       { status: 422 },
     );
 
@@ -44,6 +47,7 @@ export async function POST(req: Request) {
     id: newId(8),
     name,
     when,
+    slot: date ? { date, from, to, label: when } : undefined,
     area,
     lat,
     lon,

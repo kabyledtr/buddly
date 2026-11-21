@@ -12,12 +12,26 @@ export type Place = {
   distance: number; // mètres depuis le point de rendez-vous
   address?: string;
   website?: string;
+  // enrichi par Google Places quand la clé est configurée
+  photos?: string[]; // noms de photos Google, servis par /api/photo
+  rating?: number;
+  ratingCount?: number;
+  priceRange?: string; // « 15–25 € / pers »
+  openLabel?: string; // « Ouvert jusqu'à 23h »
+  review?: { text: string; author: string; rating: number };
+  summary?: string;
+  mapsUri?: string;
+  cinema?: boolean;
+  special?: boolean; // activité originale (escape game, karaoké…)
 };
+
+export type When = { date?: string; from?: string; to?: string; label: string };
 
 export type Group = {
   id: string;
   name: string;
   when: string;
+  slot?: When;
   area: string;
   lat: number;
   lon: number;
@@ -43,6 +57,12 @@ export const FREE_PLACES = 15;
 export const FREE_MEMBERS = 4;
 export const PREMIUM_MEMBERS = 15;
 export const PRICE_CENTS = 99;
+
+export const BUDGET_LABEL: Record<Budget, { title: string; hint: string }> = {
+  1: { title: "Petit budget", hint: "moins de 15 € / pers" },
+  2: { title: "Raisonnable", hint: "15 à 30 € / pers" },
+  3: { title: "On se fait plaisir", hint: "plus de 30 € / pers" },
+};
 
 export const CATEGORY_LABEL: Record<Category, string> = {
   resto: "Restos",

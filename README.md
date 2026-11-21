@@ -100,7 +100,8 @@ L'équipe a développé avec l'aide d'un assistant de code IA (**Claude Code**).
 6. **Paywall** : le **Pass Sortie à 0,99 €** (paiement unique via Stripe Checkout) débloque le classement complet, 40 adresses au lieu de 15 et jusqu'à 15 amis.
 
 ### Sources de données
-- Lieux : Geoapify Places (si `GEOAPIFY_KEY`), sinon Nominatim puis Overpass. Toutes basées sur OpenStreetMap (© contributeurs OSM, ODbL).
+- Lieux : Google Places (photos, notes, avis, horaires ; seuls les lieux ouverts sur le créneau choisi et bien notés sont proposés). Secours : Geoapify, Nominatim puis Overpass (OpenStreetMap, © contributeurs OSM, ODbL).
+- Cinémas : séances du jour choisi via Tavily (recherche web) puis extraction structurée par Claude.
 - Stockage : Upstash Redis (intégration Vercel). En local sans configuration, stockage en mémoire.
 
 ### Variables d'environnement
@@ -109,7 +110,9 @@ L'équipe a développé avec l'aide d'un assistant de code IA (**Claude Code**).
 | `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis (posées automatiquement par l'intégration Vercel) |
 | `STRIPE_SECRET_KEY` | Paiement du Pass Sortie |
 | `ANTHROPIC_API_KEY` | « Le mot de Buddy » (sinon texte calculé) |
-| `GEOAPIFY_KEY` | Source de lieux rapide (optionnelle) |
+| `GOOGLE_MAPS_API_KEY` | Google Places (New) : photos, notes, avis, horaires d'ouverture, autocomplétion d'adresse |
+| `TAVILY_API_KEY` | Films à l'affiche dans un cinéma précis (recherche web, outil partenaire) |
+| `GEOAPIFY_KEY` | Source de lieux de secours (optionnelle) |
 
 ## Stack technique
 

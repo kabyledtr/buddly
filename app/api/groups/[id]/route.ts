@@ -21,6 +21,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       id: g.id,
       name: g.name,
       when: g.when,
+      slot: g.slot,
       area: g.area,
       radius: g.radius,
       premium: g.premium,
