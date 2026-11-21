@@ -125,6 +125,7 @@ app/
 public/
   logo.png        Logo Buddly
   pet.png         Mascotte et icône de l'app
+  pet-phones.png  Mascotte qui tient 2 téléphones (hero)
 ```
 
 ## Équipe
