@@ -33,67 +33,33 @@ function Laurel({ flip = false }: { flip?: boolean }) {
 }
 
 function PetScene() {
-  const noDrag = { draggable: false };
-  const handClip = (c: string) => (
-    <Image
-      src="/pet-phones.png"
-      alt=""
-      width={1100}
-      height={950}
-      {...noDrag}
-      className="pointer-events-none absolute inset-0 size-full select-none"
-      style={{ clipPath: c }}
-    />
-  );
   return (
-    <div className="mx-auto w-full max-w-[600px] [container-type:inline-size] lg:mr-[-50px]">
-      <div className="relative aspect-[1100/950] w-full select-none text-[2cqw] [-webkit-touch-callout:none] [&_img]:[-webkit-user-drag:none]">
-        {/* cercle violet clair */}
-        <div className="absolute left-[20%] top-[6%] aspect-square w-[78%] rounded-full bg-lilac" />
-
+    <div className="relative mx-auto w-full max-w-[600px] lg:mr-[-60px]">
+      {/* nuage lilas irrégulier en fond */}
+      <svg
+        viewBox="0 0 600 520"
+        preserveAspectRatio="xMinYMid meet"
+        className="absolute left-[2%] top-[-14%] h-[135%] w-[175%] max-w-none"
+        aria-hidden
+      >
+        <g fill="#ece2fd">
+          <circle cx="215" cy="330" r="150" />
+          <circle cx="360" cy="215" r="175" />
+          <circle cx="520" cy="300" r="170" />
+          <circle cx="300" cy="420" r="150" />
+          <rect x="200" y="330" width="420" height="200" />
+        </g>
+      </svg>
+      <div className="relative aspect-[1100/950] w-full select-none [-webkit-touch-callout:none]">
         <Image
           src="/pet-phones.png"
-          alt="Buddy, la mascotte Buddly, tient deux téléphones avec l'app"
+          alt="Buddy, la mascotte Buddly, tient deux téléphones"
           width={1100}
           height={950}
           priority
-          {...noDrag}
-          className="pointer-events-none absolute inset-0 size-full select-none"
+          draggable={false}
+          className="pointer-events-none absolute inset-0 size-full select-none [-webkit-user-drag:none]"
         />
-
-        {/* écran 1 : swipe */}
-        <div
-          className="absolute flex flex-col overflow-hidden rounded-[1.3em] bg-paper p-[0.55em] pt-[1.9em]"
-          style={{ left: "11.9%", top: "26%", width: "17.8%", height: "42.9%", transform: "rotate(-11deg)" }}
-        >
-          <p className="text-[0.7em] font-semibold text-muted">Vendredi · 4 amis</p>
-          <div className="mt-[0.4em] flex flex-1 flex-col rounded-[0.9em] bg-gradient-to-br from-coral to-[#f9a58f] p-[0.6em] text-paper">
-            <span className="self-end rounded-full bg-paper/25 px-[0.5em] text-[0.65em] font-semibold">650 m</span>
-            <span className="mt-auto text-[0.65em] opacity-90">Pizzeria · €€</span>
-            <span className="font-display text-[1.15em] font-bold leading-tight">Chez Nonna</span>
-          </div>
-          <div className="mt-[0.5em] flex justify-center gap-[0.7em]">
-            <span className="grid size-[2.1em] place-items-center rounded-full border border-ink/10 text-[0.85em] text-muted">✕</span>
-            <span className="grid size-[2.1em] place-items-center rounded-full bg-coral text-[0.85em] text-paper">♥</span>
-          </div>
-        </div>
-
-        {/* écran 2 : match */}
-        <div
-          className="absolute flex flex-col overflow-hidden rounded-[1.3em] bg-paper p-[0.55em] pt-[1.9em]"
-          style={{ left: "29.3%", top: "37.6%", width: "18.4%", height: "42%", transform: "rotate(7deg)" }}
-        >
-          <div className="flex flex-1 flex-col items-center justify-center rounded-[0.9em] bg-plum p-[0.5em] text-center text-paper">
-            <Image src="/pet.png" alt="" width={64} height={64} {...noDrag} className="size-[3em] rounded-[0.7em]" />
-            <span className="mt-[0.5em] font-display text-[1.1em] font-bold leading-tight">C&apos;est un match !</span>
-            <span className="mt-[0.3em] text-[0.62em] text-lilac">Les 4 veulent aller chez Saïgon Street</span>
-            <span className="mt-[0.7em] rounded-full bg-coral px-[0.8em] py-[0.3em] text-[0.65em] font-semibold">Réserver</span>
-          </div>
-        </div>
-
-        {/* mains par-dessus les écrans */}
-        {handClip("circle(4.6% at 13.7% 54.9%)")}
-        {handClip("circle(5% at 44.5% 67.8%)")}
       </div>
     </div>
   );
@@ -133,8 +99,8 @@ export default function Hero() {
     <section className="relative overflow-hidden bg-gradient-to-b from-[#fdf7fb] to-[#f7f0fd]">
       <Nav />
 
-      <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pb-6 pt-6 sm:px-6 lg:min-h-[calc(100svh-88px)] lg:grid-cols-[1.05fr_1fr] lg:pb-16 lg:pt-0">
-        <div className="relative z-10">
+      <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pb-6 pt-6 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:items-end lg:pb-0 lg:pt-4">
+        <div className="relative z-10 pb-0 sm:pb-6 lg:pb-36 lg:pt-6">
           <h1 className="font-display text-[3.4rem] font-bold leading-[0.98] tracking-tight text-ink sm:text-7xl lg:text-[5rem]">
             Sortez plus,
             <span className="relative mt-2 inline-block">
@@ -179,7 +145,7 @@ export default function Hero() {
       </div>
 
       {/* vagues */}
-      <div className="relative z-10 -mt-8 lg:mt-0">
+      <div className="relative z-10 -mt-16 sm:-mt-20 lg:-mt-28">
         <svg viewBox="0 0 1440 120" preserveAspectRatio="none" className="block h-[60px] w-full sm:h-[90px] lg:h-[120px]" aria-hidden>
           <path d="M0 60C240 0 520 0 780 40S1220 50 1440 0V120H0z" fill="#f5eefd" />
           <path d="M0 88C280 38 560 46 840 76S1260 52 1440 14V120H0z" fill="#efe5fd" />
