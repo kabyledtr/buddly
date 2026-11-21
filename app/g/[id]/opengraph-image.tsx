@@ -52,15 +52,15 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             {host ? `${host} t'invite à` : "Tu es invité·e à"}
           </div>
           <div style={{ fontSize: name.length > 26 ? 58 : 76, fontWeight: 800, color: "#2a1548", lineHeight: 1.05, marginTop: 8, display: "flex" }}>{name}</div>
-          <div style={{ display: "flex", gap: 14, marginTop: 30 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 14, marginTop: 30 }}>
             {when && (
-              <div style={{ display: "flex", alignItems: "center", height: 64, whiteSpace: "nowrap", fontSize: 28, padding: "0 28px", borderRadius: 999, background: "#f7806a", color: "#fff" }}>
+              <div style={{ display: "flex", flexShrink: 0, alignItems: "center", height: 64, whiteSpace: "nowrap", fontSize: 28, padding: "0 28px", borderRadius: 999, background: "#f7806a", color: "#fff" }}>
                 {when}
               </div>
             )}
             {area && (
-              <div style={{ display: "flex", alignItems: "center", height: 64, whiteSpace: "nowrap", fontSize: 28, padding: "0 28px", borderRadius: 999, background: "#fff", color: "#43207a" }}>
-                {area}
+              <div style={{ display: "flex", flexShrink: 0, alignItems: "center", height: 64, whiteSpace: "nowrap", fontSize: 28, padding: "0 28px", borderRadius: 999, background: "#fff", color: "#43207a" }}>
+                {area.length > 30 ? area.slice(0, 29) + "…" : area}
               </div>
             )}
           </div>
