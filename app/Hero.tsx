@@ -67,7 +67,7 @@ function PetScene() {
 
 export function Nav() {
   return (
-    <header className="relative z-20 mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+    <header className="relative z-20 mx-auto flex w-full max-w-6xl xl:max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
       <a href="#" aria-label="Buddly, accueil" className="shrink-0">
         <Image src="/logo.png" alt="Buddly" width={940} height={420} priority className="h-10 w-auto sm:h-12" />
       </a>
@@ -96,19 +96,19 @@ const FEATURES = [
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#fdf7fb] to-[#f7f0fd]">
+    <section className="relative flex min-h-svh flex-col overflow-hidden bg-gradient-to-b from-[#fdf7fb] to-[#f7f0fd]">
       <Nav />
 
-      <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pb-6 pt-6 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:items-end lg:pb-0 lg:pt-4">
-        <div className="relative z-10 pb-0 sm:pb-6 lg:pb-40 lg:pt-6">
-          <h1 className="font-display text-[clamp(2.2rem,10.5vw,4.4rem)] font-bold leading-[1.02] tracking-tight text-ink">
+      <div className="relative mx-auto grid w-full max-w-6xl xl:max-w-7xl flex-1 items-center gap-10 px-4 pb-6 pt-6 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:items-end lg:pb-0 lg:pt-4">
+        <div className="relative z-10 pb-0 sm:pb-6 lg:self-center lg:pb-40 lg:pt-6">
+          <h1 className="font-display text-[clamp(2.2rem,10.5vw,4.4rem)] xl:text-[5.2rem] font-bold leading-[1.02] tracking-tight text-ink">
             <span className="block whitespace-nowrap">Swipez, Matchez,</span>
             <span className="relative mt-2 inline-block">
               <span className="absolute -inset-x-4 inset-y-2 -z-0 rounded-full bg-lilac" />
               <span className="relative text-plum">Sortez !</span>
             </span>
           </h1>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
+          <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted xl:text-xl">
             Fini les 100 messages pour choisir un resto ou une activité. Invitez vos amis, swipez sur les
             meilleures adresses autour de vous et trouvez enfin un endroit qui plaît à tout le monde.
           </p>
@@ -161,7 +161,7 @@ export default function Hero() {
           <path d="M0 150C170 92 400 74 640 112S1040 162 1210 96C1320 52 1390 18 1440 0" fill="none" stroke="url(#edge-lg)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" className="hidden lg:block" />
         </svg>
         <div className="bg-[#efe5fd]">
-          <div className="mx-auto grid max-w-6xl gap-6 -mt-3 px-4 pb-14 pt-0 sm:grid-cols-3 lg:-mt-6 lg:pb-20 sm:px-6">
+          <div className="mx-auto grid max-w-6xl xl:max-w-7xl gap-6 -mt-3 px-4 pb-14 pt-0 sm:grid-cols-3 lg:-mt-6 lg:pb-20 sm:px-6">
             {FEATURES.map((f) => (
               <div key={f.title} className="flex items-start gap-4">
                 <span className="grid size-16 shrink-0 place-items-center rounded-full bg-paper/80">

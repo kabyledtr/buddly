@@ -53,9 +53,9 @@ export default function Home() {
       <Hero />
 
       {/* PROBLÈME */}
-      <section className="bg-plum py-20 text-paper">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <h2 className="max-w-2xl font-display text-4xl font-bold leading-tight sm:text-5xl">
+      <section className="bg-plum py-20 xl:py-28 text-paper">
+        <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 sm:px-6">
+          <h2 className="max-w-2xl font-display text-4xl font-bold leading-tight sm:text-5xl xl:text-6xl">
             <Words text="Le plus dur dans une sortie, ce n'est pas d'y aller." accent="C'est de choisir." />
           </h2>
           <div className="mt-12 grid gap-4 sm:grid-cols-3">
@@ -74,14 +74,14 @@ export default function Home() {
       </section>
 
       {/* FONCTIONNALITÉS */}
-      <section id="fonctionnalites" className="mx-auto max-w-6xl scroll-mt-8 px-4 py-20 sm:px-6">
+      <section id="fonctionnalites" className="mx-auto max-w-6xl xl:max-w-7xl scroll-mt-8 px-4 py-20 xl:py-28 sm:px-6">
         <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.1fr]">
           <Reveal variant="pop" tilt={-5}>
             <SwipeDemo />
             <p className="mt-4 text-center text-sm text-muted">Essaie : glisse la carte ou utilise les boutons</p>
           </Reveal>
           <div>
-            <h2 className="font-display text-4xl font-bold text-plum sm:text-5xl">
+            <h2 className="font-display text-4xl font-bold text-plum sm:text-5xl xl:text-6xl">
               <Words text="Comment ça marche" />
             </h2>
             <div className="mt-8 space-y-4">
@@ -113,9 +113,9 @@ export default function Home() {
       </section>
 
       {/* TARIFS */}
-      <section id="tarifs" className="scroll-mt-8 bg-lilac/60 py-20">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6">
-          <h2 className="text-center font-display text-4xl font-bold text-plum sm:text-5xl">
+      <section id="tarifs" className="scroll-mt-8 bg-lilac/60 py-20 xl:py-28">
+        <div className="mx-auto max-w-4xl xl:max-w-5xl px-4 sm:px-6">
+          <h2 className="text-center font-display text-4xl font-bold text-plum sm:text-5xl xl:text-6xl">
             <Words text="Simple et" accent="sans surprise" />
           </h2>
           <div className="mt-12 grid gap-5 md:grid-cols-2">
@@ -164,8 +164,8 @@ export default function Home() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="mx-auto max-w-3xl scroll-mt-8 px-4 py-20 sm:px-6">
-        <h2 className="text-center font-display text-4xl font-bold text-plum sm:text-5xl">
+      <section id="faq" className="mx-auto max-w-3xl xl:max-w-4xl scroll-mt-8 px-4 py-20 xl:py-28 sm:px-6">
+        <h2 className="text-center font-display text-4xl font-bold text-plum sm:text-5xl xl:text-6xl">
           <Words text="Questions fréquentes" />
         </h2>
         <div className="mt-10 space-y-3">
@@ -184,11 +184,20 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6">
+      <section className="mx-auto max-w-6xl xl:max-w-7xl px-4 py-20 xl:py-28 text-center sm:px-6">
         <Reveal variant="pop" tilt={-8} className="mx-auto w-fit">
-          <Image src="/pet.png" alt="Buddy, la mascotte de Buddly" width={512} height={512} className="hello size-28 rounded-[1.75rem]" />
+          <div className="buddy-float group relative mx-auto w-40 sm:w-48 xl:w-56">
+            <Image
+              src="/buddy.png"
+              alt="Buddy, la mascotte de Buddly"
+              width={640}
+              height={560}
+              className="hello relative z-10 w-full transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3"
+            />
+            <span className="buddy-shadow" aria-hidden />
+          </div>
         </Reveal>
-        <h2 className="mx-auto mt-6 max-w-xl font-display text-4xl font-bold text-plum sm:text-5xl">
+        <h2 className="mx-auto mt-6 max-w-xl font-display text-4xl font-bold text-plum sm:text-5xl xl:text-6xl">
           <Words text="Ce soir, c'est Buddly qui" accent="tranche." delay={150} />
         </h2>
         <Reveal variant="pop" delay={500} tilt={0} className="mt-8">

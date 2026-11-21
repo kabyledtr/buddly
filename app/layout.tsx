@@ -18,7 +18,6 @@ export const metadata: Metadata = {
   description:
     "Buddly organise vos sorties entre amis : chacun swipe des restos et activités près de chez vous, et l'IA trouve le lieu qui plaît à tout le groupe.",
   metadataBase: new URL("https://buddly.io"),
-  icons: { icon: "/pet.png", apple: "/pet.png" },
   openGraph: {
     title: "Buddly",
     description: "Swipez ensemble, sortez ensemble.",

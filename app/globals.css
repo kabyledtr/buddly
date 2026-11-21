@@ -141,3 +141,48 @@ body {
   }
   .rv .hello { animation: none !important; }
 }
+
+/* ───────────── Grands écrans ─────────────
+   Tout est en rem : on agrandit légèrement la base pour que le site
+   respire sur les écrans larges au lieu de flotter au milieu. */
+@media (min-width: 1600px) { html { font-size: 106.25%; } }
+@media (min-width: 1920px) { html { font-size: 112.5%; } }
+
+/* ───────────── Buddy en bas de page ───────────── */
+@keyframes buddy-bob {
+  0%, 100% { translate: 0 0; rotate: -2deg; scale: 1 1; }
+  45% { translate: 0 -14px; rotate: 2deg; scale: 0.98 1.02; }
+  88% { translate: 0 0; scale: 1.04 0.96; } /* petit écrasement à l'atterrissage */
+}
+@keyframes buddy-shadow {
+  0%, 100% { scale: 1; opacity: 0.22; }
+  45% { scale: 0.72; opacity: 0.12; }
+  88% { scale: 1.06; opacity: 0.25; }
+}
+.buddy-float > img {
+  animation: buddy-bob 2.8s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+/* le coucou d'entrée passe avant le rebond, puis le rebond reprend */
+.rv [data-reveal][data-in="true"] .buddy-float > img.hello {
+  animation:
+    wave-hello 0.9s ease-in-out calc(var(--d, 0ms) + 0.45s) both,
+    buddy-bob 2.8s ease-in-out 1.4s infinite;
+}
+.buddy-shadow {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: -10px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-plum);
+  filter: blur(4px);
+  animation: buddy-shadow 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buddy-float > img,
+  .rv [data-reveal][data-in="true"] .buddy-float > img.hello,
+  .buddy-shadow { animation: none !important; }
+}

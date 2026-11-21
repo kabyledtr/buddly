@@ -7,7 +7,7 @@ export const UPDATED = "21 novembre 2026";
 export function Footer() {
   return (
     <footer className="border-t border-plum/10">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <div className="mx-auto flex max-w-6xl xl:max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p>© 2026 Buddly</p>
         <nav className="flex flex-wrap gap-x-6 gap-y-2">
           <Link href="/mentions-legales" className="hover:text-ink">Mentions légales</Link>
@@ -22,7 +22,7 @@ export function Footer() {
 export default function LegalPage({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <>
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+      <header className="mx-auto flex max-w-6xl xl:max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
         <Link href="/" aria-label="Buddly, accueil">
           <Image src="/logo.png" alt="Buddly" width={940} height={420} className="h-10 w-auto sm:h-12" />
         </Link>
