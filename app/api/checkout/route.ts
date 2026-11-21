@@ -43,7 +43,9 @@ export async function GET(req: Request) {
   const s = await r.json();
   if (!r.ok || !s.url) {
     console.error("stripe", s.error?.message);
-    return NextResponse.redirect(new URL(`/app?paiement=erreur`, url.origin), 303);
+    // raison sans aucune partie de la clé : aide à corriger la configuration
+    const raison = key.startsWith("pk_") ? "cle-publique" : r.status === 401 ? "cle-refusee" : s.error?.code ?? "stripe";
+    return NextResponse.redirect(new URL(`/app?paiement=erreur&raison=${encodeURIComponent(raison)}`, url.origin), 303);
   }
   return NextResponse.redirect(s.url, 303);
 }
