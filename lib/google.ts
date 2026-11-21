@@ -68,7 +68,18 @@ const text = (q: string, lat: number, lon: number, radius: number) =>
   }).catch(() => [] as GPlace[]);
 
 // Activités originales cherchées en plus des catégories classiques
-const SPECIAL_QUERIES = ["escape game", "karaoké", "laser game", "bar à jeux de société", "réalité virtuelle", "atelier créatif"];
+const SPECIAL_QUERIES = ["escape game", "karaoké", "laser game", "bar à jeux de société", "réalité virtuelle", "atelier créatif", "blind test quiz bar", "bowling"];
+const SPECIAL_KIND: [RegExp, string][] = [
+  [/escape/i, "Escape game"],
+  [/karaok/i, "Karaoké"],
+  [/laser/i, "Laser game"],
+  [/r[ée]alit[ée] virtuelle|\bvr\b|virtual/i, "Réalité virtuelle"],
+  [/jeux|board ?game|ludique/i, "Bar à jeux"],
+  [/blind ?test|quiz/i, "Blind test"],
+  [/bowling/i, "Bowling"],
+  [/atelier|workshop|poterie|cours de/i, "Atelier"],
+];
+const EXCLUDED = ["lodging", "hotel", "hostel", "motel", "bed_and_breakfast", "campground", "gas_station", "supermarket"];
 
 /* ---------- horaires ---------- */
 
@@ -100,12 +111,13 @@ function openAt(periods: Period[] | undefined, date: string, from: string): { op
 const CINEMA = ["movie_theater"];
 const ACTIVITY_TYPES = ["movie_theater", "bowling_alley", "museum", "art_gallery", "amusement_center", "night_club"];
 
-function categoryOf(g: GPlace): Category | null {
-  const t = g.types ?? [];
-  if (t.includes("cafe") || t.includes("coffee_shop") || t.includes("bakery")) return "cafe";
-  if (t.includes("bar") || t.includes("pub") || t.includes("wine_bar")) return "bar";
-  if (t.includes("restaurant") || t.some((x) => x.endsWith("_restaurant")) || t.includes("meal_takeaway")) return "resto";
-  return "activite";
+function categoryOf(g: GPlace, source: Category): Category | null {
+  const p = g.primaryType ?? "";
+  if (/restaurant|meal_|food_court|diner|steak_house|pizzeria|brasserie/.test(p)) return "resto";
+  if (/^(bar|pub|wine_bar|cocktail_bar|beer_hall|night_club|lounge_bar|sports_bar|irish_pub|bar_and_grill)$/.test(p)) return "bar";
+  if (/cafe|coffee|tea_house|bakery|patisserie|dessert|ice_cream/.test(p)) return "cafe";
+  if (!p) return source;
+  return source === "activite" ? "activite" : null;
 }
 
 const PRICE: Record<string, Budget> = {
@@ -122,10 +134,16 @@ function distance(aLat: number, aLon: number, bLat: number, bLon: number) {
   return Math.round(2 * R * Math.asin(Math.sqrt(x)));
 }
 
-function toPlace(g: GPlace, lat: number, lon: number, closeLabel: string | undefined, special: boolean): Place | null {
+function toPlace(g: GPlace, lat: number, lon: number, closeLabel: string | undefined, special: boolean, source: Category): Place | null {
   const name = g.displayName?.text;
   if (!name || !g.location) return null;
-  const category = special ? "activite" : categoryOf(g);
+  if ((g.types ?? []).some((t) => EXCLUDED.includes(t))) return null;
+  const typeLabel = g.primaryTypeDisplayName?.text ?? "";
+  const specialKind = SPECIAL_KIND.find(([re]) => re.test(name) || re.test(typeLabel))?.[1];
+  const isBar = (g.types ?? []).some((t) => t === "bar" || t === "pub");
+  // bar à jeux / karaoké restent des activités originales même s'ils sont aussi des bars
+  special = special || (Boolean(specialKind) && (!isBar || /Karaoké|Bar à jeux|Blind test/.test(specialKind!)));
+  const category = special ? "activite" : categoryOf(g, source);
   if (!category) return null;
   const s = g.priceRange?.startPrice?.units, e = g.priceRange?.endPrice?.units;
   const review = (g.reviews ?? [])
@@ -136,7 +154,7 @@ function toPlace(g: GPlace, lat: number, lon: number, closeLabel: string | undef
     id: "G" + g.id,
     name,
     category,
-    kind: g.primaryTypeDisplayName?.text ?? (category === "activite" ? "Activité" : "Lieu"),
+    kind: (special && specialKind) || typeLabel || { resto: "Restaurant", bar: "Bar", cafe: "Café", activite: "Activité" }[category],
     price: g.priceLevel ? PRICE[g.priceLevel] ?? 2 : category === "cafe" ? 1 : 2,
     priceRange: s ? (e ? `${s}–${e} € / pers` : `dès ${s} € / pers`) : undefined,
     lat: g.location.latitude,
@@ -166,20 +184,27 @@ export async function googlePlaces(
   slot?: { date?: string; from?: string },
   max = 40,
 ): Promise<Place[]> {
-  const jobs: Promise<{ list: GPlace[]; special: boolean }>[] = [];
-  const add = (p: Promise<GPlace[]>, special = false) => jobs.push(p.then((list) => ({ list, special })));
-  if (cats.includes("resto")) add(nearby(["restaurant"], lat, lon, radius));
-  if (cats.includes("bar")) add(nearby(["bar", "night_club"], lat, lon, radius));
-  if (cats.includes("cafe")) add(nearby(["cafe"], lat, lon, radius));
+  const jobs: Promise<{ list: GPlace[]; special: boolean; source: Category }>[] = [];
+  const add = (source: Category, p: Promise<GPlace[]>, special = false) =>
+    jobs.push(p.then((list) => ({ list, special, source })));
+  if (cats.includes("resto")) add("resto", nearby(["restaurant"], lat, lon, radius));
+  if (cats.includes("bar")) {
+    add("bar", nearby(["bar", "night_club"], lat, lon, radius));
+    add("bar", text("bar à cocktails", lat, lon, radius));
+  }
+  if (cats.includes("cafe")) {
+    add("cafe", nearby(["cafe", "coffee_shop"], lat, lon, radius));
+    add("cafe", text("coffee shop brunch", lat, lon, radius));
+  }
   if (cats.includes("activite")) {
-    add(nearby(ACTIVITY_TYPES, lat, lon, radius));
-    for (const q of SPECIAL_QUERIES) add(text(q, lat, lon, radius), true);
+    add("activite", nearby(ACTIVITY_TYPES, lat, lon, radius));
+    for (const q of SPECIAL_QUERIES) add("activite", text(q, lat, lon, radius), true);
   }
   const results = await Promise.all(jobs);
 
   const seen = new Set<string>();
   const byCat = new Map<Category, Place[]>();
-  for (const { list, special } of results) {
+  for (const { list, special, source } of results) {
     for (const g of list) {
       if (seen.has(g.id) || g.businessStatus !== "OPERATIONAL") continue;
       // qualité : bien noté et assez d'avis
@@ -190,7 +215,7 @@ export async function googlePlaces(
         if (!o.open) continue;
         closeLabel = o.closeLabel;
       }
-      const p = toPlace(g, lat, lon, closeLabel, special);
+      const p = toPlace(g, lat, lon, closeLabel, special, source);
       if (!p || p.distance > radius * 1.6) continue;
       seen.add(g.id);
       byCat.set(p.category, [...(byCat.get(p.category) ?? []), p]);
