@@ -11,5 +11,10 @@ export async function GET(req: Request) {
   const s = await fetchSession(sessionId);
   if (!s || s.metadata?.groupId) return back("paiement=erreur");
   const tier = await fulfill(s);
-  return back(tier ? `paiement=${tier}` : "paiement=erreur");
+  if (!tier) return back("paiement=erreur");
+  const res = back(`paiement=${tier}`);
+  // l'e-mail du paiement est repris (et verrouillé) dans le formulaire : l'achat suit la bonne adresse
+  const email = s.customer_details?.email?.trim().toLowerCase();
+  if (email) res.cookies.set("buddly_buyer", email, { path: "/", maxAge: 60 * 60 * 24, sameSite: "lax", secure: true });
+  return res;
 }

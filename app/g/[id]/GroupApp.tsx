@@ -351,7 +351,11 @@ function Members({ state, onChange }: { state: State; onChange: () => void }) {
             title={done ? `${m.name} a fini de swiper` : `${m.name} a vu ${m.done} lieux sur ${total}`}
           >
             {m.name}
-            <span className={mine ? "text-lilac" : "text-muted"}>{done ? "a fini" : `${m.done}/${total} vus`}</span>
+            {done && (
+              <svg viewBox="0 0 24 24" className={`size-3.5 ${mine ? "text-lilac" : "text-[#1f9d55]"}`} aria-label="a fini">
+                <path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
           </span>
         );
       })}

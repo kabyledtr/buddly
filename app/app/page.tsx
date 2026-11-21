@@ -157,7 +157,8 @@ export default function CreateGroup() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState(""); // retour de paiement depuis la page Tarifs
-  const [ready, setReady] = useState(false); // brouillon relu (évite d'afficher des champs vides puis remplis)
+  const [ready, setReady] = useState(false);
+  const [emailLocked, setEmailLocked] = useState(false); // e-mail repris d'un achat : non modifiable // brouillon relu (évite d'afficher des champs vides puis remplis)
 
   // Chaque étape a son entrée dans l'historique : le bouton retour du téléphone revient à l'étape d'avant.
   function goStep(n: number) {
@@ -195,6 +196,11 @@ export default function CreateGroup() {
       if (e >= 2 && e <= 3) setStep(e - 1);
     } else if (location.search.includes("etape")) window.history.replaceState(null, "", "/app");
     if (pay) window.history.replaceState(null, "", "/app");
+    const buyer = document.cookie.match(/(?:^|; )buddly_buyer=([^;]+)/)?.[1];
+    if (buyer) {
+      setEmail(decodeURIComponent(buyer));
+      setEmailLocked(true);
+    }
     setReady(true);
     const sync = () => {
       const e = Number(new URLSearchParams(location.search).get("etape"));
@@ -254,6 +260,7 @@ export default function CreateGroup() {
       try {
         localStorage.setItem(memberKey(j.id), j.memberId);
       } catch {}
+      document.cookie = "buddly_buyer=; Max-Age=0; path=/"; // achat utilisé : le verrou n'a plus lieu d'être
       router.push(`/g/${j.id}?nouveau=1`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
@@ -391,10 +398,19 @@ export default function CreateGroup() {
                       autoComplete="email"
                       maxLength={120}
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => !emailLocked && setEmail(e.target.value)}
+                      readOnly={emailLocked}
                       placeholder="lea@mail.com"
-                      className={inputCls}
+                      className={`${inputCls} ${emailLocked ? "cursor-not-allowed bg-lilac/40 text-plum" : ""}`}
                     />
+                    {emailLocked && (
+                      <p className="flex items-center gap-1.5 px-2 text-xs text-muted">
+                        <svg viewBox="0 0 24 24" className="size-3.5" aria-hidden>
+                          <path d="M7 10V7a5 5 0 0110 0v3M6 10h12v10H6z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                        </svg>
+                        L&apos;e-mail de ton achat : c&apos;est lui qui débloque ta sortie.
+                      </p>
+                    )}
                   </Field>
                 </>
               )}
