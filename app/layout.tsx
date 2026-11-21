@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import MetaPixel from "./MetaPixel";
 
 // Polices hébergées dans le projet (SIL OFL) : aucun téléchargement pendant le build.
 const display = localFont({
@@ -46,6 +47,7 @@ export default function RootLayout({
       </head>
       <body className={`${display.variable} ${body.variable} antialiased`}>
         {children}
+        <MetaPixel />
       </body>
     </html>
   );

@@ -46,6 +46,12 @@ export default function MentionsLegales() {
           est valable.
         </p>
         <p>
+          Cookies et mesure d&apos;audience : avec ton accord (bandeau affiché à la première visite), Buddly charge
+          le pixel Meta pour mesurer l&apos;efficacité de ses publicités (pages vues, sortie créée, paiement). Sans
+          accord, rien n&apos;est déposé. Pour changer d&apos;avis, efface les données du site dans ton navigateur : le
+          bandeau réapparaîtra.
+        </p>
+        <p>
           Les paiements sont traités par Stripe. Buddly ne stocke aucune donnée bancaire. Les recommandations
           de Bud sont générées par un modèle d&apos;IA (Anthropic) à partir des prénoms, préférences et votes du
           groupe, sans autre donnée personnelle.

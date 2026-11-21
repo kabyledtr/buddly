@@ -8,6 +8,7 @@ import AddressInput, { type Spot } from "./AddressInput";
 import DatePicker, { absoluteLabel, type Slot } from "./DatePicker";
 import { CATEGORY_LABEL, DIET_LABEL, type Budget, type Category, type Diet } from "@/lib/types";
 import "./wizard.css";
+import { track } from "@/lib/track";
 
 const RADII = [
   { v: 1000, mode: "À pied", dist: "1 km" },
@@ -174,6 +175,7 @@ export default function CreateGroup() {
       erreur: "Le paiement n'a pas pu être vérifié. Si tu as été débité, écris à contact@buddly.io.",
     };
     if (pay && NOTICES[pay]) setNotice(NOTICES[pay]);
+    if (pay === "plus" || pay === "pass") track("Purchase", { value: pay === "plus" ? 3.99 : 2.99, currency: "EUR", content_name: pay });
 
     // Brouillon : ce qui a été tapé est gardé dans l'onglet ; en revenant en arrière (même depuis le swipe), tout est rempli.
     let draft: Draft | null = null;
@@ -260,6 +262,7 @@ export default function CreateGroup() {
       try {
         localStorage.setItem(memberKey(j.id), j.memberId);
       } catch {}
+      track("Lead", { content_name: "sortie" });
       document.cookie = "buddly_buyer=; Max-Age=0; path=/"; // achat utilisé : le verrou n'a plus lieu d'être
       router.push(`/g/${j.id}?nouveau=1`);
     } catch (err) {

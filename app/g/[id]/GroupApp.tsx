@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AppHeader, BudgetPicker, Chip, Field, Spinner, inputCls, memberKey } from "../../AppShell";
 import "./celebrate.css";
 import { SITE_URL, groupPath } from "@/lib/slug";
+import { track } from "@/lib/track";
 import { CATEGORY_LABEL, type Budget, type Category, type Place } from "@/lib/types";
 
 type Ranked = { place: Place; likes: number; nopes: number; likedBy: string[]; unanimous: boolean };
@@ -65,6 +66,8 @@ export default function GroupApp({ id }: { id: string }) {
     } catch {
       if (q.get("nouveau")) setInviteStep(true);
     }
+    if (q.get("paiement") === "ok" || q.get("paiement") === "plus")
+      track("Purchase", { value: q.get("paiement") === "plus" ? 3.99 : 2.99, currency: "EUR", content_name: q.get("paiement") === "plus" ? "plus" : "pass" });
     if (q.get("paiement") === "ok") {
       setToast("Pass Sortie activé ! Tout est débloqué pour le groupe.");
       setTab("results");
@@ -406,6 +409,7 @@ function SizeSheet({ state, onClose, onSaved }: { state: State; onClose: () => v
   async function pay(tier: "pass" | "plus") {
     setBusy(true);
     setError("");
+    track("InitiateCheckout", { value: tier === "plus" ? 3.99 : 2.99, currency: "EUR" });
     const r = await fetch(`/api/groups/${state.group.id}/checkout`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -513,6 +517,7 @@ function Join({ state, onJoined }: { state: State; onJoined: (m: string) => void
     if (!r.ok) return setError(j.error ?? "Erreur");
     try {
       localStorage.setItem(memberKey(state.group.id), j.memberId);
+      track("CompleteRegistration", { content_name: "rejoindre" });
     } catch {}
     onJoined(j.memberId);
   }
@@ -1288,6 +1293,7 @@ function Results({ id, state }: { id: string; state: State }) {
   async function pay(tier: "pass" | "plus") {
     setPaying(true);
     setPayError("");
+    track("InitiateCheckout", { value: tier === "plus" ? 3.99 : 2.99, currency: "EUR" });
     const r = await fetch(`/api/groups/${id}/checkout`, {
       method: "POST",
       headers: { "content-type": "application/json" },
