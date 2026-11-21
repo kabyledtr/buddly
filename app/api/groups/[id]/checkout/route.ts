@@ -38,6 +38,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     "line_items[0][quantity]": "1",
     "line_items[0][price_data][currency]": "eur",
     "line_items[0][price_data][unit_amount]": String(PRICES[tier]),
+    // code de taxe Stripe : service fourni électroniquement (exigé quand Stripe Tax est activé)
+    "line_items[0][price_data][product_data][tax_code]": "txcd_10000000",
     "line_items[0][price_data][product_data][name]": PRODUCT[tier].name,
     "line_items[0][price_data][product_data][description]": PRODUCT[tier].description(g.name),
     client_reference_id: id,

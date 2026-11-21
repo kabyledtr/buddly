@@ -27,6 +27,8 @@ export async function GET(req: Request) {
     "line_items[0][quantity]": "1",
     "line_items[0][price_data][currency]": "eur",
     "line_items[0][price_data][unit_amount]": String(PRICES[tier]),
+    // code de taxe Stripe : service fourni électroniquement (exigé quand Stripe Tax est activé)
+    "line_items[0][price_data][product_data][tax_code]": "txcd_10000000",
     "line_items[0][price_data][product_data][name]": PRODUCT[tier].name,
     "line_items[0][price_data][product_data][description]": PRODUCT[tier].description,
     "metadata[tier]": tier,
@@ -44,7 +46,7 @@ export async function GET(req: Request) {
   if (!r.ok || !s.url) {
     console.error("stripe", s.error?.message);
     // raison sans aucune partie de la clé : aide à corriger la configuration
-    const raison = key.startsWith("pk_") ? "cle-publique" : r.status === 401 ? "cle-refusee" : `${r.status}-${s.error?.code ?? ""}-${String(s.error?.message ?? "").replace(/(sk|rk|pk)_\w+/g, "***").slice(0, 120)}`;
+    const raison = key.startsWith("pk_") ? "cle-publique" : r.status === 401 ? "cle-refusee" : `${r.status}-${s.error?.code ?? "stripe"}`;
     return NextResponse.redirect(new URL(`/app?paiement=erreur&raison=${encodeURIComponent(raison)}`, url.origin), 303);
   }
   return NextResponse.redirect(s.url, 303);
