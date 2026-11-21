@@ -24,6 +24,7 @@ export type Place = {
   cinema?: boolean;
   special?: boolean; // activité originale (escape game, karaoké…)
   diet?: string; // « Halal », « Vegan »… quand le lieu a été trouvé pour un régime
+  event?: { title: string; time?: string; price?: string; url: string; source?: string }; // atelier daté trouvé sur le web
 };
 
 export type Diet = "halal" | "casher" | "vegetarien" | "vegan" | "sansgluten";
@@ -53,6 +54,9 @@ export type Group = {
   premium: boolean; // ancien champ : true = Pass Sortie
   tier?: Tier;
   places: Place[];
+  // ateliers datés trouvés sur le web, stockés à part (clé g:<id>:events) et ajoutés au chargement
+  events?: Place[];
+  eventsStatus?: "pending" | "done";
 };
 
 export type Member = {
@@ -70,10 +74,10 @@ export type Tier = "free" | "pass" | "plus";
 export type PaidTier = Exclude<Tier, "free">;
 
 /** Gratuit : la sortie de base. Pass Sortie : cette sortie seulement. Buddly+ : toutes les sorties, à vie. */
-export const TIERS: Record<Tier, { members: number; places: number; fullRanking: boolean; planB: boolean }> = {
-  free: { members: 2, places: 10, fullRanking: false, planB: false },
-  pass: { members: 4, places: 20, fullRanking: true, planB: false },
-  plus: { members: 15, places: 40, fullRanking: true, planB: true },
+export const TIERS: Record<Tier, { members: number; places: number; events: number; fullRanking: boolean; planB: boolean }> = {
+  free: { members: 2, places: 10, events: 2, fullRanking: false, planB: false },
+  pass: { members: 4, places: 20, events: 4, fullRanking: true, planB: false },
+  plus: { members: 15, places: 40, events: 8, fullRanking: true, planB: true },
 };
 export const PRICES: Record<PaidTier, number> = { pass: 299, plus: 399 };
 export const PLUS_SPLIT = 6; // taille de groupe « théorique » pour la phrase du prix partagé

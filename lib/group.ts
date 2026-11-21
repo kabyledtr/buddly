@@ -15,8 +15,20 @@ const kGroup = (id: string) => `g:${id}`;
 const kMembers = (id: string) => `g:${id}:members`;
 const kVotes = (id: string, m: string) => `g:${id}:v:${m}`;
 
-export const loadGroup = (id: string) => getJSON<Group>(kGroup(id));
-export const saveGroup = (g: Group) => setJSON(kGroup(g.id), g);
+export const kEvents = (id: string) => `g:${id}:events`;
+export type EventsState = { status: "pending" | "done"; at: number; places: Place[] };
+
+export async function loadGroup(id: string): Promise<Group | null> {
+  const [g, ev] = await Promise.all([getJSON<Group>(kGroup(id)), getJSON<EventsState>(kEvents(id))]);
+  if (!g) return null;
+  return { ...g, events: ev?.places ?? [], eventsStatus: ev?.status };
+}
+
+export const saveGroup = (g: Group) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { events, eventsStatus, ...rest } = g;
+  return setJSON(kGroup(g.id), rest);
+};
 
 export async function loadMembers(id: string): Promise<Member[]> {
   const raw = await hgetall<Member | string>(kMembers(id));
@@ -41,7 +53,10 @@ export async function loadVotes(id: string, members: Member[]): Promise<Votes> {
 export const saveVote = (groupId: string, memberId: string, placeId: string, like: boolean) =>
   hset(kVotes(groupId, memberId), placeId, like ? 1 : 0);
 
-export const deckFor = (g: Group) => g.places.slice(0, TIERS[tierOf(g)].places);
+export const deckFor = (g: Group) => {
+  const t = TIERS[tierOf(g)];
+  return [...g.places.slice(0, t.places), ...(g.events ?? []).slice(0, t.events)];
+};
 export const maxMembers = (g: Group) => TIERS[tierOf(g)].members;
 
 /* ---------- E-mail et Buddly+ à vie (rattaché à l'e-mail) ---------- */

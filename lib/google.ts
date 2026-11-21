@@ -77,18 +77,41 @@ const SPECIAL_QUERIES: [string, string][] = [
   ["atelier créatif", "Atelier"],
   ["blind test quiz bar", "Blind test"],
   ["bowling", "Bowling"],
+  ["atelier poterie céramique", "Atelier poterie"],
+  ["cours de cuisine atelier pâtisserie", "Cours de cuisine"],
+  ["atelier DIY bougie parfum peinture", "Atelier"],
+  ["dégustation de vin œnologie bière", "Dégustation"],
+  ["salle d'escalade bloc", "Escalade"],
+  ["mini-golf billard fléchettes", "Jeux"],
+  ["karting paintball accrobranche", "Sensations"],
+  ["comedy club stand-up théâtre d'impro", "Stand-up"],
+  ["salle d'arcade jeux vidéo", "Arcade"],
+  ["lancer de hache", "Lancer de hache"],
 ];
 const SPECIAL_KIND: [RegExp, string][] = [
   [/escape/i, "Escape game"],
   [/karaok/i, "Karaoké"],
   [/laser/i, "Laser game"],
   [/r[ée]alit[ée] virtuelle|\bvr\b|virtual/i, "Réalité virtuelle"],
-  [/jeux|board ?game|ludique/i, "Bar à jeux"],
   [/blind ?test|quiz/i, "Blind test"],
   [/bowling/i, "Bowling"],
-  [/atelier|workshop|poterie|cours de/i, "Atelier"],
+  [/poterie|c[ée]ramique|pottery/i, "Atelier poterie"],
+  [/cours de cuisine|atelier (de )?(cuisine|p[âa]tisserie)|cooking class/i, "Cours de cuisine"],
+  [/d[ée]gustation|oenolog|œnolog|wine tasting/i, "Dégustation"],
+  [/escalade|climbing/i, "Escalade"],
+  [/mini.?golf/i, "Mini-golf"],
+  [/\bbillards?\b|billiard/i, "Billard"],
+  [/fl[ée]chettes|\bdarts\b/i, "Fléchettes"],
+  [/karting/i, "Karting"],
+  [/paintball/i, "Paintball"],
+  [/accrobranche/i, "Accrobranche"],
+  [/lancer de hache|axe throwing/i, "Lancer de hache"],
+  [/stand.?up|comedy club|\bimpro\b/i, "Stand-up"],
+  [/\barcade\b/i, "Arcade"],
+  [/jeux|board ?game|ludique/i, "Bar à jeux"],
+  [/atelier|workshop|cours de/i, "Atelier"],
 ];
-const EXCLUDED = ["lodging", "hotel", "hostel", "motel", "bed_and_breakfast", "campground", "gas_station", "supermarket"];
+const EXCLUDED = ["shopping_mall", "department_store", "lodging", "hotel", "hostel", "motel", "bed_and_breakfast", "campground", "gas_station", "supermarket"];
 
 /* ---------- horaires ---------- */
 
@@ -118,7 +141,10 @@ function openAt(periods: Period[] | undefined, date: string, from: string): { op
 /* ---------- normalisation ---------- */
 
 const CINEMA = ["movie_theater"];
-const ACTIVITY_TYPES = ["movie_theater", "bowling_alley", "museum", "art_gallery", "amusement_center", "night_club"];
+const ACTIVITY_TYPES = [
+  "movie_theater", "bowling_alley", "museum", "art_gallery", "amusement_center", "night_club",
+  "amusement_park", "aquarium", "zoo", "performing_arts_theater",
+];
 
 function categoryOf(g: GPlace, source: Category): Category | null {
   const p = g.primaryType ?? "";
@@ -183,6 +209,30 @@ function toPlace(g: GPlace, lat: number, lon: number, closeLabel: string | undef
   };
 }
 
+/** Retrouve le lieu réel d'un événement (photos, note, position) à partir de son nom et de son adresse. */
+export async function venueLookup(query: string, lat: number, lon: number, radius: number): Promise<Place | null> {
+  if (!KEY) return null;
+  const list = await text(query, lat, lon, Math.max(radius, 5000));
+  const g = list.find((x) => x.businessStatus !== "CLOSED_PERMANENTLY" && x.location);
+  if (!g) return null;
+  const p = toPlace(g, lat, lon, undefined, true, "activite");
+  if (!p) return null;
+  return { ...p, category: "activite", special: true };
+}
+
+/** Alterne les types de lieux en gardant l'ordre de qualité dans chaque type. */
+function diversify(list: Place[]): Place[] {
+  const buckets = new Map<string, Place[]>();
+  for (const p of list) {
+    const kind = p.kind.split(" · ")[0];
+    const k = /mus[ée]e|museum|galerie|gallery/i.test(kind) ? "musée" : /cin[ée]ma|movie/i.test(kind) ? "cinéma" : kind;
+    buckets.set(k, [...(buckets.get(k) ?? []), p]);
+  }
+  const out: Place[] = [];
+  while (out.length < list.length) for (const b of buckets.values()) if (b.length) out.push(b.shift()!);
+  return out;
+}
+
 /* ---------- recherche ---------- */
 
 export async function googlePlaces(
@@ -244,7 +294,11 @@ export async function googlePlaces(
 
   // tri par qualité (note × nombre d'avis) puis proximité
   const score = (p: Place) => (p.rating ?? 4) * Math.log10((p.ratingCount ?? 10) + 10) - p.distance / 2000 + (p.special ? 0.6 : 0);
-  for (const l of byCat.values()) l.sort((a, b) => score(b) - score(a));
+  for (const [cat, l] of byCat) {
+    l.sort((a, b) => score(b) - score(a));
+    // activités : on alterne les types (poterie, escape game, musée…) pour ne pas avoir 5 musées d'affilée
+    if (cat === "activite") byCat.set(cat, diversify(l));
+  }
 
   const out: Place[] = [];
   while (out.length < max && [...byCat.values()].some((l) => l.length)) {

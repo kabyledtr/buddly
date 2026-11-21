@@ -10,7 +10,7 @@ import { CATEGORY_LABEL, type Budget, type Category, type Place } from "@/lib/ty
 
 type Ranked = { place: Place; likes: number; nopes: number; likedBy: string[]; unanimous: boolean };
 type State = {
-  group: { id: string; name: string; when: string; area: string; premium: boolean; tier: Tier; isCreator: boolean; totalPlaces: number; slot?: { date?: string } };
+  group: { id: string; name: string; when: string; area: string; premium: boolean; tier: Tier; isCreator: boolean; totalPlaces: number; slot?: { date?: string }; eventsStatus: "pending" | "done" | null; wantsEvents: boolean };
   deck: Place[];
   members: { id: string; name: string; done: number }[];
   me: string | null;
@@ -77,6 +77,20 @@ export default function GroupApp({ id }: { id: string }) {
     const t = setInterval(refresh, 5000);
     return () => clearInterval(t);
   }, [refresh]);
+
+  // Ateliers datés trouvés sur le web : cherchés une seule fois, juste après la création, puis ajoutés au deck.
+  const eventsAsked = useRef(false);
+  useEffect(() => {
+    if (!state?.me || !state.group.wantsEvents || state.group.eventsStatus || eventsAsked.current) return;
+    eventsAsked.current = true;
+    fetch(`/api/groups/${id}/events`, { method: "POST" })
+      .then((r) => r.json())
+      .then((j) => {
+        if (j.count > 0) setToast(`Bud a trouvé ${j.count} atelier${j.count > 1 ? "s" : ""} du jour : ils arrivent dans ton deck.`);
+        refresh();
+      })
+      .catch(() => {});
+  }, [id, state, refresh]);
 
   useEffect(() => {
     if (!toast) return;
@@ -581,7 +595,11 @@ function Card({
         {place.openLabel && (
           <span className="mr-auto rounded-full bg-[#1f9d55]/90 px-3 py-1 text-xs font-semibold">{place.openLabel}</span>
         )}
-        {place.special && <span className="rounded-full bg-coral px-3 py-1 text-xs font-bold">Original</span>}
+        {place.event ? (
+          <span className="rounded-full bg-coral px-3 py-1 text-xs font-bold">Atelier du jour</span>
+        ) : (
+          place.special && <span className="rounded-full bg-coral px-3 py-1 text-xs font-bold">Original</span>
+        )}
         {place.diet && <span className="rounded-full bg-paper px-3 py-1 text-xs font-bold text-plum">{place.diet}</span>}
         <span className="rounded-full bg-black/35 px-3 py-1 text-xs font-semibold backdrop-blur">{km(place.distance)}</span>
       </div>
@@ -612,6 +630,17 @@ function Card({
             >
               Films à l&apos;affiche
             </button>
+          )}
+          {place.event && (
+            <a
+              href={place.event.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onPointerDown={stop}
+              className="rounded-full bg-paper px-3 py-1.5 text-xs font-bold text-plum"
+            >
+              Réserver{place.event.source ? ` sur ${place.event.source}` : ""} ↗
+            </a>
           )}
           <a
             href={place.mapsUri ?? mapUrl(place)}
@@ -844,6 +873,11 @@ function Results({ id, state }: { id: string; state: State }) {
         <a href={top.place.mapsUri ?? mapUrl(top.place)} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block rounded-full bg-paper px-4 py-2 text-sm font-semibold text-plum">
           Y aller ↗
         </a>
+        {top.place.event && (
+          <a href={top.place.event.url} target="_blank" rel="noopener noreferrer" className="ml-2 mt-4 inline-block rounded-full bg-coral px-4 py-2 text-sm font-semibold text-paper">
+            Réserver l&apos;atelier ↗
+          </a>
+        )}
         </div>
       </div>
 

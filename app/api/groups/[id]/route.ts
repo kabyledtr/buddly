@@ -29,6 +29,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       tier,
       isCreator: g.creatorId === me,
       totalPlaces: g.places.length,
+      eventsStatus: g.eventsStatus ?? null,
+      wantsEvents: Boolean(g.slot?.date && g.categories.includes("activite")),
     },
     deck,
     members: members.map((m) => ({
