@@ -66,7 +66,7 @@ export async function GET(req: Request) {
               role: "user",
               content: `Voici des résultats de recherche web sur le cinéma « ${name} »${address ? ` (${address})` : ""}.
 Liste les films projetés dans CE cinéma précis le ${day}, avec leurs horaires si présents.
-N'invente rien : n'inclus que des films explicitement liés à ce cinéma dans les sources. 8 films maximum, triés par heure de la première séance.
+N'invente rien : n'inclus que des films explicitement liés à ce cinéma dans les sources. Si une page donne le programme « aujourd'hui » ou de la semaine en cours sans date précise, considère qu'il vaut pour cette date. 8 films maximum, triés par heure de la première séance.
 Tout doit être en français (titres français si les sources les donnent).
 Réponds uniquement avec un objet JSON, sans texte autour :
 {"films": [{"title": "Titre", "times": ["14:00", "20:15"], "version": "VF" ou "VOST" ou "", "genre": "Comédie" ou ""}],
@@ -76,10 +76,11 @@ ${sources}`,
             },
           ],
         }),
-        signal: AbortSignal.timeout(20000),
+        signal: AbortSignal.timeout(40000),
       });
       const j = await r.json();
       const txt: string = j.content?.find((c: { type: string }) => c.type === "text")?.text ?? "{}";
+      if (!j.content) console.error("cinema anthropic", r.status, j.error?.message);
       const parsed = JSON.parse(txt.slice(txt.indexOf("{"), txt.lastIndexOf("}") + 1));
       note = typeof parsed.note === "string" ? parsed.note.slice(0, 160) : undefined;
       if (Array.isArray(parsed.films))
@@ -92,7 +93,9 @@ ${sources}`,
             version: typeof f.version === "string" ? f.version.slice(0, 8) : "",
             genre: typeof f.genre === "string" ? f.genre.slice(0, 24) : "",
           }));
-    } catch {}
+    } catch (e) {
+      console.error("cinema", e);
+    }
   }
 
   const out = { films, note: note ?? (films.length ? undefined : "Le programme de ce jour n'est pas encore publié.") };
