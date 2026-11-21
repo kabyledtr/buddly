@@ -265,8 +265,9 @@ export async function autocomplete(input: string, lat?: number, lon?: number) {
     body: JSON.stringify({
       input,
       languageCode: "fr",
-      includedRegionCodes: ["fr", "be", "ch", "lu", "mc"],
-      ...(lat && lon ? { locationBias: circle(lat, lon, 20000) } : {}),
+      includedRegionCodes: ["fr"],
+      regionCode: "fr",
+      ...(lat && lon ? { locationBias: circle(lat, lon, 30000), origin: { latitude: lat, longitude: lon } } : {}),
     }),
     signal: AbortSignal.timeout(6000),
   });

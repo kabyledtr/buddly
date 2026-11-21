@@ -655,7 +655,7 @@ function Celebrate({ onDone }: { onDone: () => void }) {
     <div className="relative overflow-hidden rounded-[2rem] bg-paper px-6 pb-8 pt-6 text-center">
       <canvas ref={canvas} className="pointer-events-none fixed inset-0 z-40 size-full" aria-hidden />
       <div className="mx-auto mt-6 w-60 pb-3">
-        <Image src="/pet-cool.png" alt="Bud avec ses lunettes de soleil" width={900} height={816} priority className="buddy-bob mx-auto h-48 w-auto select-none" draggable={false} />
+        <Image src="/pet-cool.png" alt="Bud avec ses lunettes de soleil" width={900} height={816} sizes="240px" priority className="buddy-bob mx-auto h-48 w-auto select-none" draggable={false} />
       </div>
       <h2 className="font-display text-3xl font-bold text-plum">Tu as tout swipé !</h2>
       <p className="mt-1 text-muted">Bud fait les comptes : regarde ce qui plaît au groupe.</p>

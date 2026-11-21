@@ -36,6 +36,8 @@ const STEPS = [
   },
 ];
 
+const PETS = ["/pet-wave.png", "/pet-think.png", "/pet-love.png", "/pet-happy.png"];
+
 const LOADING = [
   "Je fouille le quartier…",
   "Je vérifie qui est ouvert à cette heure-là…",
@@ -93,9 +95,16 @@ function Buddly({ step, loading }: { step: number; loading: boolean }) {
 
   const pet = loading ? "/pet-happy.png" : s.pet;
   return (
+    <>
+    {/* précharge toutes les images de Bud pour qu'elles s'affichent sans délai */}
+    <div aria-hidden className="hidden">
+      {PETS.map((p) => (
+        <Image key={p} src={p} alt="" width={700} height={700} sizes="220px" priority />
+      ))}
+    </div>
     <div className={loading ? "flex flex-col items-center gap-4 pt-10 text-center" : "flex items-end gap-3"}>
       <div key={pet} className="wz-pet shrink-0">
-        <Image src={pet} alt="Bud" width={700} height={700} priority draggable={false} className={`${loading ? "h-52" : "h-24 sm:h-28"} w-auto select-none`} />
+        <Image src={pet} alt="Bud" width={700} height={700} sizes="220px" priority draggable={false} className={`${loading ? "h-52" : "h-24 sm:h-28"} w-auto select-none`} />
       </div>
       <div key={loading ? "l" + msg : step} className={`wz-bubble relative rounded-[1.75rem] bg-paper ${loading ? "" : "mb-5 rounded-bl-md"} px-5 py-4 shadow-[0_12px_30px_-14px_rgba(67,32,122,0.35)]`}>
         {loading ? (
@@ -115,6 +124,7 @@ function Buddly({ step, loading }: { step: number; loading: boolean }) {
         )}
       </div>
     </div>
+    </>
   );
 }
 

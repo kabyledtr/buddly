@@ -18,7 +18,10 @@ export async function GET(req: Request) {
     if (id && hasGoogle) return NextResponse.json(await placeLocation(id));
 
     if (q && q.length >= 3) {
-      if (hasGoogle) return NextResponse.json({ items: await autocomplete(q) });
+      if (hasGoogle)
+        return NextResponse.json({
+          items: u.searchParams.has("lat") ? await autocomplete(q, lat, lon) : await autocomplete(q),
+        });
       const r = await fetch(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=jsonv2&limit=8&addressdetails=1&countrycodes=fr,be,ch,lu&accept-language=fr`,
         { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(6000) },
