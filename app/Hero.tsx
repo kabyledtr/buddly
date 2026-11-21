@@ -101,11 +101,11 @@ export default function Hero() {
 
       <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pb-6 pt-6 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:items-end lg:pb-0 lg:pt-4">
         <div className="relative z-10 pb-0 sm:pb-6 lg:pb-40 lg:pt-6">
-          <h1 className="font-display text-[3.4rem] font-bold leading-[0.98] tracking-tight text-ink sm:text-7xl lg:text-[5rem]">
-            Swipez. Matchez.
+          <h1 className="font-display text-[clamp(2.2rem,10.5vw,4.4rem)] font-bold leading-[1.02] tracking-tight text-ink">
+            <span className="block whitespace-nowrap">Swipez, Matchez,</span>
             <span className="relative mt-2 inline-block">
               <span className="absolute -inset-x-4 inset-y-2 -z-0 rounded-full bg-lilac" />
-              <span className="relative text-plum">Sortez.</span>
+              <span className="relative text-plum">Sortez !</span>
             </span>
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
