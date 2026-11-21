@@ -14,7 +14,7 @@ const body = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Buddly — Fini les « on se fait quoi ce soir ? »",
+  title: "Buddly — Swipez. Matchez. Sortez.",
   description:
     "Buddly organise vos sorties entre amis : chacun swipe des restos et activités près de chez vous, et l'IA trouve le lieu qui plaît à tout le groupe.",
   metadataBase: new URL("https://buddly.io"),

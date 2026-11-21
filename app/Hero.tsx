@@ -102,16 +102,15 @@ export default function Hero() {
       <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pb-6 pt-6 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:items-end lg:pb-0 lg:pt-4">
         <div className="relative z-10 pb-0 sm:pb-6 lg:pb-40 lg:pt-6">
           <h1 className="font-display text-[3.4rem] font-bold leading-[0.98] tracking-tight text-ink sm:text-7xl lg:text-[5rem]">
-            Sortez plus,
+            Swipez. Matchez.
             <span className="relative mt-2 inline-block">
               <span className="absolute -inset-x-4 inset-y-2 -z-0 rounded-full bg-lilac" />
-              <span className="relative text-plum">ensemble.</span>
+              <span className="relative text-plum">Sortez.</span>
             </span>
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
-            Des dizaines de messages, personne qui tranche, et la soirée tombe à l&apos;eau. Avec Buddly,
-            chacun swipe des restos et activités autour de vous : quand tout le groupe dit oui, c&apos;est
-            un match.
+            Fini les 100 messages pour choisir un resto ou une activité. Invitez vos amis, swipez sur les
+            meilleures adresses autour de vous et trouvez enfin un endroit qui plaît à tout le monde.
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
             <a
