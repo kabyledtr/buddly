@@ -44,15 +44,18 @@ const mapUrl = (p: Place) =>
 export default function GroupApp({ id }: { id: string }) {
   const [state, setState] = useState<State | null>(null);
   const [error, setError] = useState("");
-  const [memberId, setMemberId] = useState<string | null>(null);
+  // undefined tant qu'on n'a pas lu le navigateur : sinon l'organisateur voit un instant l'écran « X t'invite »
+  const [memberId, setMemberId] = useState<string | null | undefined>(undefined);
   const [tab, setTab] = useState<"swipe" | "results">("swipe");
   const [toast, setToast] = useState("");
   const [localVotes, setLocalVotes] = useState<Record<string, 0 | 1>>({});
 
   useEffect(() => {
+    let m: string | null = null;
     try {
-      setMemberId(localStorage.getItem(memberKey(id)));
+      m = localStorage.getItem(memberKey(id));
     } catch {}
+    setMemberId(m);
     const q = new URLSearchParams(location.search);
     if (q.get("paiement") === "ok") {
       setToast("Pass Sortie activé ! Tout est débloqué pour le groupe.");
@@ -66,6 +69,7 @@ export default function GroupApp({ id }: { id: string }) {
   }, [id]);
 
   const refresh = useCallback(async () => {
+    if (memberId === undefined) return;
     const r = await fetch(`/api/groups/${id}?m=${memberId ?? ""}`, { cache: "no-store" });
     const j = await r.json();
     if (!r.ok) return setError(j.error ?? "Erreur");
@@ -189,7 +193,7 @@ export default function GroupApp({ id }: { id: string }) {
 
 function Screen({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
   return (
-    <div className="min-h-svh bg-gradient-to-b from-[#fdf7fb] to-[#f3eafd]">
+    <div className="app-bg min-h-dvh bg-gradient-to-b from-[#fdf7fb] to-[#f3eafd]">
       <AppHeader right={right} />
       <main className="mx-auto max-w-xl px-4 pb-16">{children}</main>
     </div>
@@ -397,18 +401,20 @@ function Join({ state, onJoined }: { state: State; onJoined: (m: string) => void
 function haptic(kind: "tick" | "like" | "nope") {
   try {
     if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-      navigator.vibrate(kind === "like" ? [14, 60, 24] : kind === "nope" ? 26 : 8);
+      navigator.vibrate(kind === "like" ? [12, 50, 18] : kind === "nope" ? 18 : 8);
       return;
     }
+    // iOS 18+ : basculer un interrupteur natif produit un retour haptique léger (doit suivre un geste de l'utilisateur)
     const label = document.createElement("label");
+    label.ariaHidden = "true";
+    label.style.display = "none";
     const input = document.createElement("input");
     input.type = "checkbox";
     input.setAttribute("switch", "");
     label.appendChild(input);
-    label.style.cssText = "position:fixed;left:-200px;top:0;opacity:0;pointer-events:none";
-    document.body.appendChild(label);
+    document.head.appendChild(label);
     label.click();
-    label.remove();
+    document.head.removeChild(label);
   } catch {}
 }
 
@@ -838,18 +844,18 @@ function Card({
                 aria-label="Photo précédente"
                 onPointerDown={stop}
                 onClick={() => setI((i - 1 + photos.length) % photos.length)}
-                className="absolute left-3 top-[52%] z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-black/30 text-xl text-paper backdrop-blur-md transition hover:bg-black/45"
+                className="absolute left-3 top-[40%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/95 text-plum shadow-[0_6px_16px_-6px_rgba(67,32,122,0.55)] transition active:scale-90"
               >
-                ‹
+                <svg viewBox="0 0 24 24" className="size-5" aria-hidden><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
               <button
                 type="button"
                 aria-label="Photo suivante"
                 onPointerDown={stop}
                 onClick={() => setI((i + 1) % photos.length)}
-                className="absolute right-3 top-[52%] z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-black/30 text-xl text-paper backdrop-blur-md transition hover:bg-black/45"
+                className="absolute right-3 top-[40%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/95 text-plum shadow-[0_6px_16px_-6px_rgba(67,32,122,0.55)] transition active:scale-90"
               >
-                ›
+                <svg viewBox="0 0 24 24" className="size-5" aria-hidden><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
             </>
           )}

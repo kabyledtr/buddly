@@ -143,19 +143,35 @@ export default function CreateGroup() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Chaque étape a son entrée dans l'historique : le bouton retour du téléphone revient à l'étape d'avant.
+  function goStep(n: number) {
+    setStep(n);
+    window.history.pushState(null, "", n ? `/app?etape=${n + 1}` : "/app");
+  }
+  useEffect(() => {
+    if (location.search.includes("etape")) window.history.replaceState(null, "", "/app"); // les réponses ne sont pas gardées
+    const sync = () => {
+      const e = Number(new URLSearchParams(location.search).get("etape"));
+      setError("");
+      setStep(e >= 2 && e <= 3 ? e - 1 : 0);
+    };
+    window.addEventListener("popstate", sync);
+    return () => window.removeEventListener("popstate", sync);
+  }, []);
+
   function next(e?: React.FormEvent) {
     e?.preventDefault();
     setError("");
     if (step === 0 && !creatorName.trim()) return setError("Dis-moi ton prénom.");
-    if (step === 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) return setError("Il me faut un e-mail valide.");
     if (step === 1 && !slot) return setError("Choisis le jour et le créneau.");
     if (step === 1 && !spot) return setError("Choisis une adresse dans la liste ou utilise ta position.");
-    if (step < 2) return setStep(step + 1);
+    if (step < 2) return goStep(step + 1);
     submit();
   }
 
   async function submit() {
     if (!cats.length) return setError("Choisis au moins une envie.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) return setError("Il me faut ton e-mail pour lancer la recherche.");
     setLoading(true);
     try {
       const r = await fetch("/api/groups", {
@@ -193,7 +209,7 @@ export default function CreateGroup() {
   const toggle = <T,>(list: T[], v: T) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 
   return (
-    <div className="relative min-h-svh overflow-hidden bg-gradient-to-b from-[#fdf7fb] to-[#f3eafd]">
+    <div className="app-bg relative min-h-dvh overflow-hidden bg-gradient-to-b from-[#fdf7fb] to-[#f3eafd]">
       <Decor />
       <div className="relative">
         <AppHeader />
@@ -202,7 +218,7 @@ export default function CreateGroup() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => (step ? setStep(step - 1) : router.push("/"))}
+              onClick={() => (step ? window.history.back() : router.push("/"))}
               disabled={loading}
               className="grid size-10 shrink-0 place-items-center rounded-full bg-paper text-lg text-plum shadow-sm transition hover:bg-lilac disabled:opacity-40"
               aria-label="Retour"
@@ -232,18 +248,6 @@ export default function CreateGroup() {
                 <>
                   <Field label="Ton prénom">
                     <input autoFocus maxLength={24} value={creatorName} onChange={(e) => setCreatorName(e.target.value)} placeholder="Léa" className={inputCls} />
-                  </Field>
-                  <Field label="Ton e-mail">
-                    <input
-                      type="email"
-                      inputMode="email"
-                      autoComplete="email"
-                      maxLength={120}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="lea@mail.com"
-                      className={inputCls}
-                    />
                   </Field>
                   <Field label="Le nom de la sortie">
                     <input maxLength={60} value={name} onChange={(e) => setName(e.target.value)} placeholder="Dîner entre potes" className={inputCls} />
@@ -320,6 +324,18 @@ export default function CreateGroup() {
                   </Field>
                   <Field label="Ton budget">
                     <BudgetPicker value={budget} onChange={setBudget} />
+                  </Field>
+                  <Field label="Ton e-mail, pour retrouver ta sortie">
+                    <input
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      maxLength={120}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="lea@mail.com"
+                      className={inputCls}
+                    />
                   </Field>
                 </>
               )}
