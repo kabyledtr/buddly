@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { deckFor, loadGroup, loadMembers, loadVotes, maxMembers, rank } from "@/lib/group";
+import { deckFor, hasPlus, loadGroup, loadMembers, loadVotes, maxMembers, rank, upgrade } from "@/lib/group";
 import { PRICES, PLUS_SPLIT, TIERS, tierOf } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -7,10 +7,15 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const me = new URL(req.url).searchParams.get("m") ?? "";
-  const g = await loadGroup(id);
+  let g = await loadGroup(id);
   if (!g) return NextResponse.json({ error: "Groupe introuvable." }, { status: 404 });
 
   const members = await loadMembers(id);
+  // Buddly+ acheté après la création de la sortie (ex. depuis la page Tarifs) : la sortie se débloque toute seule
+  if (tierOf(g) !== "plus") {
+    const plus = await Promise.all(members.map((m) => (m.email ? hasPlus(m.email) : false)));
+    if (plus.some(Boolean)) g = await upgrade(g, "plus");
+  }
   const votes = await loadVotes(id, members);
   const deck = deckFor(g);
   const ranking = rank(g, members, votes);
@@ -27,6 +32,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       radius: g.radius,
       premium: tier !== "free",
       tier,
+      size: g.size ?? null,
       isCreator: g.creatorId === me,
       totalPlaces: g.places.length,
       eventsStatus: g.eventsStatus ?? null,

@@ -10,7 +10,7 @@ import { CATEGORY_LABEL, type Budget, type Category, type Place } from "@/lib/ty
 
 type Ranked = { place: Place; likes: number; nopes: number; likedBy: string[]; unanimous: boolean };
 type State = {
-  group: { id: string; name: string; when: string; area: string; premium: boolean; tier: Tier; isCreator: boolean; totalPlaces: number; slot?: { date?: string }; eventsStatus: "pending" | "done" | null; wantsEvents: boolean };
+  group: { id: string; name: string; when: string; area: string; premium: boolean; tier: Tier; size: number | null; isCreator: boolean; totalPlaces: number; slot?: { date?: string }; eventsStatus: "pending" | "done" | null; wantsEvents: boolean };
   deck: Place[];
   members: { id: string; name: string; done: number }[];
   me: string | null;
@@ -182,7 +182,7 @@ export default function GroupApp({ id }: { id: string }) {
         </p>
       </div>
 
-      <Members state={state} />
+      <Members state={state} onChange={refresh} />
 
       <div className="mt-5 grid grid-cols-2 rounded-full bg-lilac p-1 text-sm font-semibold">
         {(["swipe", "results"] as const).map((t) => (
@@ -335,26 +335,151 @@ function InviteStep({ state, onDone }: { state: State; onDone: () => void }) {
   );
 }
 
-function Members({ state }: { state: State }) {
+function Members({ state, onChange }: { state: State; onChange: () => void }) {
+  const [open, setOpen] = useState(false);
+  const total = state.deck.length;
+  const size = Math.min(state.group.size ?? state.maxMembers, state.maxMembers);
   return (
     <div className="mt-4 flex flex-wrap items-center gap-2">
       {state.members.map((m) => {
-        const done = m.done >= state.deck.length;
+        const done = m.done >= total;
+        const mine = m.id === state.me;
         return (
           <span
             key={m.id}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
-              m.id === state.me ? "bg-plum text-paper" : "bg-paper text-ink"
-            }`}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${mine ? "bg-plum text-paper" : "bg-paper text-ink"}`}
+            title={done ? `${m.name} a fini de swiper` : `${m.name} a vu ${m.done} lieux sur ${total}`}
           >
             {m.name}
-            <span className={m.id === state.me ? "text-lilac" : "text-muted"}>{done ? "✓" : `${m.done}/${state.deck.length}`}</span>
+            <span className={mine ? "text-lilac" : "text-muted"}>{done ? "a fini" : `${m.done}/${total} vus`}</span>
           </span>
         );
       })}
-      <span className="text-xs text-muted">
-        {state.members.length}/{state.maxMembers} personnes
-      </span>
+      {state.group.isCreator ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="inline-flex items-center gap-1 rounded-full border border-plum/15 bg-paper/60 px-3 py-1 text-xs font-semibold text-plum transition hover:bg-paper"
+        >
+          {state.members.length} sur {size} personnes
+          <svg viewBox="0 0 24 24" className="size-3.5" aria-hidden>
+            <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      ) : (
+        <span className="text-xs text-muted">
+          {state.members.length} sur {size} personnes
+        </span>
+      )}
+      {open && <SizeSheet state={state} onClose={() => setOpen(false)} onSaved={onChange} />}
+    </div>
+  );
+}
+
+/** « Vous serez combien ? » : l'organisateur choisit la taille du groupe ; au-delà de l'offre, on propose la bonne. */
+function SizeSheet({ state, onClose, onSaved }: { state: State; onClose: () => void; onSaved: () => void }) {
+  const [n, setN] = useState(Math.min(state.group.size ?? state.maxMembers, state.maxMembers));
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const max = state.tiers.plus.members;
+  const fits = n <= state.maxMembers;
+  const need: "pass" | "plus" = n <= state.tiers.pass.members && state.group.tier === "free" ? "pass" : "plus";
+
+  async function save() {
+    setBusy(true);
+    setError("");
+    const r = await fetch(`/api/groups/${state.group.id}/size`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ memberId: state.me, size: n }),
+    });
+    setBusy(false);
+    if (!r.ok) return setError((await r.json().catch(() => ({}))).error ?? "Impossible d'enregistrer.");
+    haptic("tick");
+    onSaved();
+    onClose();
+  }
+  async function pay(tier: "pass" | "plus") {
+    setBusy(true);
+    setError("");
+    const r = await fetch(`/api/groups/${state.group.id}/checkout`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ memberId: state.me, tier }),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j.url) return void (location.href = j.url);
+    setBusy(false);
+    setError(j.error ?? "Erreur de paiement");
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 sm:items-center" onClick={onClose}>
+      <div
+        className="w-full max-w-md rounded-t-[2rem] bg-paper p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-2xl sm:rounded-[2rem]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <p className="font-display text-2xl font-bold text-plum">Vous serez combien ?</p>
+        <p className="mt-1 text-sm text-muted">Toi compris. Ton offre actuelle : jusqu&apos;à {state.maxMembers} personnes.</p>
+        <div className="mt-5 grid grid-cols-7 gap-2">
+          {Array.from({ length: max - 1 }, (_, i) => i + 2).map((k) => {
+            const locked = k > state.maxMembers;
+            return (
+              <button
+                key={k}
+                type="button"
+                onClick={() => setN(k)}
+                aria-pressed={n === k}
+                className={`relative grid aspect-square place-items-center rounded-full text-sm font-bold transition ${
+                  n === k ? "bg-plum text-paper" : locked ? "bg-lilac/50 text-plum/50" : "bg-lilac text-plum hover:bg-lilac/80"
+                }`}
+              >
+                {k}
+              </button>
+            );
+          })}
+        </div>
+        {fits ? (
+          <button
+            type="button"
+            onClick={save}
+            disabled={busy}
+            className="mt-6 flex w-full items-center justify-center rounded-full bg-coral py-3.5 font-semibold text-paper shadow-[0_6px_0_-2px_#d9604b] disabled:opacity-60"
+          >
+            {busy ? <Spinner /> : `C'est parti pour ${n}`}
+          </button>
+        ) : (
+          <div className="mt-6 rounded-3xl bg-plum p-5 text-paper">
+            <p className="font-display text-lg font-semibold">
+              À {n}, il te faut {need === "pass" ? "le Pass Sortie" : "Buddly+"}
+            </p>
+            <p className="mt-1 text-sm text-lilac">
+              {need === "pass"
+                ? `Jusqu'à ${state.tiers.pass.members} personnes pour cette sortie, ${euros(state.prices.pass)}. Ou Buddly+ à vie : jusqu'à ${max} personnes, ${euros(state.prices.plus)}.`
+                : `Jusqu'à ${max} personnes sur toutes tes sorties, à vie, pour ${euros(state.prices.plus)}.`}
+            </p>
+            <div className="mt-4 flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => pay("plus")}
+                disabled={busy}
+                className="rounded-full bg-coral py-3 font-semibold disabled:opacity-60"
+              >
+                {busy ? <Spinner /> : `Passer à Buddly+ · ${euros(state.prices.plus)}`}
+              </button>
+              {need === "pass" && (
+                <button type="button" onClick={() => pay("pass")} disabled={busy} className="rounded-full border border-paper/30 py-3 font-semibold disabled:opacity-60">
+                  Prendre le Pass · {euros(state.prices.pass)}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+        {error && <p className="mt-3 text-center text-sm text-[#a2402f]">{error}</p>}
+        <button type="button" onClick={onClose} className="mt-4 w-full text-center text-sm font-semibold text-muted">
+          Fermer
+        </button>
+      </div>
     </div>
   );
 }

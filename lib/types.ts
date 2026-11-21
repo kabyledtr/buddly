@@ -53,6 +53,7 @@ export type Group = {
   creatorId: string;
   premium: boolean; // ancien champ : true = Pass Sortie
   tier?: Tier;
+  size?: number; // nombre de personnes prévu par l'organisateur (≤ limite de l'offre)
   places: Place[];
   // ateliers datés trouvés sur le web, stockés à part (clé g:<id>:events) et ajoutés au chargement
   events?: Place[];
