@@ -132,6 +132,7 @@ export default function CreateGroup() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [creatorName, setCreatorName] = useState("");
+  const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [slot, setSlot] = useState<Slot | null>(null);
   const [spot, setSpot] = useState<Spot | null>(null);
@@ -146,6 +147,7 @@ export default function CreateGroup() {
     e?.preventDefault();
     setError("");
     if (step === 0 && !creatorName.trim()) return setError("Dis-moi ton prénom.");
+    if (step === 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) return setError("Il me faut un e-mail valide.");
     if (step === 1 && !slot) return setError("Choisis le jour et le créneau.");
     if (step === 1 && !spot) return setError("Choisis une adresse dans la liste ou utilise ta position.");
     if (step < 2) return setStep(step + 1);
@@ -161,6 +163,7 @@ export default function CreateGroup() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           creatorName,
+          email,
           name: name || "Notre sortie",
           when: absoluteLabel(slot!.date, slot!.from, slot!.to),
           date: slot!.date,
@@ -229,6 +232,18 @@ export default function CreateGroup() {
                 <>
                   <Field label="Ton prénom">
                     <input autoFocus maxLength={24} value={creatorName} onChange={(e) => setCreatorName(e.target.value)} placeholder="Léa" className={inputCls} />
+                  </Field>
+                  <Field label="Ton e-mail">
+                    <input
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      maxLength={120}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="lea@mail.com"
+                      className={inputCls}
+                    />
                   </Field>
                   <Field label="Le nom de la sortie">
                     <input maxLength={60} value={name} onChange={(e) => setName(e.target.value)} placeholder="Dîner entre potes" className={inputCls} />
@@ -314,7 +329,7 @@ export default function CreateGroup() {
               <button className="w-full rounded-full bg-coral py-3.5 font-semibold text-paper shadow-[0_8px_0_-2px_#d9604b] transition hover:translate-y-0.5 hover:shadow-[0_5px_0_-2px_#d9604b]">
                 {step < 2 ? "Continuer" : "Trouver nos adresses"}
               </button>
-              {step === 0 && <p className="text-center text-xs text-muted">Gratuit jusqu&apos;à 4 amis. Sans compte, sans carte bancaire.</p>}
+              {step === 0 && <p className="text-center text-xs text-muted">Gratuit pour toi et un pote. Sans mot de passe, sans carte bancaire.</p>}
             </form>
           )}
         </main>

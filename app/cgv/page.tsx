@@ -10,7 +10,7 @@ export default function CGV() {
       <Section title="1. Objet">
         <p>
           Les présentes conditions régissent l&apos;utilisation du service Buddly, accessible sur buddly.io, et
-          l&apos;achat du Pass Sortie. Tout achat implique leur acceptation.
+          l&apos;achat du Pass Sortie et de Buddly+. Tout achat implique leur acceptation.
         </p>
       </Section>
 
@@ -21,10 +21,16 @@ export default function CGV() {
           trouver un lieu qui convient à tout le groupe.
         </p>
         <ul className="list-disc space-y-1 pl-5">
-          <li><strong>Gratuit</strong> : jusqu&apos;à 4 amis par groupe, 15 adresses à swiper, le lieu préféré du groupe et le conseil de Bud, la mascotte.</li>
+          <li><strong>Gratuit</strong> : 2 personnes par sortie (l&apos;organisateur et un ami), 10 adresses à swiper, le lieu préféré du groupe et le conseil de Bud, la mascotte.</li>
           <li>
-            <strong>Pass Sortie</strong> : pour une sortie donnée, jusqu&apos;à 15 amis, 40 adresses à swiper et le
-            classement complet du groupe.
+            <strong>Pass Sortie</strong> : pour une sortie donnée, jusqu&apos;à 4 personnes, 20 adresses à swiper et
+            tous les résultats du groupe.
+          </li>
+          <li>
+            <strong>Buddly+</strong> : toutes les sorties créées ou rejointes avec l&apos;adresse e-mail de
+            l&apos;acheteur, sans limite de durée : jusqu&apos;à 15 personnes, 40 adresses à swiper, tous les
+            résultats, le plan B proposé par Bud et la relance par e-mail des membres qui n&apos;ont pas fini de
+            swiper.
           </li>
         </ul>
         <p>
@@ -36,8 +42,9 @@ export default function CGV() {
 
       <Section title="3. Prix et paiement">
         <p>
-          Le Pass Sortie est vendu <strong>0,99 € TTC</strong>, en paiement unique, pour un groupe. Il ne
-          s&apos;agit pas d&apos;un abonnement : aucun autre prélèvement n&apos;a lieu. Le paiement s&apos;effectue
+          Le Pass Sortie est vendu <strong>2,99 € TTC</strong>, en paiement unique, pour une sortie. Buddly+ est
+          vendu <strong>3,99 € TTC</strong>, en paiement unique, sans limite de durée. Il ne s&apos;agit pas
+          d&apos;abonnements : aucun autre prélèvement n&apos;a lieu. Le paiement s&apos;effectue
           par carte bancaire via Stripe, prestataire de paiement sécurisé ; Buddly ne stocke aucune donnée
           bancaire.
         </p>
@@ -46,16 +53,18 @@ export default function CGV() {
       <Section title="4. Accès">
         <p>
           Le Pass Sortie est activé immédiatement après le paiement, pour tous les membres du groupe concerné, tant
-          que le groupe existe (30 jours après sa dernière activité).
+          que le groupe existe (30 jours après sa dernière activité). Buddly+ est activé immédiatement sur la
+          sortie en cours, puis sur chaque sortie créée ou rejointe avec la même adresse e-mail, aussi longtemps
+          que le service Buddly est exploité.
         </p>
       </Section>
 
       <Section title="5. Droit de rétractation">
         <p>
-          Le Pass Sortie est un contenu numérique fourni immédiatement après l&apos;achat. En validant le paiement,
+          Le Pass Sortie et Buddly+ sont des contenus numériques fournis immédiatement après l&apos;achat. En validant le paiement,
           vous demandez cette exécution immédiate et reconnaissez perdre votre droit de rétractation, conformément à
           l&apos;article L221-28, 13° du Code de la consommation. En cas de problème technique empêchant l&apos;accès
-          au Pass, écrivez à{" "}
+          à votre achat, écrivez à{" "}
           <a href={`mailto:${CONTACT_EMAIL}`} className="text-violet underline">{CONTACT_EMAIL}</a> : vous serez
           remboursé.
         </p>

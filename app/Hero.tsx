@@ -131,7 +131,7 @@ export default function Hero() {
           <div className="mt-6 flex items-center justify-center gap-3 sm:justify-start">
             <Laurel />
             <p className="text-center text-sm leading-tight text-muted">
-              <b className="text-ink">Gratuit</b> jusqu&apos;à 4 amis
+              <b className="text-ink">Gratuit</b> pour toi et un pote
               <br />
               sans carte bancaire
             </p>

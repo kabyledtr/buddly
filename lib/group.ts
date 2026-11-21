@@ -1,8 +1,7 @@
 import { getJSON, hgetall, hset, setJSON } from "./store";
 import {
-  FREE_MEMBERS,
-  FREE_PLACES,
-  PREMIUM_MEMBERS,
+  TIERS,
+  tierOf,
   type Group,
   type Member,
   type Place,
@@ -42,8 +41,29 @@ export async function loadVotes(id: string, members: Member[]): Promise<Votes> {
 export const saveVote = (groupId: string, memberId: string, placeId: string, like: boolean) =>
   hset(kVotes(groupId, memberId), placeId, like ? 1 : 0);
 
-export const deckFor = (g: Group) => (g.premium ? g.places : g.places.slice(0, FREE_PLACES));
-export const maxMembers = (g: Group) => (g.premium ? PREMIUM_MEMBERS : FREE_MEMBERS);
+export const deckFor = (g: Group) => g.places.slice(0, TIERS[tierOf(g)].places);
+export const maxMembers = (g: Group) => TIERS[tierOf(g)].members;
+
+/* ---------- E-mail et Buddly+ à vie (rattaché à l'e-mail) ---------- */
+
+export const normEmail = (e: unknown) => String(e ?? "").trim().toLowerCase().slice(0, 120);
+export const isEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+export const plusKey = (email: string) => `plus:email:${email}`;
+
+export async function hasPlus(email: unknown): Promise<boolean> {
+  const e = normEmail(email);
+  if (!isEmail(e)) return false;
+  return Boolean(await getJSON(plusKey(e)));
+}
+
+/** Passe un groupe en Pass Sortie ou Buddly+ (ne rétrograde jamais). */
+export async function upgrade(g: Group, tier: "pass" | "plus") {
+  const cur = tierOf(g);
+  if (cur === "plus" || cur === tier) return g;
+  const next = { ...g, tier, premium: true };
+  await saveGroup(next);
+  return next;
+}
 
 export type Ranked = {
   place: Place;

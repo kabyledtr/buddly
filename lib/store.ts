@@ -25,6 +25,12 @@ export async function setJSON(key: string, value: unknown) {
   mem.kv.set(key, value);
 }
 
+/** Sans expiration (achats à vie). */
+export async function setPermanent(key: string, value: unknown) {
+  if (redis) return void (await redis.set(key, value));
+  mem.kv.set(key, value);
+}
+
 export async function hset(key: string, field: string, value: unknown) {
   if (redis) {
     await redis.hset(key, { [field]: value });

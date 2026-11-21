@@ -10,7 +10,7 @@ import { CATEGORY_LABEL, type Budget, type Category, type Place } from "@/lib/ty
 
 type Ranked = { place: Place; likes: number; nopes: number; likedBy: string[]; unanimous: boolean };
 type State = {
-  group: { id: string; name: string; when: string; area: string; premium: boolean; isCreator: boolean; totalPlaces: number; slot?: { date?: string } };
+  group: { id: string; name: string; when: string; area: string; premium: boolean; tier: Tier; isCreator: boolean; totalPlaces: number; slot?: { date?: string } };
   deck: Place[];
   members: { id: string; name: string; done: number }[];
   me: string | null;
@@ -20,8 +20,12 @@ type State = {
   unanimousCount: number;
   maxMembers: number;
   lockedPlaces: number;
-  priceCents: number;
+  prices: Record<"pass" | "plus", number>;
+  tiers: Record<Tier, { members: number; places: number }>;
+  plusSplit: number;
 };
+type Tier = "free" | "pass" | "plus";
+const TIER_LABEL: Record<Tier, string> = { free: "Gratuit", pass: "Pass Sortie", plus: "Buddly+" };
 
 const BG: Record<Category, string> = {
   resto: "from-coral to-[#f9a58f]",
@@ -50,6 +54,9 @@ export default function GroupApp({ id }: { id: string }) {
     const q = new URLSearchParams(location.search);
     if (q.get("paiement") === "ok") {
       setToast("Pass Sortie activé ! Tout est débloqué pour le groupe.");
+      setTab("results");
+    } else if (q.get("paiement") === "plus") {
+      setToast("Bienvenue dans Buddly+ ! Toutes tes sorties sont débloquées, à vie, avec ton e-mail.");
       setTab("results");
     } else if (q.get("paiement") === "annule") setToast("Paiement annulé.");
     else if (q.get("paiement") === "erreur") setToast("Le paiement n'a pas pu être vérifié.");
@@ -126,7 +133,9 @@ export default function GroupApp({ id }: { id: string }) {
         <h1 className="font-display text-2xl font-bold leading-tight text-plum">{state.group.name}</h1>
         <p className="text-sm text-muted">
           {[state.group.when, state.group.area].filter(Boolean).join(" · ")}
-          {state.group.premium && <span className="ml-2 rounded-full bg-coral px-2 py-0.5 text-xs font-bold text-paper">Pass Sortie</span>}
+          {state.group.tier !== "free" && (
+            <span className="ml-2 rounded-full bg-coral px-2 py-0.5 text-xs font-bold text-paper">{TIER_LABEL[state.group.tier]}</span>
+          )}
         </p>
       </div>
 
@@ -268,7 +277,7 @@ function Members({ state }: { state: State }) {
         );
       })}
       <span className="text-xs text-muted">
-        {state.members.length}/{state.maxMembers} amis
+        {state.members.length}/{state.maxMembers} personnes
       </span>
     </div>
   );
@@ -278,6 +287,7 @@ function Members({ state }: { state: State }) {
 
 function Join({ state, onJoined }: { state: State; onJoined: (m: string) => void }) {
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [budget, setBudget] = useState<Budget>(2);
   const [likes, setLikes] = useState<Category[]>([]);
   const [error, setError] = useState("");
@@ -291,7 +301,7 @@ function Join({ state, onJoined }: { state: State; onJoined: (m: string) => void
     const r = await fetch(`/api/groups/${state.group.id}/join`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name, budget, likes }),
+      body: JSON.stringify({ name, email, budget, likes }),
     });
     const j = await r.json();
     setLoading(false);
@@ -318,12 +328,26 @@ function Join({ state, onJoined }: { state: State; onJoined: (m: string) => void
 
       {full ? (
         <p className="mt-6 rounded-2xl bg-peach px-4 py-3 text-sm font-medium text-[#a2402f]">
-          Le groupe est complet ({state.maxMembers} amis max en gratuit). Demande à l&apos;organisateur de débloquer le Pass Sortie.
+          Le groupe est complet ({state.maxMembers} personnes max). Demande à l&apos;organisateur de débloquer plus de places.
         </p>
       ) : (
         <form onSubmit={join} className="mt-6 space-y-6">
           <Field label="Ton prénom">
             <input required maxLength={24} value={name} onChange={(e) => setName(e.target.value)} placeholder="Yanis" className={inputCls} />
+          </Field>
+          <Field label="Ton e-mail">
+            <input
+              required
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              maxLength={120}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="yanis@mail.com"
+              className={inputCls}
+            />
+            <p className="mt-1.5 px-2 text-xs text-muted">Pour que Bud te prévienne si la bande t&apos;attend. Jamais de pub.</p>
           </Field>
           <Field label="Tes envies">
             <div className="flex flex-wrap gap-2">
@@ -762,13 +786,13 @@ function Results({ id, state }: { id: string; state: State }) {
     };
   }, [id, sig]);
 
-  async function pay() {
+  async function pay(tier: "pass" | "plus") {
     setPaying(true);
     setPayError("");
     const r = await fetch(`/api/groups/${id}/checkout`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ memberId: state.me }),
+      body: JSON.stringify({ memberId: state.me, tier }),
     });
     const j = await r.json();
     if (r.ok && j.url) return (location.href = j.url);
@@ -777,6 +801,7 @@ function Results({ id, state }: { id: string; state: State }) {
   }
 
   const waiting = state.members.filter((m) => m.done < state.deck.length).map((m) => m.name);
+  const tier = state.group.tier;
 
   if (!top)
     return (
@@ -788,11 +813,7 @@ function Results({ id, state }: { id: string; state: State }) {
 
   return (
     <div className="space-y-4">
-      {waiting.length > 0 && (
-        <p className="rounded-2xl bg-paper px-4 py-3 text-sm text-muted">
-          En attente de <b className="text-ink">{waiting.join(", ")}</b>. Le classement se met à jour en direct.
-        </p>
-      )}
+      {waiting.length > 0 && <Waiting id={id} state={state} names={waiting} />}
 
       {/* meilleur lieu */}
       <div className={`relative overflow-hidden rounded-[2rem] bg-gradient-to-br ${BG[top.place.category]} p-6 text-paper`}>
@@ -835,10 +856,10 @@ function Results({ id, state }: { id: string; state: State }) {
         </div>
       </div>
 
-      {/* classement complet ou paywall */}
-      {state.group.premium ? (
+      {/* tous les résultats ou paywall */}
+      {tier !== "free" ? (
         <div className="rounded-3xl bg-paper p-5">
-          <p className="font-display text-xl font-semibold text-plum">Classement complet</p>
+          <p className="font-display text-xl font-semibold text-plum">Tous les résultats</p>
           <ol className="mt-3 divide-y divide-plum/10">
             {state.ranking.map((r, i) => (
               <li key={r.place.id} className="flex items-center gap-3 py-3">
@@ -871,27 +892,129 @@ function Results({ id, state }: { id: string; state: State }) {
               </div>
             ))}
           </div>
-          <div className="relative mt-[-5.5rem] rounded-3xl bg-plum p-6 text-paper shadow-xl">
-            <p className="text-sm font-bold uppercase tracking-wide text-coral">Pass Sortie</p>
-            <h3 className="mt-1 font-display text-2xl font-bold leading-tight">Débloque tout le groupe pour {euros(state.priceCents)}</h3>
-            <ul className="mt-3 space-y-1.5 text-sm text-lilac">
-              <li>✓ Le classement complet{state.rankedCount > 1 ? ` (${state.rankedCount - 1} autres lieux aimés)` : ""}</li>
-              {state.lockedPlaces > 0 && <li>✓ {state.lockedPlaces} adresses de plus à swiper</li>}
-              <li>✓ Jusqu&apos;à 15 amis dans le groupe</li>
-            </ul>
-            <button
-              onClick={pay}
-              disabled={paying}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-coral py-3.5 font-semibold text-paper disabled:opacity-60"
-            >
-              {paying ? <Spinner /> : `Débloquer pour ${euros(state.priceCents)}`}
-            </button>
-            {payError && <p className="mt-3 text-center text-sm text-peach">{payError}</p>}
-            <p className="mt-3 text-center text-xs text-lilac/80">
-              Paiement unique et sécurisé par Stripe. Valable pour tout le groupe.{" "}
-              <Link href="/cgv" className="underline">CGV</Link>
+          <div className="relative mt-[-5.5rem]">
+            <Paywall state={state} paying={paying} onPay={pay} />
+          </div>
+        </div>
+      )}
+
+      {tier === "pass" && <Paywall state={state} paying={paying} onPay={pay} plusOnly />}
+      {payError && <p className="text-center text-sm text-[#a2402f]">{payError}</p>}
+    </div>
+  );
+}
+
+/* ---------- relance des retardataires (Buddly+) ---------- */
+
+function Waiting({ id, state, names }: { id: string; state: State; names: string[] }) {
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const plus = state.group.tier === "plus";
+  const others = names.filter((n) => n !== state.members.find((m) => m.id === state.me)?.name);
+
+  async function remind() {
+    setBusy(true);
+    setMsg("");
+    const r = await fetch(`/api/groups/${id}/remind`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ memberId: state.me }),
+    });
+    const j = await r.json().catch(() => ({}));
+    setBusy(false);
+    if (!r.ok) return setMsg(j.error ?? "La relance n'a pas marché.");
+    if (j.sent?.length) return setMsg(`Bud a relancé ${j.sent.join(", ")} par e-mail.`);
+    if (j.message) return setMsg(j.message);
+    // Personne de joignable par e-mail (ou relance trop récente) : on passe par WhatsApp.
+    const { url } = inviteMessage(state);
+    const text = `${others.join(", ")}, il ne manque que vous pour « ${state.group.name} » ! 1 minute pour swiper :`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`, "_blank", "noopener");
+    setMsg("Déjà relancé il y a peu par e-mail : message WhatsApp prêt.");
+  }
+
+  return (
+    <div className="rounded-2xl bg-paper px-4 py-3 text-sm text-muted">
+      <div className="flex items-center gap-3">
+        <p className="flex-1">
+          En attente de <b className="text-ink">{names.join(", ")}</b>. Les résultats se mettent à jour en direct.
+        </p>
+        {plus && others.length > 0 && (
+          <button
+            onClick={remind}
+            disabled={busy}
+            className="shrink-0 rounded-full bg-plum px-4 py-2 text-xs font-bold text-paper disabled:opacity-60"
+          >
+            {busy ? <Spinner /> : "Relancer"}
+          </button>
+        )}
+      </div>
+      {!plus && others.length > 0 && <p className="mt-1 text-xs">Avec Buddly+, Bud relance les retardataires pour toi.</p>}
+      {msg && <p className="mt-1.5 text-xs font-semibold text-plum">{msg}</p>}
+    </div>
+  );
+}
+
+/* ---------- paywall : Pass Sortie (leurre) et Buddly+ à vie ---------- */
+
+function Paywall({
+  state,
+  paying,
+  onPay,
+  plusOnly = false,
+}: {
+  state: State;
+  paying: boolean;
+  onPay: (t: "pass" | "plus") => void;
+  plusOnly?: boolean;
+}) {
+  const { prices, tiers, plusSplit } = state;
+  const cents = Math.round(prices.plus / plusSplit);
+  return (
+    <div className="space-y-3">
+      <div className="relative rounded-3xl bg-plum p-6 text-paper shadow-xl ring-4 ring-coral/40">
+        <span className="absolute -top-3 right-5 rounded-full bg-coral px-3 py-1 text-xs font-bold uppercase tracking-wide">Recommandé</span>
+        <p className="text-sm font-bold uppercase tracking-wide text-coral">Buddly+ à vie</p>
+        <p className="mt-1 flex items-baseline gap-2">
+          <span className="font-display text-4xl font-bold">{euros(prices.plus)}</span>
+          <span className="text-sm text-lilac">une fois, pour toujours</span>
+        </p>
+        <p className="mt-2 text-sm font-semibold">
+          Divisé par ta bande de {plusSplit}, ça fait {cents} centimes chacun. Pour ne plus jamais entendre « je sais pas, comme vous voulez ».
+        </p>
+        <ul className="mt-4 space-y-1.5 text-sm text-lilac">
+          <li>✓ Toutes tes sorties débloquées, à vie</li>
+          <li>✓ Jusqu&apos;à {tiers.plus.members} personnes et {tiers.plus.places} adresses</li>
+          <li>✓ Tous les résultats, du 1er au dernier</li>
+          <li>✓ Bud tranche les égalités et prépare un plan B</li>
+          <li>✓ Bud relance ceux qui n&apos;ont pas swipé</li>
+        </ul>
+        <button
+          onClick={() => onPay("plus")}
+          disabled={paying}
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-coral py-3.5 font-semibold text-paper shadow-[0_6px_0_-2px_#d9604b] disabled:opacity-60"
+        >
+          {paying ? <Spinner /> : `Passer à Buddly+ pour ${euros(prices.plus)}`}
+        </button>
+        <p className="mt-3 text-center text-xs text-lilac/80">
+          Paiement unique sécurisé par Stripe, lié à ton e-mail. <Link href="/cgv" className="underline">CGV</Link>
+        </p>
+      </div>
+
+      {!plusOnly && (
+        <div className="flex items-center gap-3 rounded-3xl border border-plum/15 bg-paper p-4">
+          <div className="min-w-0 flex-1">
+            <p className="font-display font-semibold text-plum">Pass Sortie · {euros(prices.pass)}</p>
+            <p className="text-xs text-muted">
+              Cette sortie seulement : {tiers.pass.members} personnes, {tiers.pass.places} adresses, tous les résultats.
             </p>
           </div>
+          <button
+            onClick={() => onPay("pass")}
+            disabled={paying}
+            className="shrink-0 rounded-full border border-plum/25 px-4 py-2 text-sm font-semibold text-plum disabled:opacity-60"
+          >
+            Choisir
+          </button>
         </div>
       )}
     </div>

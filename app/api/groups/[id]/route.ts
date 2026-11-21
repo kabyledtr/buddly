@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { deckFor, loadGroup, loadMembers, loadVotes, maxMembers, rank } from "@/lib/group";
-import { PRICE_CENTS } from "@/lib/types";
+import { PRICES, PLUS_SPLIT, TIERS, tierOf } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +15,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const deck = deckFor(g);
   const ranking = rank(g, members, votes);
   const isMember = members.some((m) => m.id === me);
+  const tier = tierOf(g);
 
   return NextResponse.json({
     group: {
@@ -24,7 +25,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       slot: g.slot,
       area: g.area,
       radius: g.radius,
-      premium: g.premium,
+      premium: tier !== "free",
+      tier,
       isCreator: g.creatorId === me,
       totalPlaces: g.places.length,
     },
@@ -36,12 +38,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     })),
     me: isMember ? me : null,
     myVotes: isMember ? votes[me] ?? {} : {},
-    // Gratuit : le meilleur lieu seulement. Pass Sortie : tout le classement.
-    ranking: g.premium ? ranking : ranking.slice(0, 1),
+    // Gratuit : le meilleur lieu seulement. Pass Sortie et Buddly+ : tout le classement.
+    ranking: TIERS[tier].fullRanking ? ranking : ranking.slice(0, 1),
     rankedCount: ranking.length,
     unanimousCount: ranking.filter((r) => r.unanimous).length,
     maxMembers: maxMembers(g),
     lockedPlaces: g.places.length - deck.length,
-    priceCents: PRICE_CENTS,
+    prices: PRICES,
+    tiers: TIERS,
+    plusSplit: PLUS_SPLIT,
   });
 }

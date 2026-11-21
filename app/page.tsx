@@ -30,20 +30,24 @@ const PROBLEMS = [
 ];
 const TILTS = [-4, 3, -2];
 
-const FREE = ["Jusqu'à 4 amis par groupe", "15 adresses réelles à swiper", "Le lieu qui plaît le plus au groupe", "Le conseil IA de Bud"];
-const PREMIUM = [
-  "Jusqu'à 15 amis par groupe",
+const FREE = ["Toi et un pote", "10 adresses réelles à swiper", "Le lieu qui plaît le plus", "Le conseil IA de Bud"];
+const PASS = ["Jusqu'à 4 personnes", "20 adresses à swiper", "Tous les résultats, du 1er au dernier", "Pour cette sortie seulement"];
+const PLUS = [
+  "Toutes tes sorties, à vie",
+  "Jusqu'à 15 personnes",
   "40 adresses à swiper",
-  "Le classement complet du groupe",
-  "Qui a aimé quoi, lieu par lieu",
+  "Tous les résultats, qui a aimé quoi",
+  "Bud tranche les égalités et prépare un plan B",
+  "Bud relance ceux qui n'ont pas swipé",
 ];
 
 const FAQ: [string, string][] = [
-  ["Mes amis doivent-ils créer un compte ?", "Non. Ils rejoignent le groupe avec le lien d'invitation et peuvent voter tout de suite."],
+  ["Mes amis doivent-ils créer un compte ?", "Non. Ils rejoignent avec le lien d'invitation, leur prénom et leur e-mail, sans mot de passe, et votent tout de suite."],
   ["Les lieux proposés sont-ils réels ?", "Oui : des restaurants, bars et activités existants autour de vous, filtrés selon le budget, la distance et les envies du groupe."],
   ["Comment fonctionne le match ?", "Chacun swipe de son côté. Dès qu'un lieu plaît à tout le groupe, Buddly vous l'annonce. Sinon, l'IA propose le meilleur compromis."],
-  ["Que débloque le Pass Sortie ?", "Pour 0,99 € une seule fois, toute la sortie est débloquée pour le groupe : jusqu'à 15 amis, 40 adresses à swiper et le classement complet."],
-  ["C'est un abonnement ?", "Non. Le Pass Sortie est un paiement unique de 0,99 € par sortie, sécurisé par Stripe. Rien n'est prélevé ensuite."],
+  ["Que change Buddly+ ?", "Pour 3,99 € une seule fois, toutes tes sorties sont débloquées à vie : jusqu'à 15 personnes, 40 adresses, tous les résultats, le plan B de Bud et la relance des retardataires. Divisé par une bande de 6, ça fait 67 centimes chacun."],
+  ["C'est un abonnement ?", "Non. Buddly+ (3,99 €) et le Pass Sortie (2,99 €, une seule sortie) sont des paiements uniques sécurisés par Stripe. Rien n'est prélevé ensuite."],
+  ["Comment Buddly+ me reconnaît sur une nouvelle sortie ?", "Grâce à ton e-mail : crée ou rejoins une sortie avec la même adresse, et elle est débloquée automatiquement."],
 ];
 
 export default function Home() {
@@ -118,8 +122,8 @@ export default function Home() {
           <h2 className="text-center font-display text-4xl font-bold text-plum sm:text-5xl">
             <Words text="Simple et" accent="sans surprise" />
           </h2>
-          <div className="mt-12 grid gap-5 md:grid-cols-2">
-            <Reveal variant="left" className="rounded-3xl bg-paper p-8">
+          <div className="mt-12 grid items-center gap-5 md:grid-cols-3">
+            <Reveal variant="left" className="rounded-3xl bg-paper p-7">
               <h3 className="font-display text-2xl font-semibold">Gratuit</h3>
               <p className="mt-2"><span className="font-display text-5xl font-bold">0 €</span></p>
               <ul className="mt-6 space-y-3 text-muted">
@@ -133,7 +137,7 @@ export default function Home() {
                 Commencer
               </a>
             </Reveal>
-            <Reveal variant="right" delay={120} className="relative rounded-3xl bg-plum p-8 text-paper">
+            <Reveal variant="right" delay={120} className="relative rounded-3xl bg-plum p-8 text-paper shadow-xl ring-4 ring-coral/40 md:order-last md:-my-4 md:py-10">
               <Reveal
                 as="span"
                 variant="pop"
@@ -141,21 +145,41 @@ export default function Home() {
                 tilt={14}
                 className="absolute -top-3 right-6 rounded-full bg-coral px-3 py-1 text-xs font-bold"
               >
-                Le plus choisi
+                Recommandé
               </Reveal>
-              <h3 className="font-display text-2xl font-semibold">Pass Sortie</h3>
+              <h3 className="font-display text-2xl font-semibold">Buddly+</h3>
               <p className="mt-2">
-                <span className="font-display text-5xl font-bold">0,99 €</span>
-                <span className="text-lilac"> / sortie</span>
+                <span className="font-display text-5xl font-bold">3,99 €</span>
+                <span className="text-lilac"> à vie</span>
+              </p>
+              <p className="mt-3 text-sm font-semibold">
+                Divisé par ta bande de 6, ça fait 67 centimes chacun. Pour ne plus jamais entendre « je sais pas, comme vous voulez ».
               </p>
               <ul className="mt-6 space-y-3 text-lilac">
-                {PREMIUM.map((f, i) => (
+                {PLUS.map((f, i) => (
                   <Reveal as="li" key={f} delay={370 + i * 70} className="flex gap-2">
                     <span className="text-coral">✓</span>{f}
                   </Reveal>
                 ))}
               </ul>
               <a href="/app" className="mt-8 block rounded-full bg-coral py-3 text-center font-semibold hover:brightness-105">
+                Créer une sortie
+              </a>
+            </Reveal>
+            <Reveal variant="up" delay={60} className="rounded-3xl bg-paper p-7">
+              <h3 className="font-display text-2xl font-semibold">Pass Sortie</h3>
+              <p className="mt-2">
+                <span className="font-display text-5xl font-bold">2,99 €</span>
+                <span className="text-muted"> / sortie</span>
+              </p>
+              <ul className="mt-6 space-y-3 text-muted">
+                {PASS.map((f, i) => (
+                  <Reveal as="li" key={f} delay={300 + i * 70} className="flex gap-2">
+                    <span className="text-violet">✓</span>{f}
+                  </Reveal>
+                ))}
+              </ul>
+              <a href="/app" className="mt-8 block rounded-full border-2 border-plum py-3 text-center font-semibold text-plum hover:bg-lilac">
                 Créer une sortie
               </a>
             </Reveal>

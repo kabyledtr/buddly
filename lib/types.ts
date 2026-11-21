@@ -50,7 +50,8 @@ export type Group = {
   categories: Category[];
   createdAt: number;
   creatorId: string;
-  premium: boolean;
+  premium: boolean; // ancien champ : true = Pass Sortie
+  tier?: Tier;
   places: Place[];
 };
 
@@ -60,14 +61,24 @@ export type Member = {
   budget: Budget;
   likes: Category[];
   joinedAt: number;
+  email?: string; // jamais renvoyé au navigateur
 };
 
 export type Votes = Record<string, Record<string, 0 | 1>>; // memberId -> placeId -> vote
 
-export const FREE_PLACES = 15;
-export const FREE_MEMBERS = 4;
-export const PREMIUM_MEMBERS = 15;
-export const PRICE_CENTS = 99;
+export type Tier = "free" | "pass" | "plus";
+export type PaidTier = Exclude<Tier, "free">;
+
+/** Gratuit : la sortie de base. Pass Sortie : cette sortie seulement. Buddly+ : toutes les sorties, à vie. */
+export const TIERS: Record<Tier, { members: number; places: number; fullRanking: boolean; planB: boolean }> = {
+  free: { members: 2, places: 10, fullRanking: false, planB: false },
+  pass: { members: 4, places: 20, fullRanking: true, planB: false },
+  plus: { members: 15, places: 40, fullRanking: true, planB: true },
+};
+export const PRICES: Record<PaidTier, number> = { pass: 299, plus: 399 };
+export const PLUS_SPLIT = 6; // taille de groupe « théorique » pour la phrase du prix partagé
+
+export const tierOf = (g: Pick<Group, "tier" | "premium">): Tier => g.tier ?? (g.premium ? "pass" : "free");
 
 export const BUDGET_LABEL: Record<Budget, { title: string; hint: string }> = {
   1: { title: "Petit budget", hint: "moins de 15 € / pers" },

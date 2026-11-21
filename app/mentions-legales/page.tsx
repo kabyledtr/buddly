@@ -37,9 +37,13 @@ export default function MentionsLegales() {
 
       <Section title="Données personnelles">
         <p>
-          Buddly collecte uniquement les données nécessaires au service : prénom, préférences de sortie (budget,
-          zone, activités) et votes. Aucun compte ni adresse e-mail n&apos;est demandé. Ces données servent à faire
-          fonctionner les groupes et le matching. Elles ne sont jamais vendues.
+          Buddly collecte uniquement les données nécessaires au service : prénom, adresse e-mail, préférences de
+          sortie (budget, zone, activités) et votes. Aucun mot de passe n&apos;est demandé. L&apos;e-mail sert à
+          reconnaître un achat Buddly+ et à relancer un membre qui n&apos;a pas fini de swiper, à la demande
+          d&apos;un autre membre (e-mails envoyés via Resend). Il n&apos;est jamais affiché aux autres membres,
+          jamais utilisé pour de la publicité et jamais vendu. Les données des sorties sont supprimées 30 jours
+          après leur dernière activité ; l&apos;e-mail lié à un achat Buddly+ est conservé tant que l&apos;achat
+          est valable.
         </p>
         <p>
           Les paiements sont traités par Stripe. Buddly ne stocke aucune donnée bancaire. Les recommandations

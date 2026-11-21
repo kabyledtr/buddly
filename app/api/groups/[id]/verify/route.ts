@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { loadGroup, saveGroup } from "@/lib/group";
+import { isEmail, loadGroup, loadMembers, normEmail, plusKey, upgrade } from "@/lib/group";
+import { setPermanent } from "@/lib/store";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -18,6 +19,17 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   const g = await loadGroup(id);
   if (!g) return back("paiement=erreur");
-  if (!g.premium) await saveGroup({ ...g, premium: true });
-  return back("paiement=ok");
+
+  if (s.metadata?.tier !== "plus") {
+    await upgrade(g, "pass");
+    return back("paiement=ok");
+  }
+
+  // Buddly+ à vie : rattaché à l'e-mail du membre (et à celui saisi chez Stripe s'il diffère).
+  const members = await loadMembers(id);
+  const buyer = members.find((m) => m.id === s.metadata?.memberId);
+  const emails = new Set([normEmail(buyer?.email), normEmail(s.customer_details?.email)].filter(isEmail));
+  for (const e of emails) await setPermanent(plusKey(e), { session: s.id, groupId: id, createdAt: Date.now() });
+  await upgrade(g, "plus");
+  return back("paiement=plus");
 }

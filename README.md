@@ -28,14 +28,17 @@ Buddly est une application web (SaaS) qui simplifie l'organisation des sorties e
 
 ## Modèle économique
 
-Freemium avec paywall :
+Freemium avec paywall, uniquement des paiements uniques (aucun abonnement) :
 
 | Offre | Prix | Contenu |
 |---|---|---|
-| Gratuit | 0 € | 1 groupe actif, 4 amis par groupe, 20 lieux par sortie, matching de base |
-| Premium | 4,99 € / mois | Groupes et swipes illimités, 15 amis par groupe, recommandations IA, point de rendez-vous équitable |
+| Gratuit | 0 € | 2 personnes par sortie, 10 lieux, le meilleur lieu et le conseil IA de Bud |
+| Pass Sortie | 2,99 € par sortie | 4 personnes, 20 lieux, tous les résultats |
+| **Buddly+** | **3,99 €, à vie** | Toutes les sorties, 15 personnes, 40 lieux, tous les résultats, plan B de Bud, relance par e-mail des retardataires |
 
-Paiement prévu via **Stripe** (outil partenaire de la FounderRace).
+Le Pass Sortie sert de prix d'ancrage : pour 1 € de plus, Buddly+ débloque toutes les sorties à vie (« divisé par une bande de 6, ça fait 67 centimes chacun »). Buddly+ est rattaché à l'adresse e-mail de l'acheteur, sans mot de passe.
+
+Paiement via **Stripe Checkout** (outil partenaire de la FounderRace).
 
 ---
 
@@ -86,18 +89,20 @@ L'équipe a développé avec l'aide d'un assistant de code IA (**Claude Code**).
 
 ### Outils partenaires FounderRace
 
-- **Stripe** : paiement de l'abonnement Premium (intégration en cours).
+- **Stripe** : paiement du Pass Sortie et de Buddly+ (Stripe Checkout).
+- **Tavily** : recherche des séances de cinéma du jour.
 
 ---
 
 ## L'application (MVP)
 
 1. **Créer une sortie** (`/app`) : prénom, quartier ou position, distance, envies, budget. Buddly récupère de vrais lieux autour du point de rendez-vous.
-2. **Inviter** : un lien `/g/<id>` à partager (WhatsApp, etc.). Les amis rejoignent sans compte, avec leurs envies et leur budget.
+2. **Inviter** : un lien `/g/<id>` à partager (WhatsApp, etc.). Les amis rejoignent sans mot de passe (prénom + e-mail), avec leurs envies et leur budget.
 3. **Swiper** : chacun vote oui / non sur les mêmes adresses. Les résultats se mettent à jour en direct.
 4. **Matching** : un lieu aimé par tout le monde est un match. Sinon, un score combine les votes, les envies et le budget de chacun, puis la distance.
 5. **Le mot de Bud (IA)** : un modèle Claude (Anthropic) explique quel lieu choisir et pourquoi, à partir des votes et des préférences du groupe.
-6. **Paywall** : le **Pass Sortie à 0,99 €** (paiement unique via Stripe Checkout) débloque le classement complet, 40 adresses au lieu de 15 et jusqu'à 15 amis.
+6. **Paywall** : **Pass Sortie à 2,99 €** (une sortie) ou **Buddly+ à 3,99 € à vie** (toutes les sorties liées à l'e-mail), paiements uniques via Stripe Checkout.
+7. **Relance (Buddly+)** : un bouton envoie un e-mail aux amis qui n'ont pas fini de swiper (Resend), avec un message WhatsApp en secours.
 
 ### Sources de données
 - Lieux : Google Places (photos, notes, avis, horaires ; seuls les lieux ouverts sur le créneau choisi et bien notés sont proposés). Secours : Geoapify, Nominatim puis Overpass (OpenStreetMap, © contributeurs OSM, ODbL).
@@ -108,7 +113,8 @@ L'équipe a développé avec l'aide d'un assistant de code IA (**Claude Code**).
 | Variable | Rôle |
 |---|---|
 | `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis (posées automatiquement par l'intégration Vercel) |
-| `STRIPE_SECRET_KEY` | Paiement du Pass Sortie |
+| `STRIPE_SECRET_KEY` | Paiement du Pass Sortie et de Buddly+ |
+| `RESEND_API_KEY` | Relance des retardataires par e-mail (Buddly+), expéditeur `bud@buddly.io` |
 | `ANTHROPIC_API_KEY` | « Le mot de Bud » (sinon texte calculé) |
 | `GOOGLE_MAPS_API_KEY` | Google Places (New) : photos, notes, avis, horaires d'ouverture, autocomplétion d'adresse |
 | `TAVILY_API_KEY` | Films à l'affiche dans un cinéma précis (recherche web, outil partenaire) |

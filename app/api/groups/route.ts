@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { addMember, newId, saveGroup } from "@/lib/group";
+import { addMember, hasPlus, isEmail, newId, normEmail, saveGroup } from "@/lib/group";
 import { findPlaces, geocode } from "@/lib/places";
 import { DIET_LABEL, type Budget, type Category, type Diet, type Group, type Member } from "@/lib/types";
 
@@ -21,7 +21,9 @@ export async function POST(req: Request) {
   const diets = (Array.isArray(b.diets) ? b.diets : []).filter((d: Diet) => d in DIET_LABEL) as Diet[];
   const categories = (Array.isArray(b.categories) ? b.categories : CATS).filter((c: Category) => CATS.includes(c));
   const budget = ([1, 2, 3].includes(Number(b.budget)) ? Number(b.budget) : 2) as Budget;
+  const email = normEmail(b.email);
   if (!creatorName) return NextResponse.json({ error: "Indique ton prénom." }, { status: 400 });
+  if (!isEmail(email)) return NextResponse.json({ error: "Indique un e-mail valide." }, { status: 400 });
   if (!categories.length) return NextResponse.json({ error: "Choisis au moins un type de sortie." }, { status: 400 });
 
   let lat = Number(b.lat), lon = Number(b.lon);
@@ -36,6 +38,7 @@ export async function POST(req: Request) {
     area = "Autour de moi";
   }
 
+  const plus = await hasPlus(email);
   const places = await findPlaces(lat, lon, radius, categories, { date, from, diets });
   if (places.length < 5)
     return NextResponse.json(
@@ -43,7 +46,7 @@ export async function POST(req: Request) {
       { status: 422 },
     );
 
-  const creator: Member = { id: newId(12), name: creatorName, budget, likes: categories, joinedAt: Date.now() };
+  const creator: Member = { id: newId(12), name: creatorName, email, budget, likes: categories, joinedAt: Date.now() };
   const group: Group = {
     id: newId(8),
     name,
@@ -57,7 +60,8 @@ export async function POST(req: Request) {
     categories,
     createdAt: Date.now(),
     creatorId: creator.id,
-    premium: false,
+    premium: plus,
+    tier: plus ? "plus" : "free",
     places,
   };
   await saveGroup(group);

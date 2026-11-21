@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { loadGroup, loadMembers, loadVotes, rank } from "@/lib/group";
 import { getJSON, setJSON } from "@/lib/store";
-import { CATEGORY_LABEL } from "@/lib/types";
+import { CATEGORY_LABEL, TIERS, tierOf } from "@/lib/types";
 
 export const maxDuration = 30;
 
@@ -18,7 +18,8 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   const top = rank(g, members, votes).slice(0, 5);
   if (!top.length) return NextResponse.json({ text: null });
 
-  const signature = JSON.stringify(top.map((r) => [r.place.id, r.likes, r.nopes])) + members.length;
+  const planB = TIERS[tierOf(g)].planB && top.length > 1;
+  const signature = JSON.stringify(top.map((r) => [r.place.id, r.likes, r.nopes])) + members.length + (planB ? ":b" : "");
   const cacheKey = `g:${id}:ai`;
   const cached = await getJSON<{ sig: string; text: string }>(cacheKey);
   if (cached?.sig === signature) return NextResponse.json({ text: cached.text });
@@ -38,7 +39,11 @@ ${members.map((m) => `- ${m.name} : ${EUROS[m.budget]}, aime ${m.likes.map((c) =
 Lieux les mieux classés après les votes (oui / non sur ${members.length} membres) :
 ${top.map((r, i) => `${i + 1}. ${r.place.name} (${r.place.kind}, ${"€".repeat(r.place.price)}, ${r.place.distance} m) : ${r.likes} oui (${r.likedBy.join(", ") || "personne"}), ${r.nopes} non`).join("\n")}
 
-Recommande UN lieu en 2 phrases maximum, en français, en tutoyant le groupe. Explique pourquoi en citant les envies ou le budget de membres précis. Ton chaleureux, pas d'emoji, pas de markdown.`;
+Recommande UN lieu en 2 phrases maximum, en français, en tutoyant le groupe. Explique pourquoi en citant les envies ou le budget de membres précis.${
+    planB
+      ? " Si deux lieux ont autant de oui, tranche clairement entre eux. Puis ajoute une dernière phrase qui commence exactement par « Plan B : » et propose un autre lieu de la liste au cas où le premier serait complet, avec la raison en quelques mots."
+      : ""
+  } Ton chaleureux, pas d'emoji, pas de markdown.`;
 
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
