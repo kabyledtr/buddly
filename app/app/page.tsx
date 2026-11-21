@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AppHeader, BudgetPicker, Chip, Field, inputCls, memberKey } from "../AppShell";
 import AddressInput, { type Spot } from "./AddressInput";
-import DatePicker, { type Slot } from "./DatePicker";
+import DatePicker, { absoluteLabel, type Slot } from "./DatePicker";
 import { CATEGORY_LABEL, DIET_LABEL, type Budget, type Category, type Diet } from "@/lib/types";
 import "./wizard.css";
 
@@ -162,7 +162,7 @@ export default function CreateGroup() {
         body: JSON.stringify({
           creatorName,
           name: name || "Notre sortie",
-          when: slot!.label,
+          when: absoluteLabel(slot!.date, slot!.from, slot!.to),
           date: slot!.date,
           from: slot!.from,
           to: slot!.to,

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppHeader, BudgetPicker, Chip, Field, Spinner, inputCls, memberKey } from "../../AppShell";
 import "./celebrate.css";
+import { SITE_URL, groupPath } from "@/lib/slug";
 import { CATEGORY_LABEL, type Budget, type Category, type Place } from "@/lib/types";
 
 type Ranked = { place: Place; likes: number; nopes: number; likedBy: string[]; unanimous: boolean };
@@ -52,7 +53,7 @@ export default function GroupApp({ id }: { id: string }) {
       setTab("results");
     } else if (q.get("paiement") === "annule") setToast("Paiement annulé.");
     else if (q.get("paiement") === "erreur") setToast("Le paiement n'a pas pu être vérifié.");
-    if (q.get("paiement")) history.replaceState(null, "", `/g/${id}`);
+
   }, [id]);
 
   const refresh = useCallback(async () => {
@@ -60,6 +61,8 @@ export default function GroupApp({ id }: { id: string }) {
     const j = await r.json();
     if (!r.ok) return setError(j.error ?? "Erreur");
     setState(j);
+    const pretty = groupPath(id, j.group.name);
+    if (location.pathname !== pretty || location.search) history.replaceState(null, "", pretty);
   }, [id, memberId]);
 
   useEffect(() => {
@@ -118,7 +121,7 @@ export default function GroupApp({ id }: { id: string }) {
   }
 
   return (
-    <Screen right={<Invite id={id} name={state.group.name} />}>
+    <Screen right={<Invite state={state} />}>
       <div className="px-1">
         <h1 className="font-display text-2xl font-bold leading-tight text-plum">{state.group.name}</h1>
         <p className="text-sm text-muted">
@@ -128,6 +131,7 @@ export default function GroupApp({ id }: { id: string }) {
       </div>
 
       <Members state={state} />
+      {state.members.length === 1 && <InviteCard state={state} />}
 
       <div className="mt-5 grid grid-cols-2 rounded-full bg-lilac p-1 text-sm font-semibold">
         {(["swipe", "results"] as const).map((t) => (
@@ -169,19 +173,33 @@ function Screen({ children, right }: { children: React.ReactNode; right?: React.
 
 /* ---------- inviter ---------- */
 
-function Invite({ id, name }: { id: string; name: string }) {
+function inviteMessage(state: State) {
+  const g = state.group;
+  const url = SITE_URL + groupPath(g.id, g.name);
+  const me = state.members.find((m) => m.id === state.me)?.name;
+  const when = g.when ? g.when.charAt(0).toLowerCase() + g.when.slice(1) : "";
+  const spot = g.area.split(",")[0];
+  const variants = [
+    `${me ? `${me} t'a gardé une place` : "Je t'ai gardé une place"} pour « ${g.name} »${when ? `, ${when}` : ""} 🎉\nPas de débat de 3 jours : tu swipes les spots du coin, et Bud garde ce qui plaît à tout le monde.`,
+    `« ${g.name} »${when ? ` · ${when}` : ""} 📍 ${spot}\nJe te laisse voter : 30 secondes de swipe et on sait où on va.`,
+    `Bon, on arrête les « je sais pas, comme vous voulez » 😅\nPour « ${g.name} »${when ? ` (${when})` : ""}, chacun swipe ses spots préférés et on garde le match.`,
+  ];
+  const text = variants[g.id.charCodeAt(0) % variants.length];
+  return { url, text };
+}
+
+function Invite({ state }: { state: State }) {
   const [copied, setCopied] = useState(false);
   async function share() {
-    const url = `${location.origin}/g/${id}`;
-    const text = `On choisit où sortir sur Buddly : « ${name} ». Swipe les adresses ici :`;
+    const { url, text } = inviteMessage(state);
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Buddly", text, url });
+        await navigator.share({ title: state.group.name, text, url });
         return;
       } catch {}
     }
     try {
-      await navigator.clipboard.writeText(`${text} ${url}`);
+      await navigator.clipboard.writeText(`${text}\n${url}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {}
@@ -190,6 +208,45 @@ function Invite({ id, name }: { id: string; name: string }) {
     <button onClick={share} className="rounded-full bg-plum px-4 py-2 text-sm font-semibold text-paper hover:bg-ink">
       {copied ? "Lien copié !" : "Inviter des amis"}
     </button>
+  );
+}
+
+/** Carte affichée tant que l'organisateur est seul : le plus important est d'inviter le groupe. */
+function InviteCard({ state }: { state: State }) {
+  const [copied, setCopied] = useState(false);
+  const { url, text } = inviteMessage(state);
+  const pretty = url.replace(/^https?:\/\//, "");
+  return (
+    <div className="mt-4 flex items-center gap-3 rounded-[1.75rem] bg-plum p-4 text-paper">
+      <Image src="/pet-wave.png" alt="" width={700} height={665} sizes="80px" className="size-14 shrink-0 object-contain" />
+      <div className="min-w-0 flex-1">
+        <p className="font-display text-lg font-bold leading-tight">Invite ta bande</p>
+        <p className="truncate text-xs text-lilac">{pretty}</p>
+        <div className="mt-2 flex gap-2">
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full bg-[#25d366] px-3 py-1.5 text-xs font-bold text-white"
+          >
+            WhatsApp
+          </a>
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(`${text}\n${url}`);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              } catch {}
+            }}
+            className="rounded-full bg-paper/15 px-3 py-1.5 text-xs font-bold"
+          >
+            {copied ? "Copié !" : "Copier le message"}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -406,7 +463,7 @@ function Card({
 }: { place: Place; className?: string; badge?: "like" | "nope" | null; active?: boolean; date?: string } & React.HTMLAttributes<HTMLDivElement>) {
   const photos = place.photos ?? [];
   const [i, setI] = useState(0);
-  const [films, setFilms] = useState<{ films: { title: string; times: string[] }[]; answer?: string; unavailable?: boolean } | null>(null);
+  const [films, setFilms] = useState<{ films: { title: string; times: string[]; version?: string; genre?: string }[]; note?: string; unavailable?: boolean } | null>(null);
   const [showFilms, setShowFilms] = useState(false);
   const [loadingFilms, setLoadingFilms] = useState(false);
   const stop = (e: React.SyntheticEvent) => e.stopPropagation();
@@ -559,24 +616,40 @@ function Card({
                 <Spinner className="size-4" /> Bud cherche les séances…
               </p>
             ) : films?.films.length ? (
-              films.films.map((f) => (
-                <div key={f.title} className="rounded-2xl bg-paper/10 p-3">
-                  <p className="font-semibold">{f.title}</p>
-                  {f.times.length > 0 && (
-                    <div className="mt-1.5 flex flex-wrap gap-1.5">
-                      {f.times.map((t) => (
-                        <span key={t} className="rounded-full bg-coral px-2 py-0.5 text-xs font-bold">
-                          {t}
-                        </span>
-                      ))}
+              <>
+                {films.note && <p className="mb-1 text-sm text-lilac">{films.note}</p>}
+                {films.films.map((f) => (
+                  <div key={f.title} className="flex items-start gap-3 rounded-2xl bg-paper/10 p-3">
+                    <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-xl bg-coral/90 text-sm" aria-hidden>
+                      ▶
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold leading-tight">{f.title}</p>
+                      {(f.genre || f.version) && (
+                        <p className="mt-0.5 text-xs text-paper/60">{[f.genre, f.version].filter(Boolean).join(" · ")}</p>
+                      )}
+                      {f.times.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {[...f.times].sort().map((t) => (
+                            <span key={t} className="rounded-full bg-paper px-2.5 py-0.5 text-xs font-bold text-plum">
+                              {t.replace(":", "h")}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              ))
+                  </div>
+                ))}
+              </>
             ) : (
-              <p className="text-sm text-paper/80">
-                {films?.answer ?? (films?.unavailable ? "La recherche de séances n'est pas encore activée." : "Pas de programme trouvé pour cette date.")}
-              </p>
+              <div className="rounded-2xl bg-paper/10 p-4 text-sm text-paper/85">
+                <p>
+                  {films?.unavailable
+                    ? "La recherche de séances n'est pas encore activée."
+                    : films?.note ?? "Le programme de ce jour n'est pas encore publié."}
+                </p>
+                <p className="mt-2 text-paper/60">Les cinémas publient leurs séances environ une semaine à l&apos;avance.</p>
+              </div>
             )}
           </div>
           <a

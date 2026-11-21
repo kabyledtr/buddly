@@ -3,7 +3,7 @@ import { getJSON, setJSON } from "@/lib/store";
 
 export const maxDuration = 30;
 
-type Film = { title: string; times: string[] };
+type Film = { title: string; times: string[]; version?: string; genre?: string };
 
 /**
  * Films à l'affiche dans un cinéma précis à une date donnée.
@@ -19,15 +19,14 @@ export async function GET(req: Request) {
   const tavily = process.env.TAVILY_API_KEY;
   if (!tavily) return NextResponse.json({ films: [], unavailable: true });
 
-  const cacheKey = `cine:${name}:${date}`.toLowerCase();
-  const cached = await getJSON<{ films: Film[] }>(cacheKey);
+  const cacheKey = `cine2:${name}:${date}`.toLowerCase();
+  const cached = await getJSON<{ films: Film[]; note?: string }>(cacheKey);
   if (cached) return NextResponse.json(cached);
 
   const day = new Date(`${date}T12:00:00`).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   const city = address.split(",").pop()?.trim() ?? "";
 
   let results: { title: string; url: string; content: string }[] = [];
-  let answer = "";
   try {
     const r = await fetch("https://api.tavily.com/search", {
       method: "POST",
@@ -35,24 +34,24 @@ export async function GET(req: Request) {
       body: JSON.stringify({
         query: `séances films à l'affiche cinéma ${name} ${city} ${day}`,
         search_depth: "advanced",
-        max_results: 6,
-        include_answer: true,
+        max_results: 8,
+        include_answer: false,
         topic: "general",
       }),
       signal: AbortSignal.timeout(15000),
     });
     const j = await r.json();
     results = j.results ?? [];
-    answer = j.answer ?? "";
   } catch {
     return NextResponse.json({ films: [] });
   }
 
   let films: Film[] = [];
+  let note: string | undefined;
   const claude = process.env.ANTHROPIC_API_KEY;
   if (claude && results.length) {
     const sources = results
-      .map((x, i) => `[${i + 1}] ${x.title} (${x.url})\n${x.content.slice(0, 1500)}`)
+      .map((x, i) => `[${i + 1}] ${x.title} (${x.url})\n${x.content.slice(0, 2500)}`)
       .join("\n\n");
     try {
       const r = await fetch("https://api.anthropic.com/v1/messages", {
@@ -66,8 +65,11 @@ export async function GET(req: Request) {
               role: "user",
               content: `Voici des résultats de recherche web sur le cinéma « ${name} »${address ? ` (${address})` : ""}.
 Liste les films projetés dans CE cinéma précis le ${day}, avec leurs horaires si présents.
-N'invente rien : n'inclus que des films explicitement liés à ce cinéma dans les sources. 8 films maximum.
-Réponds uniquement en JSON : [{"title": "...", "times": ["20:15"]}]. Tableau vide si les sources ne le disent pas.
+N'invente rien : n'inclus que des films explicitement liés à ce cinéma dans les sources. 8 films maximum, triés par heure de la première séance.
+Tout doit être en français (titres français si les sources les donnent).
+Réponds uniquement avec un objet JSON, sans texte autour :
+{"films": [{"title": "Titre", "times": ["14:00", "20:15"], "version": "VF" ou "VOST" ou "", "genre": "Comédie" ou ""}],
+ "note": "une phrase courte et sympa en français pour résumer (ex. « 3 films ce soir, dont une avant-première »), ou, s'il n'y a rien de fiable, « Le programme de ce jour n'est pas encore publié. »"}
 
 ${sources}`,
             },
@@ -76,17 +78,23 @@ ${sources}`,
         signal: AbortSignal.timeout(20000),
       });
       const j = await r.json();
-      const txt: string = j.content?.find((c: { type: string }) => c.type === "text")?.text ?? "[]";
-      const parsed = JSON.parse(txt.slice(txt.indexOf("["), txt.lastIndexOf("]") + 1));
-      if (Array.isArray(parsed))
-        films = parsed
-          .filter((f) => f && typeof f.title === "string")
+      const txt: string = j.content?.find((c: { type: string }) => c.type === "text")?.text ?? "{}";
+      const parsed = JSON.parse(txt.slice(txt.indexOf("{"), txt.lastIndexOf("}") + 1));
+      note = typeof parsed.note === "string" ? parsed.note.slice(0, 160) : undefined;
+      if (Array.isArray(parsed.films))
+        films = parsed.films
+          .filter((f: Film) => f && typeof f.title === "string")
           .slice(0, 8)
-          .map((f) => ({ title: f.title.slice(0, 80), times: Array.isArray(f.times) ? f.times.slice(0, 6).map(String) : [] }));
+          .map((f: Film) => ({
+            title: f.title.slice(0, 80),
+            times: Array.isArray(f.times) ? f.times.slice(0, 6).map(String) : [],
+            version: typeof f.version === "string" ? f.version.slice(0, 8) : "",
+            genre: typeof f.genre === "string" ? f.genre.slice(0, 24) : "",
+          }));
     } catch {}
   }
 
-  const out = { films, answer: films.length ? undefined : answer.slice(0, 400) || undefined };
-  await setJSON(cacheKey, out);
+  const out = { films, note: note ?? (films.length ? undefined : "Le programme de ce jour n'est pas encore publié.") };
+  if (films.length) await setJSON(cacheKey, out); // on ne garde pas en cache un programme vide
   return NextResponse.json(out);
 }

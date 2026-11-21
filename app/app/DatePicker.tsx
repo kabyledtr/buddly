@@ -31,6 +31,14 @@ export function slotLabel(date: string, from: string, to: string) {
   return `${day} · ${hh(from)} – ${hh(to)}`;
 }
 
+/** Libellé daté (« Sam. 21 nov. · 20h – 23h30 »), stable dans le temps pour les invitations. */
+export function absoluteLabel(date: string, from: string, to: string) {
+  const day = new Date(`${date}T12:00:00`)
+    .toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" })
+    .replace(/^./, (c) => c.toUpperCase());
+  return `${day} · ${hh(from)} – ${hh(to)}`;
+}
+
 export default function DatePicker({ value, onChange }: { value: Slot | null; onChange: (s: Slot) => void }) {
   const [open, setOpen] = useState(false);
   const now = new Date();
