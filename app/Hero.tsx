@@ -56,6 +56,7 @@ function PetScene() {
           alt="Bud, la mascotte de Buddly, tient deux téléphones"
           width={1100}
           height={950}
+          quality={100}
           priority
           draggable={false}
           className="pointer-events-none absolute inset-0 size-full select-none [-webkit-user-drag:none]"
