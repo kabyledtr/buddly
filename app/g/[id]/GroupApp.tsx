@@ -21,7 +21,7 @@ type State = {
   maxMembers: number;
   lockedPlaces: number;
   prices: Record<"pass" | "plus", number>;
-  tiers: Record<Tier, { members: number; places: number }>;
+  tiers: Record<Tier, { members: number; places: number; events: number }>;
   plusSplit: number;
 };
 type Tier = "free" | "pass" | "plus";
@@ -388,6 +388,135 @@ function Join({ state, onJoined }: { state: State; onJoined: (m: string) => void
   );
 }
 
+
+/* ---------- retours du swipe : vibration, feu d'artifice, croix et cœurs ---------- */
+
+/** Vibration courte : API Vibration (Android), sinon l'interrupteur natif d'iOS 18+ qui déclenche un retour haptique. */
+function haptic(kind: "tick" | "like" | "nope") {
+  try {
+    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+      navigator.vibrate(kind === "like" ? [14, 60, 24] : kind === "nope" ? 26 : 8);
+      return;
+    }
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.setAttribute("switch", "");
+    label.appendChild(input);
+    label.style.cssText = "position:fixed;left:-200px;top:0;opacity:0;pointer-events:none";
+    document.body.appendChild(label);
+    label.click();
+    label.remove();
+  } catch {}
+}
+
+type Spark = { x: number; y: number; c: string; s: number; heart: boolean; d: number };
+const SPARK_COLORS = ["#f7806a", "#8b55e3", "#ffc93f", "#ff5c8a", "#4d8dff", "#43207a"];
+function makeSparks(): Spark[] {
+  return Array.from({ length: 26 }, (_, i) => {
+    const a = (i / 26) * Math.PI * 2 + Math.random() * 0.35;
+    const dist = 80 + Math.random() * 110;
+    return {
+      x: Math.cos(a) * dist,
+      y: Math.sin(a) * dist - 40,
+      c: SPARK_COLORS[i % SPARK_COLORS.length],
+      s: 7 + Math.random() * 9,
+      heart: i % 3 === 0,
+      d: Math.random() * 90,
+    };
+  });
+}
+
+function HeartIcon({ className = "", color = "#ff5c8a", size }: { className?: string; color?: string; size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} width={size} height={size} aria-hidden>
+      <path fill={color} d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2.1 0 3.6 1.2 5.2 3 1.6-1.8 3.1-3 5.2-3 3.8 0 5.9 3.9 4.4 7.3C19.5 16.4 12 21 12 21z" />
+    </svg>
+  );
+}
+function ThumbIcon({ className = "", size }: { className?: string; size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} width={size} height={size} aria-hidden>
+      <path fill="#4d8dff" d="M2 10.5h3.5V21H2zM7 21V10.2l4.6-7.1c.5-.8 1.6-1 2.4-.4.6.5.9 1.2.7 2l-1 4.3h5.9c1.4 0 2.4 1.3 2.1 2.6l-1.7 7.6c-.3 1.1-1.3 1.8-2.4 1.8z" />
+    </svg>
+  );
+}
+function CrossIcon({ className = "", size }: { className?: string; size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} width={size} height={size} aria-hidden>
+      <path stroke="#ff3b4f" strokeWidth="4.2" strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
+    </svg>
+  );
+}
+
+// positions des icônes qui apparaissent pendant qu'on tire la carte (en % de la zone du deck)
+const AURA: { x: number; y: number; r: number; size: number; d: number }[] = [
+  { x: 6, y: 12, r: -14, size: 46, d: 0 },
+  { x: 16, y: 38, r: 10, size: 34, d: 0.4 },
+  { x: 4, y: 62, r: -6, size: 52, d: 0.2 },
+  { x: 18, y: 82, r: 16, size: 30, d: 0.6 },
+  { x: 26, y: 22, r: 4, size: 26, d: 0.9 },
+];
+
+function SwipeAura({ dx }: { dx: number }) {
+  const p = Math.min(1, Math.abs(dx) / 120);
+  if (p < 0.08) return null;
+  const like = dx > 0;
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-visible" aria-hidden>
+      {AURA.map((a, i) => (
+        <span
+          key={i}
+          className="absolute"
+          style={{
+            [like ? "left" : "right"]: `${a.x}%`,
+            top: `${a.y}%`,
+            opacity: p,
+            transform: `scale(${0.5 + 0.7 * p}) rotate(${like ? -a.r : a.r}deg)`,
+            transition: "opacity .12s, transform .12s",
+          }}
+        >
+          <span className="swipe-float block" style={{ animationDelay: `${a.d}s` }}>
+            {like ? (
+              i % 2 ? (
+                <ThumbIcon className="drop-shadow-md" size={a.size} />
+              ) : (
+                <HeartIcon className="drop-shadow-md" size={a.size} color={i % 4 === 0 ? "#ff5c8a" : "#f7806a"} />
+              )
+            ) : (
+              <CrossIcon className="drop-shadow-md" size={a.size} />
+            )}
+          </span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function Fireworks({ sparks }: { sparks: Spark[] }) {
+  return (
+    <div className="pointer-events-none absolute left-1/2 top-[42%] z-40" aria-hidden>
+      {sparks.map((p, i) =>
+        p.heart ? (
+          <span
+            key={i}
+            className="firework"
+            style={{ "--x": `${p.x}px`, "--y": `${p.y}px`, animationDelay: `${p.d}ms` } as React.CSSProperties}
+          >
+            <HeartIcon color={p.c} className="block" size={18} />
+          </span>
+        ) : (
+          <span
+            key={i}
+            className="firework rounded-full"
+            style={{ "--x": `${p.x}px`, "--y": `${p.y}px`, width: p.s, height: p.s, background: p.c, animationDelay: `${p.d}ms` } as React.CSSProperties}
+          />
+        ),
+      )}
+    </div>
+  );
+}
+
 /* ---------- swipe ---------- */
 
 function Deck({
@@ -404,22 +533,55 @@ function Deck({
   onDone: () => void;
 }) {
   const [dx, setDx] = useState(0);
-  const start = useRef<number | null>(null);
+  const [dy, setDy] = useState(0);
+  const [leaving, setLeaving] = useState(false);
+  const [bursts, setBursts] = useState<{ id: number; sparks: Spark[] }[]>([]);
+  const start = useRef<{ x: number; y: number } | null>(null);
+  const crossed = useRef(false);
   const place = remaining[0];
 
-  if (!place) return <Celebrate onDone={onDone} />;
+  if (!place)
+    return (
+      <>
+        {bursts.map((b) => (
+          <Fireworks key={b.id} sparks={b.sparks} />
+        ))}
+        <Celebrate onDone={onDone} />
+      </>
+    );
 
   const decide = (like: boolean) => {
-    setDx(0);
-    onVote(place, like);
+    if (leaving) return;
+    haptic(like ? "like" : "nope");
+    setLeaving(true);
+    setDx(like ? 560 : -560);
+    if (like) {
+      const id = Date.now();
+      setBursts((b) => [...b, { id, sparks: makeSparks() }]);
+      setTimeout(() => setBursts((b) => b.filter((x) => x.id !== id)), 1200);
+    }
+    setTimeout(() => {
+      setLeaving(false);
+      setDx(0);
+      setDy(0);
+      crossed.current = false;
+      onVote(place, like);
+    }, 240);
   };
   const up = () => {
     if (start.current === null) return;
     start.current = null;
     if (dx > 90) decide(true);
     else if (dx < -90) decide(false);
-    else setDx(0);
+    else {
+      setDx(0);
+      setDy(0);
+    }
   };
+
+  const p = Math.min(1, Math.abs(dx) / 120);
+  const mood = dx > 40 ? "yes" : dx < -40 ? "nope" : null;
+  const dragging = start.current !== null;
 
   return (
     <div>
@@ -427,7 +589,17 @@ function Deck({
         {total - remaining.length + 1} / {total}
       </p>
       <div className="relative mx-auto h-[540px] max-w-sm select-none">
-        {remaining[1] && <Card place={remaining[1]} className="scale-95 opacity-60" />}
+        {remaining[1] && (
+          <Card
+            place={remaining[1]}
+            style={{
+              transform: `scale(${0.94 + 0.06 * p})`,
+              opacity: 0.55 + 0.45 * p,
+              transition: dragging ? "none" : "transform .25s ease, opacity .25s ease",
+            }}
+          />
+        )}
+        <SwipeAura dx={dx} />
         <Card
           key={place.id}
           place={place}
@@ -435,34 +607,76 @@ function Deck({
           active
           className="cursor-grab touch-none active:cursor-grabbing"
           style={{
-            transform: `translateX(${dx}px) rotate(${dx / 18}deg)`,
-            transition: start.current === null ? "transform .25s ease" : "none",
+            transform: `translate(${dx}px, ${dy}px) rotate(${dx / 16}deg)`,
+            transition: dragging ? "none" : leaving ? "transform .24s cubic-bezier(.4,.1,.8,.4)" : "transform .35s cubic-bezier(.2,1.4,.4,1)",
           }}
           badge={dx > 40 ? "like" : dx < -40 ? "nope" : null}
           onPointerDown={(e) => {
-            if ((e.target as HTMLElement).closest("a,button,[data-noswipe]")) return;
-            start.current = e.clientX;
+            if (leaving || (e.target as HTMLElement).closest("a,button,[data-noswipe]")) return;
+            start.current = { x: e.clientX, y: e.clientY };
             (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
           }}
-          onPointerMove={(e) => start.current !== null && setDx(e.clientX - start.current)}
+          onPointerMove={(e) => {
+            if (start.current === null) return;
+            const x = e.clientX - start.current.x;
+            setDx(x);
+            setDy((e.clientY - start.current.y) * 0.25);
+            const over = Math.abs(x) > 90;
+            if (over && !crossed.current) haptic("tick");
+            crossed.current = over;
+          }}
           onPointerUp={up}
           onPointerCancel={up}
         />
+        {bursts.map((b) => (
+          <Fireworks key={b.id} sparks={b.sparks} />
+        ))}
       </div>
-      <div className="mt-5 flex justify-center gap-6">
+      <div className="mt-5 flex items-center justify-center gap-5">
         <button
           aria-label="Bof"
           onClick={() => decide(false)}
-          className="grid size-16 place-items-center rounded-full border-2 border-ink/10 bg-paper text-2xl text-muted shadow-sm transition hover:scale-105"
+          className="grid size-16 place-items-center rounded-full border-2 border-ink/10 bg-paper shadow-sm transition hover:scale-105 active:scale-90"
+          style={{ transform: mood === "nope" ? `scale(${1 + 0.15 * p})` : undefined }}
         >
-          ✕
+          <CrossIcon className="size-7" />
         </button>
+        <div className="relative size-20" aria-hidden>
+          <Image
+            src="/pet-happy.png"
+            alt=""
+            width={700}
+            height={628}
+            sizes="80px"
+            className="absolute inset-0 size-full object-contain transition duration-150"
+            style={{ opacity: mood ? 0 : 1 }}
+          />
+          <Image
+            src="/pet-nope.png"
+            alt=""
+            width={454}
+            height={480}
+            sizes="80px"
+            className="absolute inset-0 size-full object-contain transition duration-150"
+            style={{ opacity: mood === "nope" ? 1 : 0, transform: mood === "nope" ? `scale(${1 + 0.12 * p}) rotate(-6deg)` : "scale(.8)" }}
+          />
+          <Image
+            src="/pet-yes.png"
+            alt=""
+            width={433}
+            height={480}
+            sizes="80px"
+            className="absolute inset-0 size-full object-contain transition duration-150"
+            style={{ opacity: mood === "yes" ? 1 : 0, transform: mood === "yes" ? `scale(${1 + 0.12 * p}) rotate(6deg)` : "scale(.8)" }}
+          />
+        </div>
         <button
           aria-label="J'aime"
           onClick={() => decide(true)}
-          className="grid size-16 place-items-center rounded-full bg-coral text-2xl text-paper shadow-[0_6px_0_-1px_#d9604b] transition hover:scale-105"
+          className="grid size-16 place-items-center rounded-full bg-coral shadow-[0_6px_0_-1px_#d9604b] transition hover:scale-105 active:scale-90"
+          style={{ transform: mood === "yes" ? `scale(${1 + 0.15 * p})` : undefined }}
         >
-          ♥
+          <HeartIcon className="size-8" color="#fff" />
         </button>
       </div>
       <p className="mt-6 text-center text-xs text-muted">
@@ -1018,6 +1232,7 @@ function Paywall({
         <ul className="mt-4 space-y-1.5 text-sm text-lilac">
           <li>✓ Toutes tes sorties débloquées, à vie</li>
           <li>✓ Jusqu&apos;à {tiers.plus.members} personnes et {tiers.plus.places} adresses</li>
+          <li>✓ Tous les ateliers du jour trouvés par Bud</li>
           <li>✓ Tous les résultats, du 1er au dernier</li>
           <li>✓ Bud tranche les égalités et prépare un plan B</li>
           <li>✓ Bud relance ceux qui n&apos;ont pas swipé</li>
@@ -1039,7 +1254,7 @@ function Paywall({
           <div className="min-w-0 flex-1">
             <p className="font-display font-semibold text-plum">Pass Sortie · {euros(prices.pass)}</p>
             <p className="text-xs text-muted">
-              Cette sortie seulement : {tiers.pass.members} personnes, {tiers.pass.places} adresses, tous les résultats.
+              Cette sortie seulement : {tiers.pass.members} personnes, {tiers.pass.places} adresses, {tiers.pass.events} ateliers du jour, tous les résultats.
             </p>
           </div>
           <button

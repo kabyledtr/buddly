@@ -32,9 +32,9 @@ Freemium avec paywall, uniquement des paiements uniques (aucun abonnement) :
 
 | Offre | Prix | Contenu |
 |---|---|---|
-| Gratuit | 0 € | 2 personnes par sortie, 10 lieux, le meilleur lieu et le conseil IA de Bud |
-| Pass Sortie | 2,99 € par sortie | 4 personnes, 20 lieux, tous les résultats |
-| **Buddly+** | **3,99 €, à vie** | Toutes les sorties, 15 personnes, 40 lieux, tous les résultats, plan B de Bud, relance par e-mail des retardataires |
+| Gratuit | 0 € | 2 personnes par sortie, 10 lieux + 1 atelier du jour, le meilleur lieu et le conseil IA de Bud |
+| Pass Sortie | 2,99 € par sortie | 4 personnes, 15 lieux + 3 ateliers du jour, tous les résultats |
+| **Buddly+** | **3,99 €, à vie** | Toutes les sorties, 15 personnes, 40 lieux + tous les ateliers du jour, tous les résultats, plan B de Bud, relance par e-mail des retardataires |
 
 Le Pass Sortie sert de prix d'ancrage : pour 1 € de plus, Buddly+ débloque toutes les sorties à vie (« divisé par une bande de 6, ça fait 67 centimes chacun »). Buddly+ est rattaché à l'adresse e-mail de l'acheteur, sans mot de passe.
 

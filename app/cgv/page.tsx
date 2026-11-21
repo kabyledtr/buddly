@@ -21,14 +21,14 @@ export default function CGV() {
           trouver un lieu qui convient à tout le groupe.
         </p>
         <ul className="list-disc space-y-1 pl-5">
-          <li><strong>Gratuit</strong> : 2 personnes par sortie (l&apos;organisateur et un ami), 10 adresses à swiper, le lieu préféré du groupe et le conseil de Bud, la mascotte.</li>
+          <li><strong>Gratuit</strong> : 2 personnes par sortie (l&apos;organisateur et un ami), 10 adresses à swiper et 1 atelier du jour, le lieu préféré du groupe et le conseil de Bud, la mascotte.</li>
           <li>
-            <strong>Pass Sortie</strong> : pour une sortie donnée, jusqu&apos;à 4 personnes, 20 adresses à swiper et
+            <strong>Pass Sortie</strong> : pour une sortie donnée, jusqu&apos;à 4 personnes, 15 adresses à swiper, 3 ateliers du jour et
             tous les résultats du groupe.
           </li>
           <li>
             <strong>Buddly+</strong> : toutes les sorties créées ou rejointes avec l&apos;adresse e-mail de
-            l&apos;acheteur, sans limite de durée : jusqu&apos;à 15 personnes, 40 adresses à swiper, tous les
+            l&apos;acheteur, sans limite de durée : jusqu&apos;à 15 personnes, 40 adresses à swiper, tous les ateliers du jour trouvés, tous les
             résultats, le plan B proposé par Bud et la relance par e-mail des membres qui n&apos;ont pas fini de
             swiper.
           </li>

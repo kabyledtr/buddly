@@ -5,7 +5,7 @@ import { PRICES, tierOf, type PaidTier } from "@/lib/types";
 const PRODUCT: Record<PaidTier, { name: string; description: (group: string) => string }> = {
   pass: {
     name: "Pass Sortie Buddly",
-    description: (group) => `Débloque « ${group} » : 20 adresses, jusqu'à 4 personnes, résultats complets.`,
+    description: (group) => `Débloque « ${group} » : 15 adresses, 3 ateliers du jour, jusqu'à 4 personnes, résultats complets.`,
   },
   plus: {
     name: "Buddly+ à vie",

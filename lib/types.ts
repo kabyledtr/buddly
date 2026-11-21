@@ -75,9 +75,9 @@ export type PaidTier = Exclude<Tier, "free">;
 
 /** Gratuit : la sortie de base. Pass Sortie : cette sortie seulement. Buddly+ : toutes les sorties, à vie. */
 export const TIERS: Record<Tier, { members: number; places: number; events: number; fullRanking: boolean; planB: boolean }> = {
-  free: { members: 2, places: 10, events: 2, fullRanking: false, planB: false },
-  pass: { members: 4, places: 20, events: 4, fullRanking: true, planB: false },
-  plus: { members: 15, places: 40, events: 8, fullRanking: true, planB: true },
+  free: { members: 2, places: 10, events: 1, fullRanking: false, planB: false },
+  pass: { members: 4, places: 15, events: 3, fullRanking: true, planB: false },
+  plus: { members: 15, places: 40, events: 5, fullRanking: true, planB: true },
 };
 export const PRICES: Record<PaidTier, number> = { pass: 299, plus: 399 };
 export const PLUS_SPLIT = 6; // taille de groupe « théorique » pour la phrase du prix partagé

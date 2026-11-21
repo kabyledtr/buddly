@@ -8,6 +8,25 @@
 }
 .buddy-bob { animation: buddy-bob 2.2s ease-in-out infinite; }
 .buddy-shadow { animation: buddy-shadow 2.2s ease-in-out infinite; }
+/* swipe : icônes qui flottent et feu d'artifice au like */
+@keyframes swipe-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.swipe-float { animation: swipe-float 1.4s ease-in-out infinite; }
+@keyframes firework-pop {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.2); }
+  65% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1); }
+}
+.firework {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  animation: firework-pop 0.95s cubic-bezier(0.12, 0.75, 0.3, 1) forwards;
+}
 @media (prefers-reduced-motion: reduce) {
-  .buddy-bob, .buddy-shadow { animation: none; }
+  .buddy-bob, .buddy-shadow, .swipe-float { animation: none; }
+  .firework { display: none; }
 }

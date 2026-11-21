@@ -30,12 +30,13 @@ const PROBLEMS = [
 ];
 const TILTS = [-4, 3, -2];
 
-const FREE = ["Toi et un pote", "10 adresses réelles à swiper", "Le lieu qui plaît le plus", "Le conseil IA de Bud"];
-const PASS = ["Jusqu'à 4 personnes", "20 adresses à swiper", "Tous les résultats, du 1er au dernier", "Pour cette sortie seulement"];
+const FREE = ["Toi et un pote", "10 adresses réelles à swiper", "1 atelier du jour trouvé par Bud", "Le lieu qui plaît le plus", "Le conseil IA de Bud"];
+const PASS = ["Jusqu'à 4 personnes", "15 adresses à swiper", "3 ateliers du jour", "Tous les résultats, du 1er au dernier", "Pour cette sortie seulement"];
 const PLUS = [
   "Toutes tes sorties, à vie",
   "Jusqu'à 15 personnes",
   "40 adresses à swiper",
+  "Tous les ateliers du jour trouvés par Bud",
   "Tous les résultats, qui a aimé quoi",
   "Bud tranche les égalités et prépare un plan B",
   "Bud relance ceux qui n'ont pas swipé",
