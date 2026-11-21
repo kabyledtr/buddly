@@ -55,7 +55,7 @@ Recommande UN lieu en 2 phrases maximum, en français, en tutoyant le groupe. Ex
     const text: string | undefined = j.content?.find((c: { type: string }) => c.type === "text")?.text?.trim();
     if (!text) {
       console.error("anthropic", r.status, j.error?.message);
-      return NextResponse.json({ text: fallback, ai: false, reason: j.error?.type ?? r.status });
+      return NextResponse.json({ text: fallback, ai: false, reason: j.error?.type ?? `${r.status} ${j.stop_reason} ${(j.content ?? []).map((c: { type: string }) => c.type).join(",")}` });
     }
     await setJSON(cacheKey, { sig: signature, text });
     return NextResponse.json({ text, ai: true });
