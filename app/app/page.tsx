@@ -175,7 +175,8 @@ export default function CreateGroup() {
       erreur: "Le paiement n'a pas pu être vérifié. Si tu as été débité, écris à contact@buddly.io.",
     };
     if (pay && NOTICES[pay]) setNotice(NOTICES[pay]);
-    if (pay === "plus" || pay === "pass") track("Purchase", { value: pay === "plus" ? 3.99 : 2.99, currency: "EUR", content_name: pay });
+    if (pay === "plus" || pay === "pass")
+      track("Purchase", { value: pay === "plus" ? 3.99 : 2.99, currency: "EUR", content_name: pay }, new URLSearchParams(location.search).get("sid") ?? undefined);
 
     // Brouillon : ce qui a été tapé est gardé dans l'onglet ; en revenant en arrière (même depuis le swipe), tout est rempli.
     let draft: Draft | null = null;
@@ -262,7 +263,7 @@ export default function CreateGroup() {
       try {
         localStorage.setItem(memberKey(j.id), j.memberId);
       } catch {}
-      track("Lead", { content_name: "sortie" });
+      track("Lead", { content_name: "sortie" }, `lead_${j.id}`);
       document.cookie = "buddly_buyer=; Max-Age=0; path=/"; // achat utilisé : le verrou n'a plus lieu d'être
       router.push(`/g/${j.id}?nouveau=1`);
     } catch (err) {

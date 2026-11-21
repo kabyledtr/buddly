@@ -67,7 +67,11 @@ export default function GroupApp({ id }: { id: string }) {
       if (q.get("nouveau")) setInviteStep(true);
     }
     if (q.get("paiement") === "ok" || q.get("paiement") === "plus")
-      track("Purchase", { value: q.get("paiement") === "plus" ? 3.99 : 2.99, currency: "EUR", content_name: q.get("paiement") === "plus" ? "plus" : "pass" });
+      track(
+        "Purchase",
+        { value: q.get("paiement") === "plus" ? 3.99 : 2.99, currency: "EUR", content_name: q.get("paiement") === "plus" ? "plus" : "pass" },
+        q.get("sid") ?? undefined,
+      );
     if (q.get("paiement") === "ok") {
       setToast("Pass Sortie activé ! Tout est débloqué pour le groupe.");
       setTab("results");

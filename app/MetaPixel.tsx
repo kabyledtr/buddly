@@ -39,6 +39,7 @@ export default function MetaPixel() {
     try {
       const v = localStorage.getItem(KEY);
       setConsent(v === "yes" || v === "no" ? v : null);
+      if (v === "yes" || v === "no") document.cookie = `buddly_consent=${v}; path=/; max-age=31536000; samesite=lax`;
     } catch {
       setConsent(null);
     }
@@ -55,6 +56,8 @@ export default function MetaPixel() {
     try {
       localStorage.setItem(KEY, v);
     } catch {}
+    // le serveur doit aussi connaître le choix (API Conversions de Meta)
+    document.cookie = `buddly_consent=${v}; path=/; max-age=31536000; samesite=lax`;
     setConsent(v);
   }
 

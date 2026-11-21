@@ -12,7 +12,7 @@ export async function GET(req: Request) {
   if (!s || s.metadata?.groupId) return back("paiement=erreur");
   const tier = await fulfill(s);
   if (!tier) return back("paiement=erreur");
-  const res = back(`paiement=${tier}`);
+  const res = back(`paiement=${tier}&sid=${encodeURIComponent(s.id)}`);
   // l'e-mail du paiement est repris (et verrouillé) dans le formulaire : l'achat suit la bonne adresse
   const email = s.customer_details?.email?.trim().toLowerCase();
   if (email) res.cookies.set("buddly_buyer", email, { path: "/", maxAge: 60 * 60 * 24, sameSite: "lax", secure: true });

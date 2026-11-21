@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
+import { capiContext, sendCapi } from "@/lib/capi";
 import { addMember, hasPlus, isEmail, newId, normEmail, saveGroup, consumePassCredit } from "@/lib/group";
 import { findPlaces, geocode } from "@/lib/places";
 import { DIET_LABEL, type Budget, type Category, type Diet, type Group, type Member } from "@/lib/types";
@@ -68,5 +69,7 @@ export async function POST(req: Request) {
   };
   await saveGroup(group);
   await addMember(group.id, creator);
+  const ctx = capiContext(req);
+  after(() => sendCapi("Lead", `lead_${group.id}`, ctx, { email }));
   return NextResponse.json({ id: group.id, memberId: creator.id });
 }

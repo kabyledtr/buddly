@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { capiContext } from "@/lib/capi";
 import { loadGroup, loadMembers } from "@/lib/group";
 import { PRICES, tierOf, type PaidTier } from "@/lib/types";
 
@@ -47,6 +48,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     "metadata[memberId]": b.memberId,
     "metadata[tier]": tier,
     locale: "fr",
+    ...metaMetadata(req),
     ...(buyer.email ? { customer_email: buyer.email } : {}),
     success_url: `${origin}/api/groups/${id}/verify?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/g/${id}?paiement=annule`,
@@ -60,4 +62,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const s = await r.json();
   if (!r.ok) return NextResponse.json({ error: "Stripe : " + (s.error?.message ?? "erreur") }, { status: 502 });
   return NextResponse.json({ url: s.url });
+}
+
+/** Contexte Meta (consentement, cookies du pixel, IP, navigateur) gardé dans la session Stripe pour l'API Conversions. */
+function metaMetadata(req: Request): Record<string, string> {
+  const c = capiContext(req);
+  if (!c.consent) return {};
+  const m: Record<string, string> = { "metadata[mc]": "1" };
+  if (c.fbp) m["metadata[fbp]"] = c.fbp.slice(0, 200);
+  if (c.fbc) m["metadata[fbc]"] = c.fbc.slice(0, 200);
+  if (c.ip) m["metadata[ip]"] = c.ip.slice(0, 64);
+  if (c.ua) m["metadata[ua]"] = c.ua.slice(0, 400);
+  return m;
 }

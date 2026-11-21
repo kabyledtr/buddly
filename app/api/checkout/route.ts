@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { capiContext } from "@/lib/capi";
 import { PRICES, type PaidTier } from "@/lib/types";
 
 const PRODUCT: Record<PaidTier, { name: string; description: string }> = {
@@ -34,6 +35,7 @@ export async function GET(req: Request) {
     "metadata[tier]": tier,
     "metadata[source]": "tarifs",
     locale: "fr",
+    ...metaMetadata(req),
     success_url: `${url.origin}/api/checkout/verify?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${url.origin}/#tarifs`,
   });
@@ -50,4 +52,16 @@ export async function GET(req: Request) {
     return NextResponse.redirect(new URL(`/app?paiement=erreur&raison=${encodeURIComponent(raison)}`, url.origin), 303);
   }
   return NextResponse.redirect(s.url, 303);
+}
+
+/** Contexte Meta (consentement, cookies du pixel, IP, navigateur) gardé dans la session Stripe pour l'API Conversions. */
+function metaMetadata(req: Request): Record<string, string> {
+  const c = capiContext(req);
+  if (!c.consent) return {};
+  const m: Record<string, string> = { "metadata[mc]": "1" };
+  if (c.fbp) m["metadata[fbp]"] = c.fbp.slice(0, 200);
+  if (c.fbc) m["metadata[fbc]"] = c.fbc.slice(0, 200);
+  if (c.ip) m["metadata[ip]"] = c.ip.slice(0, 64);
+  if (c.ua) m["metadata[ua]"] = c.ua.slice(0, 400);
+  return m;
 }

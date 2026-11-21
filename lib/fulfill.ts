@@ -1,11 +1,13 @@
 import { isEmail, loadGroup, loadMembers, normEmail, passKey, plusKey, upgrade } from "./group";
+import { sendCapi } from "./capi";
 import { claim, getJSON, setPermanent } from "./store";
+import { PRICES } from "./types";
 
 /** Session Stripe Checkout (champs utilisés). */
 export type CheckoutSession = {
   id: string;
   payment_status?: string;
-  metadata?: { tier?: string; groupId?: string; memberId?: string; source?: string };
+  metadata?: { tier?: string; groupId?: string; memberId?: string; source?: string; mc?: string; fbp?: string; fbc?: string; ip?: string; ua?: string };
   customer_details?: { email?: string | null } | null;
 };
 
@@ -49,5 +51,14 @@ export async function fulfill(s: CheckoutSession): Promise<"plus" | "pass" | nul
   }
 
   if (tier === "plus") for (const e of emails) await setPermanent(plusKey(e), { session: s.id, groupId: groupId ?? null, createdAt: Date.now() });
+
+  // Meta : achat confirmé par Stripe (même identifiant que le pixel côté navigateur, donc compté une seule fois)
+  const m = s.metadata ?? {};
+  await sendCapi(
+    "Purchase",
+    s.id,
+    { consent: m.mc === "1", fbp: m.fbp, fbc: m.fbc, ip: m.ip, ua: m.ua, url: "https://buddly.io" },
+    { email: [...emails][0], value: PRICES[tier] / 100, currency: "EUR" },
+  );
   return tier;
 }

@@ -13,5 +13,5 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   if (!s || s.metadata?.groupId !== id) return back("paiement=erreur");
   const tier = await fulfill(s);
   if (!tier) return back("paiement=erreur");
-  return back(tier === "plus" ? "paiement=plus" : "paiement=ok");
+  return back(`${tier === "plus" ? "paiement=plus" : "paiement=ok"}&sid=${encodeURIComponent(s.id)}`);
 }
