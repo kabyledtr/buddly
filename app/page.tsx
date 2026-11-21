@@ -38,9 +38,27 @@ const STEPS = [
 ];
 
 const PROBLEMS = [
-  ["Le débat", "Une soirée qui se joue sur des dizaines de messages, et une décision prise à 21h passées."],
-  ["L'annulation", "Sans accord, la sortie glisse à « la semaine prochaine »… puis n'a jamais lieu."],
-  ["La routine", "Toujours les mêmes lieux, parce que personne n'ose proposer autre chose."],
+  ["«\u00a0Comme vous voulez\u00a0»", "Tout le monde est chaud, personne ne propose. La conv tourne en rond pendant que la soirée file."],
+  ["Trop cher, trop loin", "Le resto parfait… sauf pour celui qui est à sec, celle qui habite à l'autre bout de la ville et le pote qui mange halal."],
+  ["Canapé, encore", "Vendredi, 22h, toujours pas de plan. Tout le monde finit chez soi en se promettant « la semaine pro »."],
+];
+
+const PERSONAS = [
+  {
+    pet: "/pet-wave.png",
+    who: "Les étudiants",
+    text: "Petit budget, grande bande, et des envies qui partent dans tous les sens. Bud fait remonter ce qui rentre dans le budget de chacun.",
+  },
+  {
+    pet: "/pet-love.png",
+    who: "Les jeunes actifs",
+    text: "L'afterwork du jeudi, le dîner du samedi : moins de temps à organiser dans la conv, plus de temps sur place.",
+  },
+  {
+    pet: "/pet-cool.png",
+    who: "Les potes de toujours",
+    text: "Ceux qui finissent toujours au même bar. Bud ajoute des ateliers, escape games, stand-up et autres idées qu'on n'aurait pas eues.",
+  },
 ];
 const TILTS = [-4, 3, -2];
 
@@ -74,10 +92,10 @@ export default function Home() {
       {/* DÉMO */}
       <section id="fonctionnalites" className="mx-auto max-w-6xl xl:max-w-7xl scroll-mt-8 px-4 py-20 text-center sm:px-6">
         <h2 className="font-display text-4xl font-bold text-plum sm:text-5xl">
-          {DEMO ? <Words text="Voilà à quoi" accent="ça ressemble." /> : <Words text="Essaie, c'est" accent="toi qui swipes." />}
+          {DEMO ? <Words text="Buddly, en deux temps" accent="trois mouvements." /> : <Words text="Essaie, c'est" accent="toi qui swipes." />}
         </h2>
         <Reveal as="p" delay={120} className="mx-auto mt-3 max-w-xl text-muted">
-          {DEMO ? "Une sortie, de la création au match, sur le téléphone de tes amis." : "Exactement ce que tes amis verront sur leur téléphone."}
+          {DEMO ? "De «\u00a0on fait quoi ce soir\u00a0?\u00a0» au lieu parfait, sans un seul débat." : "Exactement ce que tes amis verront sur leur téléphone."}
         </Reveal>
         {DEMO ? (
           <div className="mx-auto mt-10" style={{ maxWidth: `min(100%, 960px, calc(78svh * ${DEMO.width} / ${DEMO.height}))` }}>
@@ -103,7 +121,7 @@ export default function Home() {
       <section className="bg-plum py-20 text-paper">
         <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 sm:px-6">
           <h2 className="max-w-2xl font-display text-4xl font-bold leading-tight sm:text-5xl">
-            <Words text="Le plus dur dans une sortie, ce n'est pas d'y aller." accent="C'est de choisir." />
+            <Words text={"«\u00a0On fait quoi ce soir\u00a0?\u00a0»"} accent={"Ça te parle\u00a0?"} />
           </h2>
           <div className="mt-12 grid gap-4 sm:grid-cols-3">
             {PROBLEMS.map(([big, small], i) => (
@@ -114,9 +132,28 @@ export default function Home() {
             ))}
           </div>
           <Reveal as="p" delay={150} className="mt-8 max-w-2xl text-lilac">
-            Le budget de l&apos;un, le régime de l&apos;autre, celui qui habite à 40 minutes, celle qui ne
-            peut que samedi. Personne ne veut trancher, alors personne ne tranche.
+            On a tous un groupe où organiser une sortie prend plus de temps que la sortie elle-même. Buddly est né
+            de là : chacun dit ce qu&apos;il veut de son côté, et c&apos;est Bud qui tranche.
           </Reveal>
+        </div>
+      </section>
+
+      {/* POUR QUI */}
+      <section className="mx-auto max-w-6xl xl:max-w-7xl px-4 pt-20 sm:px-6">
+        <h2 className="max-w-3xl font-display text-4xl font-bold leading-tight text-plum sm:text-5xl">
+          <Words text="Fait pour les bandes qui sortent souvent" accent="et décident mal." />
+        </h2>
+        <Reveal as="p" delay={120} className="mt-3 max-w-2xl text-muted">
+          Des 18-30 ans en ville, qui s&apos;organisent dans une conv de groupe et veulent juste passer une bonne soirée ensemble.
+        </Reveal>
+        <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          {PERSONAS.map((p, i) => (
+            <Reveal key={p.who} variant="up" delay={i * 110} className="flex flex-col rounded-[2rem] bg-lilac/60 p-6">
+              <Image src={p.pet} alt="" width={700} height={700} sizes="96px" className="h-20 w-auto self-start object-contain" />
+              <h3 className="mt-4 font-display text-2xl font-bold text-plum">{p.who}</h3>
+              <p className="mt-2 text-ink/80">{p.text}</p>
+            </Reveal>
+          ))}
         </div>
       </section>
 
