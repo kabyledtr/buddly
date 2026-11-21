@@ -142,11 +142,6 @@ body {
   .rv .hello { animation: none !important; }
 }
 
-/* ───────────── Grands écrans ─────────────
-   Tout est en rem : on agrandit légèrement la base pour que le site
-   respire sur les écrans larges au lieu de flotter au milieu. */
-@media (min-width: 1600px) { html { font-size: 106.25%; } }
-@media (min-width: 1920px) { html { font-size: 112.5%; } }
 
 /* ───────────── Buddy en bas de page ───────────── */
 @keyframes buddy-bob {
