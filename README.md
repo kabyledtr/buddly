@@ -80,7 +80,7 @@ L'équipe a développé avec l'aide d'un assistant de code IA (**Claude Code**).
 
 ### Ressources tierces
 
-- **Polices** : Fredoka et DM Sans, chargées via Google Fonts (`next/font`), sous licence SIL Open Font License.
+- **Polices** : Fredoka et DM Sans (Google Fonts), hébergées dans le projet (`app/fonts`), sous licence SIL Open Font License.
 - **Logo et mascotte** (`public/logo.png`, `public/pet.png`) : créés par l'équipe Buddly.
 - **Données de la démo** : les lieux affichés dans la démo de la page d'accueil (noms, quartiers, prix) sont fictifs et servent uniquement d'illustration.
 

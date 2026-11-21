@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
-import { Fredoka, DM_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const display = Fredoka({
+// Polices hébergées dans le projet (SIL OFL) : aucun téléchargement pendant le build.
+const display = localFont({
+  src: "./fonts/fredoka-latin.woff2",
   variable: "--font-fredoka",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: "500 700",
+  display: "swap",
 });
 
-const body = DM_Sans({
+const body = localFont({
+  src: "./fonts/dmsans-latin.woff2",
   variable: "--font-dmsans",
-  subsets: ["latin"],
+  weight: "100 1000",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
