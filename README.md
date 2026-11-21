@@ -116,6 +116,7 @@ Puis ouvrir http://localhost:3000.
 app/
   layout.tsx      Mise en page, polices, métadonnées SEO
   page.tsx        Landing page
+  Hero.tsx        Navbar, hero, mascotte SVG, vagues
   LegalPage.tsx   Gabarit des pages légales + footer
   mentions-legales/page.tsx  Mentions légales
   cgv/page.tsx    Conditions générales de vente

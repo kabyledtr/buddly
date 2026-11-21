@@ -1,5 +1,6 @@
 import Image from "next/image";
 import SwipeDemo from "./SwipeDemo";
+import Hero from "./Hero";
 import { Footer } from "./LegalPage";
 
 const STEPS = [
@@ -29,61 +30,18 @@ const PREMIUM = [
   "Point de rendez-vous équitable pour tous",
 ];
 
+const FAQ: [string, string][] = [
+  ["Mes amis doivent-ils créer un compte ?", "Non. Ils rejoignent le groupe avec le lien d'invitation et peuvent voter tout de suite."],
+  ["Les lieux proposés sont-ils réels ?", "Oui : des restaurants, bars et activités existants autour de vous, filtrés selon le budget, la distance et les envies du groupe."],
+  ["Comment fonctionne le match ?", "Chacun swipe de son côté. Dès qu'un lieu plaît à tout le groupe, Buddly vous l'annonce. Sinon, l'IA propose le meilleur compromis."],
+  ["Que débloque Premium ?", "Groupes et swipes illimités, jusqu'à 15 amis par groupe, des recommandations IA plus fines et un point de rendez-vous équitable pour tous."],
+  ["Puis-je résilier quand je veux ?", "Oui, l'abonnement est sans engagement et se résilie à tout moment depuis votre compte."],
+];
+
 export default function Home() {
   return (
     <main className="overflow-x-hidden">
-      {/* NAV */}
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-        <a href="#" aria-label="Buddly, accueil">
-          <Image src="/logo.png" alt="Buddly" width={940} height={420} priority className="h-10 w-auto sm:h-12" />
-        </a>
-        <nav className="flex items-center gap-1 text-sm font-medium sm:gap-6">
-          <a href="#comment" className="hidden text-muted hover:text-ink sm:block">Comment ça marche</a>
-          <a href="#tarifs" className="hidden text-muted hover:text-ink sm:block">Tarifs</a>
-          <a href="#tarifs" className="rounded-full bg-plum px-4 py-2 text-paper transition hover:bg-ink">
-            Essayer gratuitement
-          </a>
-        </nav>
-      </header>
-
-      {/* HERO */}
-      <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-20 pt-8 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:pt-16">
-        <div>
-          <p className="inline-flex items-center gap-2 rounded-full bg-lilac px-3 py-1 text-sm font-medium text-plum">
-            <span className="size-2 rounded-full bg-coral" /> Pour les groupes d&apos;amis qui n&apos;arrivent jamais à choisir
-          </p>
-          <h1 className="mt-5 font-display text-5xl font-bold leading-[1.02] text-plum sm:text-6xl lg:text-7xl">
-            « On se fait quoi ce soir ? »
-            <span className="block text-coral">Réglé en 2 minutes.</span>
-          </h1>
-          <p className="mt-6 max-w-xl text-lg text-muted">
-            87 messages dans le groupe, trois « je sais pas, comme vous voulez », et vous finissez
-            au même endroit que d&apos;habitude. Avec Buddly, chacun swipe des restos et des
-            activités autour de vous. Quand tout le monde dit oui, c&apos;est un match.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <a
-              href="#tarifs"
-              className="rounded-full bg-coral px-6 py-3.5 font-semibold text-paper shadow-[0_8px_0_-2px_#d9604b] transition hover:translate-y-0.5 hover:shadow-[0_5px_0_-2px_#d9604b]"
-            >
-              Créer mon groupe
-            </a>
-            <a href="#comment" className="rounded-full px-5 py-3.5 font-semibold text-plum hover:bg-lilac">
-              Voir comment ça marche →
-            </a>
-          </div>
-          <p className="mt-4 text-sm text-muted">Gratuit jusqu&apos;à 4 amis. Sans carte bancaire.</p>
-        </div>
-
-        <div className="relative">
-          <div className="absolute -left-6 -top-6 hidden rotate-[-8deg] rounded-2xl bg-paper px-4 py-3 text-sm shadow-lg sm:block">
-            <p className="font-semibold">Léa</p>
-            <p className="text-muted">ok mais pas trop loin svp 🙏</p>
-          </div>
-          <SwipeDemo />
-          <p className="mt-4 text-center text-sm text-muted">Essaie : glisse la carte ou utilise les boutons</p>
-        </div>
-      </section>
+      <Hero />
 
       {/* PROBLÈME */}
       <section className="bg-plum py-20 text-paper">
@@ -110,19 +68,29 @@ export default function Home() {
         </div>
       </section>
 
-      {/* COMMENT */}
-      <section id="comment" className="mx-auto max-w-6xl scroll-mt-8 px-4 py-20 sm:px-6">
-        <h2 className="font-display text-4xl font-bold text-plum sm:text-5xl">Comment ça marche</h2>
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
-          {STEPS.map((s) => (
-            <div key={s.n} className="rounded-3xl bg-paper p-7 shadow-[0_2px_0_rgba(67,32,122,0.08)]">
-              <span className="grid size-11 place-items-center rounded-2xl bg-lilac font-display text-xl font-bold text-plum">
-                {s.n}
-              </span>
-              <h3 className="mt-5 font-display text-2xl font-semibold">{s.title}</h3>
-              <p className="mt-2 text-muted">{s.text}</p>
+      {/* FONCTIONNALITÉS */}
+      <section id="fonctionnalites" className="mx-auto max-w-6xl scroll-mt-8 px-4 py-20 sm:px-6">
+        <div className="grid items-center gap-14 lg:grid-cols-[1fr_1.1fr]">
+          <div>
+            <SwipeDemo />
+            <p className="mt-4 text-center text-sm text-muted">Essaie : glisse la carte ou utilise les boutons</p>
+          </div>
+          <div>
+            <h2 className="font-display text-4xl font-bold text-plum sm:text-5xl">Comment ça marche</h2>
+            <div className="mt-8 space-y-4">
+              {STEPS.map((s) => (
+                <div key={s.n} className="flex gap-5 rounded-3xl bg-paper p-6 shadow-[0_2px_0_rgba(67,32,122,0.08)]">
+                  <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-lilac font-display text-xl font-bold text-plum">
+                    {s.n}
+                  </span>
+                  <div>
+                    <h3 className="font-display text-2xl font-semibold">{s.title}</h3>
+                    <p className="mt-1 text-muted">{s.text}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </section>
 
@@ -156,6 +124,22 @@ export default function Home() {
               </a>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="mx-auto max-w-3xl scroll-mt-8 px-4 py-20 sm:px-6">
+        <h2 className="text-center font-display text-4xl font-bold text-plum sm:text-5xl">Questions fréquentes</h2>
+        <div className="mt-10 space-y-3">
+          {FAQ.map(([q, a]) => (
+            <details key={q} className="group rounded-2xl bg-paper p-5 open:shadow-[0_2px_0_rgba(67,32,122,0.08)]">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-lg font-semibold">
+                {q}
+                <span className="text-2xl text-violet transition group-open:rotate-45">+</span>
+              </summary>
+              <p className="mt-3 text-muted">{a}</p>
+            </details>
+          ))}
         </div>
       </section>
 
