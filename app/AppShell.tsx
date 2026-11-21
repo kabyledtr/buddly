@@ -6,8 +6,8 @@ export const memberKey = (groupId: string) => `buddly:m:${groupId}`;
 export function AppHeader({ right }: { right?: React.ReactNode }) {
   return (
     <header className="mx-auto flex w-full max-w-xl items-center justify-between px-4 py-4">
-      <Link href="/" aria-label="Buddly, accueil">
-        <Image src="/logo.png" alt="Buddly" width={940} height={420} className="h-9 w-auto" />
+      <Link href="/" aria-label="Buddly, accueil" draggable={false}>
+        <Image src="/logo.png" alt="Buddly" width={940} height={420} draggable={false} className="h-9 w-auto select-none [-webkit-user-drag:none]" />
       </Link>
       {right}
     </header>

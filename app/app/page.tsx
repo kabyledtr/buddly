@@ -43,14 +43,41 @@ const LOADING = [
   "Je prépare vos cartes à swiper…",
 ];
 
-function Bubbles() {
+function Star({ className, color }: { className: string; color: string }) {
   return (
-    <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-[420px] w-[420px]">
-      <span className="wz-blob absolute right-16 top-20 size-64 rounded-full bg-lilac/80" />
-      <span className="wz-blob absolute right-4 top-56 size-28 rounded-full bg-violet/25 [animation-delay:-2s]" />
-      <span className="wz-blob absolute right-60 top-32 size-14 rounded-full bg-violet/30 [animation-delay:-4s]" />
-      <span className="wz-blob absolute right-52 top-64 size-6 rounded-full bg-coral/50 [animation-delay:-1s]" />
-      <span className="wz-blob absolute right-28 top-6 size-10 rounded-full bg-[#c9b3ff]/70 [animation-delay:-3s]" />
+    <svg viewBox="0 0 24 24" className={`wz-star absolute ${className}`} fill={color} aria-hidden>
+      <path d="M12 1.5c.6 4.6 2.4 7.6 6 9.2.9.4.9 1.7 0 2.1-3.6 1.6-5.4 4.6-6 9.2-.2 1-1.6 1-1.8 0-.6-4.6-2.4-7.6-6-9.2-.9-.4-.9-1.7 0-2.1 3.6-1.6 5.4-4.6 6-9.2.2-1 1.6-1 1.8 0z" />
+    </svg>
+  );
+}
+
+function Decor() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0">
+      {/* bulles discrètes en haut à droite */}
+      <span className="wz-blob absolute -right-20 -top-20 size-56 rounded-full bg-lilac/70" />
+      <span className="wz-blob absolute right-10 top-40 size-5 rounded-full bg-violet/30 [animation-delay:-3s]" />
+
+      {/* vagues en bas à gauche */}
+      <svg viewBox="0 0 320 260" className="absolute -bottom-2 -left-2 h-[230px] w-[290px] sm:h-[300px] sm:w-[380px]">
+        <path d="M0 40c60 6 98 44 120 92 20 44 60 70 120 74 30 2 56 12 80 54H0z" fill="#ece2fd" />
+        <path d="M0 120c46 2 74 30 90 62 16 30 44 50 92 54 28 2 50 10 66 24H0z" fill="#c9b3ff" opacity=".7" />
+        <path d="M0 186c34 0 54 18 66 38 10 18 28 30 58 36H0z" fill="#8b55e3" opacity=".55" />
+        <path d="M-4 96c52 4 84 36 104 74" fill="none" stroke="#f7806a" strokeWidth="3" strokeLinecap="round" opacity=".6" />
+      </svg>
+
+      {/* petite vague en bas à droite */}
+      <svg viewBox="0 0 200 120" className="absolute -bottom-1 -right-1 h-[90px] w-[150px] sm:h-[120px] sm:w-[200px]">
+        <path d="M200 10c-40 4-62 30-76 56-12 22-36 40-70 46-20 4-40 6-54 8h200z" fill="#ffe4dc" />
+      </svg>
+
+      {/* étoiles */}
+      <Star className="left-[34%] top-[132px] size-3.5 sm:left-[26%]" color="#f7806a" />
+      <Star className="bottom-7 left-[46%] size-5 [animation-delay:-1.2s]" color="#ffc93f" />
+      <Star className="bottom-20 left-5 size-3 [animation-delay:-2.1s] sm:bottom-40 sm:left-16" color="#ffffff" />
+      <Star className="bottom-24 right-7 size-3.5 [animation-delay:-.6s]" color="#f7806a" />
+      <Star className="right-1 top-[46%] size-3 [animation-delay:-1.7s] sm:right-[12%] sm:size-4" color="#ffc93f" />
+      <Star className="left-1 top-[58%] size-2.5 [animation-delay:-2.6s] sm:left-[12%] sm:size-4" color="#8b55e3" />
     </div>
   );
 }
@@ -154,7 +181,7 @@ export default function CreateGroup() {
 
   return (
     <div className="relative min-h-svh overflow-hidden bg-gradient-to-b from-[#fdf7fb] to-[#f3eafd]">
-      <Bubbles />
+      <Decor />
       <div className="relative">
         <AppHeader />
         <main className="mx-auto max-w-xl px-4 pb-8">

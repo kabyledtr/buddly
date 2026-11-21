@@ -63,8 +63,8 @@ export default function DatePicker({ value, onChange }: { value: Slot | null; on
 
   const sheet = (
     <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-label="Choisir le jour et le créneau">
-      <button type="button" aria-label="Fermer" onClick={() => setOpen(false)} className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]" />
-      <div className="relative w-full max-w-sm rounded-t-[2.25rem] bg-paper px-5 pb-6 pt-3 shadow-2xl sm:rounded-[2.25rem] sm:pt-5">
+      <button type="button" aria-label="Fermer" onClick={() => setOpen(false)} className="dp-backdrop absolute inset-0 bg-ink/40 backdrop-blur-[2px]" />
+      <div className="dp-sheet relative w-full max-w-sm rounded-t-[2.25rem] bg-paper px-5 pb-6 pt-3 shadow-2xl sm:rounded-[2.25rem] sm:pt-5">
         <span className="mx-auto mb-3 block h-1.5 w-10 rounded-full bg-ink/10 sm:hidden" />
 
         <div className="flex items-center justify-between">

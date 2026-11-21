@@ -68,8 +68,8 @@ function PetScene() {
 export function Nav() {
   return (
     <header className="relative z-20 mx-auto flex w-full max-w-6xl xl:max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-      <a href="#" aria-label="Buddly, accueil" className="shrink-0">
-        <Image src="/logo.png" alt="Buddly" width={940} height={420} priority className="h-10 w-auto sm:h-12" />
+      <a href="#" aria-label="Buddly, accueil" draggable={false} className="shrink-0">
+        <Image src="/logo.png" alt="Buddly" width={940} height={420} priority draggable={false} className="h-10 w-auto select-none sm:h-12 [-webkit-user-drag:none]" />
       </a>
       <nav className="hidden items-center gap-10 text-[15px] font-semibold text-ink md:flex">
         <a href="#fonctionnalites" className="hover:text-violet">Fonctionnalités</a>

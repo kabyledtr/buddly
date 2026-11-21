@@ -34,6 +34,30 @@
 .wz-blob { animation: wz-float 7s ease-in-out infinite; }
 .wz-dot { animation: wz-dots 1.2s infinite; }
 
+@keyframes wz-twinkle {
+  0%, 100% { transform: scale(1) rotate(0); opacity: 0.9; }
+  50% { transform: scale(0.6) rotate(20deg); opacity: 0.45; }
+}
+.wz-star { animation: wz-twinkle 2.8s ease-in-out infinite; }
+
+/* calendrier : entrée du panneau */
+@keyframes dp-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dp-up {
+  0% { transform: translateY(100%); }
+  70% { transform: translateY(-2%); }
+  100% { transform: translateY(0); }
+}
+@keyframes dp-pop {
+  0% { transform: scale(0.9) translateY(12px); opacity: 0; }
+  70% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.dp-backdrop { animation: dp-fade 0.25s ease-out both; }
+.dp-sheet { animation: dp-up 0.42s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+@media (min-width: 640px) {
+  .dp-sheet { animation: dp-pop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .wz-pet, .wz-pet > img, .wz-bubble, .wz-step > *, .wz-blob, .wz-dot { animation: none !important; }
+  .wz-pet, .wz-pet > img, .wz-bubble, .wz-step > *, .wz-blob, .wz-dot, .wz-star, .dp-backdrop, .dp-sheet { animation: none !important; }
 }

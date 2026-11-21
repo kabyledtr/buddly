@@ -23,8 +23,8 @@ export default function LegalPage({ title, children }: { title: string; children
   return (
     <>
       <header className="mx-auto flex max-w-6xl xl:max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
-        <Link href="/" aria-label="Buddly, accueil">
-          <Image src="/logo.png" alt="Buddly" width={940} height={420} className="h-10 w-auto sm:h-12" />
+        <Link href="/" aria-label="Buddly, accueil" draggable={false}>
+          <Image src="/logo.png" alt="Buddly" width={940} height={420} draggable={false} className="h-10 w-auto select-none sm:h-12 [-webkit-user-drag:none]" />
         </Link>
         <Link href="/" className="text-sm font-medium text-muted hover:text-ink">← Retour à l&apos;accueil</Link>
       </header>
