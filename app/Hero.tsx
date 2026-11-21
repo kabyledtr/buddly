@@ -144,13 +144,12 @@ export default function Hero() {
       </div>
 
       {/* vagues */}
-      <div className="relative z-10 -mt-20 sm:-mt-28 lg:-mt-56">
-        <svg viewBox="0 0 1440 120" preserveAspectRatio="none" className="block h-[70px] w-full sm:h-[110px] lg:h-[150px]" aria-hidden>
-          <path d="M0 100C380 92 720 72 980 46S1340 2 1440 -24V120H0z" fill="#f5eefd" />
-          <path d="M0 114C380 110 700 98 960 72S1320 22 1440 0V120H0z" fill="#efe5fd" />
+      <div className="relative z-10 -mt-24 sm:-mt-36 lg:-mt-64">
+        <svg viewBox="0 0 1440 200" preserveAspectRatio="none" className="block h-[90px] w-full sm:h-[140px] lg:h-[200px]" aria-hidden>
+          <path d="M0 150C170 92 400 74 640 112S1040 162 1210 96C1320 52 1390 18 1440 0V200H0z" fill="#efe5fd" />
         </svg>
         <div className="bg-[#efe5fd]">
-          <div className="mx-auto grid max-w-6xl gap-6 px-4 pb-10 pt-0 sm:grid-cols-3 sm:px-6">
+          <div className="mx-auto grid max-w-6xl gap-6 px-4 pb-16 pt-4 sm:grid-cols-3 lg:pb-24 sm:px-6">
             {FEATURES.map((f) => (
               <div key={f.title} className="flex items-start gap-4">
                 <span className="grid size-16 shrink-0 place-items-center rounded-full bg-paper/80">
