@@ -30,7 +30,7 @@ const PROBLEMS = [
 ];
 const TILTS = [-4, 3, -2];
 
-const FREE = ["Jusqu'à 4 amis par groupe", "15 adresses réelles à swiper", "Le lieu qui plaît le plus au groupe", "Le conseil IA de Buddy"];
+const FREE = ["Jusqu'à 4 amis par groupe", "15 adresses réelles à swiper", "Le lieu qui plaît le plus au groupe", "Le conseil IA de Buddly"];
 const PREMIUM = [
   "Jusqu'à 15 amis par groupe",
   "40 adresses à swiper",
@@ -189,7 +189,7 @@ export default function Home() {
           <div className="buddy-float group relative mx-auto w-40 sm:w-48">
             <Image
               src="/buddy.png"
-              alt="Buddy, la mascotte de Buddly"
+              alt="Buddly, la mascotte"
               width={640}
               height={560}
               className="hello relative z-10 w-full transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3"

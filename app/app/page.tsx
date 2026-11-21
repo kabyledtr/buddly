@@ -72,7 +72,7 @@ export default function CreateGroup() {
           <Image src="/pet.png" alt="" width={64} height={64} className="size-14 rounded-2xl" />
           <div>
             <h1 className="font-display text-3xl font-bold text-plum">Nouvelle sortie</h1>
-            <p className="text-muted">Buddy trouve les adresses, vous swipez.</p>
+            <p className="text-muted">Buddly trouve les adresses, vous swipez.</p>
           </div>
         </div>
 
@@ -127,7 +127,7 @@ export default function CreateGroup() {
           >
             {loading ? (
               <>
-                <Spinner /> Buddy cherche les meilleures adresses…
+                <Spinner /> Buddly cherche les meilleures adresses…
               </>
             ) : (
               "Créer le groupe"
