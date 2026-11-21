@@ -121,7 +121,7 @@ function openAt(periods: Period[] | undefined, date: string, from: string): { op
     for (const tt of [t, t + WEEK]) {
       if (tt >= o && tt + 60 <= c) {
         const ch = p.close.hour, cm = p.close.minute;
-        return { open: true, closeLabel: `Ouvert jusqu'à ${ch}h${cm ? String(cm).padStart(2, "0") : ""}` };
+        return { open: true, closeLabel: ch === 0 && !cm ? "Ouvert jusqu'à minuit" : `Ouvert jusqu'à ${ch}h${cm ? String(cm).padStart(2, "0") : ""}` };
       }
     }
   }

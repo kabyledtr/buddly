@@ -35,6 +35,8 @@ const BG: Record<Category, string> = {
 };
 
 const euros = (c: number) => (c / 100).toFixed(2).replace(".", ",") + " €";
+/** « 4 min à pied » jusqu'à 1,5 km, sinon la distance. */
+const walk = (m: number) => (m <= 1500 ? `${Math.max(1, Math.round(m / 80))} min à pied` : `à ${(m / 1000).toFixed(1).replace(".", ",")} km`);
 const km = (m: number) => (m < 1000 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1).replace(".", ",")} km`);
 const mapUrl = (p: Place) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${p.name}, ${p.address ?? `${p.lat},${p.lon}`}`)}`;
@@ -493,6 +495,50 @@ function SwipeAura({ dx }: { dx: number }) {
   );
 }
 
+// icônes le long du bord de l'écran (en % de la hauteur)
+const EDGE: { y: number; x: number; r: number; size: number; d: number }[] = [
+  { y: 14, x: 10, r: -12, size: 40, d: 0 },
+  { y: 30, x: 28, r: 8, size: 28, d: 0.5 },
+  { y: 47, x: 6, r: -4, size: 48, d: 0.2 },
+  { y: 64, x: 30, r: 14, size: 30, d: 0.8 },
+  { y: 80, x: 12, r: -10, size: 38, d: 0.35 },
+];
+
+/** Lueur et icônes sur le bord de l'écran vers lequel part la carte. */
+function EdgeEffects({ dx }: { dx: number }) {
+  const p = Math.min(1, Math.abs(dx) / 120);
+  if (p < 0.08) return null;
+  const like = dx > 0;
+  return (
+    <div
+      className={`pointer-events-none fixed inset-y-0 z-30 w-28 sm:w-40 ${like ? "right-0" : "left-0"}`}
+      style={{
+        opacity: p,
+        background: like
+          ? "linear-gradient(to left, rgba(255,92,138,.28), rgba(255,92,138,0))"
+          : "linear-gradient(to right, rgba(255,59,79,.26), rgba(255,59,79,0))",
+      }}
+      aria-hidden
+    >
+      {EDGE.map((e, i) => (
+        <span
+          key={i}
+          className="absolute"
+          style={{ top: `${e.y}%`, [like ? "right" : "left"]: `${e.x}%`, transform: `scale(${0.5 + 0.6 * p}) rotate(${like ? -e.r : e.r}deg)` }}
+        >
+          <span className="swipe-float block" style={{ animationDelay: `${e.d}s` }}>
+            {like ? (
+              i % 2 ? <ThumbIcon size={e.size} className="drop-shadow-md" /> : <HeartIcon size={e.size} className="drop-shadow-md" />
+            ) : (
+              <CrossIcon size={e.size} className="drop-shadow-md" />
+            )}
+          </span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function Fireworks({ sparks }: { sparks: Spark[] }) {
   return (
     <div className="pointer-events-none absolute left-1/2 top-[42%] z-40" aria-hidden>
@@ -539,6 +585,12 @@ function Deck({
   const start = useRef<{ x: number; y: number } | null>(null);
   const crossed = useRef(false);
   const place = remaining[0];
+  const after = remaining[2]?.photos?.[0];
+  useEffect(() => {
+    if (!after) return;
+    const img = new window.Image();
+    img.src = photoSrc(after);
+  }, [after]);
 
   if (!place)
     return (
@@ -600,6 +652,7 @@ function Deck({
           />
         )}
         <SwipeAura dx={dx} />
+        <EdgeEffects dx={dx} />
         <Card
           key={place.id}
           place={place}
@@ -643,10 +696,10 @@ function Deck({
         </button>
         <div className="relative size-20" aria-hidden>
           <Image
-            src="/pet-happy.png"
+            src="/pet-wonder.png"
             alt=""
-            width={700}
-            height={628}
+            width={425}
+            height={480}
             sizes="80px"
             className="absolute inset-0 size-full object-contain transition duration-150"
             style={{ opacity: mood ? 0 : 1 }}
@@ -686,7 +739,7 @@ function Deck({
   );
 }
 
-const photoSrc = (n: string, w = 1600) => `/api/photo?n=${encodeURIComponent(n)}&w=${w}`;
+const photoSrc = (n: string, w = 1080) => `/api/photo?n=${encodeURIComponent(n)}&w=${w}`;
 
 function Stars({ value, count, light = true }: { value: number; count?: number; light?: boolean }) {
   return (
@@ -713,8 +766,11 @@ function Card({
   date,
   ...rest
 }: { place: Place; className?: string; badge?: "like" | "nope" | null; active?: boolean; date?: string } & React.HTMLAttributes<HTMLDivElement>) {
-  const photos = place.photos ?? [];
-  const [i, setI] = useState(0);
+  const [bad, setBad] = useState<string[]>([]);
+  const photos = (place.photos ?? []).filter((n) => !bad.includes(n)); // photos qui ont échoué : on passe à la suivante
+  const [rawI, setI] = useState(0);
+  const i = Math.min(rawI, Math.max(0, photos.length - 1));
+  const [loaded, setLoaded] = useState<string | null>(null);
   const [films, setFilms] = useState<{ films: { title: string; times: string[]; version?: string; genre?: string }[]; note?: string; unavailable?: boolean } | null>(null);
   const [showFilms, setShowFilms] = useState(false);
   const [loadingFilms, setLoadingFilms] = useState(false);
@@ -756,8 +812,13 @@ function Card({
           src={photoSrc(photos[i])}
           alt={`${place.name}, photo ${i + 1}`}
           draggable={false}
-          className="pointer-events-none absolute inset-0 size-full object-cover"
-          loading={active ? "eager" : "lazy"}
+          decoding="async"
+          fetchPriority={active ? "high" : "auto"}
+          onLoad={() => setLoaded(photos[i])}
+          onError={() => setBad((b) => [...b, photos[i]])}
+          className={`pointer-events-none absolute inset-0 size-full object-cover transition-opacity duration-300 ${
+            loaded === photos[i] ? "opacity-100" : "opacity-0"
+          }`}
         />
       )}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/30" />
@@ -777,7 +838,7 @@ function Card({
                 aria-label="Photo précédente"
                 onPointerDown={stop}
                 onClick={() => setI((i - 1 + photos.length) % photos.length)}
-                className="absolute left-3 top-[38%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/85 text-xl font-bold text-plum shadow-md backdrop-blur transition hover:scale-105"
+                className="absolute left-3 top-[52%] z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-black/30 text-xl text-paper backdrop-blur-md transition hover:bg-black/45"
               >
                 ‹
               </button>
@@ -786,7 +847,7 @@ function Card({
                 aria-label="Photo suivante"
                 onPointerDown={stop}
                 onClick={() => setI((i + 1) % photos.length)}
-                className="absolute right-3 top-[38%] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-paper/85 text-xl font-bold text-plum shadow-md backdrop-blur transition hover:scale-105"
+                className="absolute right-3 top-[52%] z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-black/30 text-xl text-paper backdrop-blur-md transition hover:bg-black/45"
               >
                 ›
               </button>
@@ -805,23 +866,25 @@ function Card({
         </span>
       )}
 
-      <div className="absolute left-4 right-4 top-7 z-10 flex flex-wrap justify-end gap-2">
-        {place.openLabel && (
-          <span className="mr-auto rounded-full bg-[#1f9d55]/90 px-3 py-1 text-xs font-semibold">{place.openLabel}</span>
-        )}
-        {place.event ? (
-          <span className="rounded-full bg-coral px-3 py-1 text-xs font-bold">Atelier du jour</span>
-        ) : (
-          place.special && <span className="rounded-full bg-coral px-3 py-1 text-xs font-bold">Original</span>
-        )}
-        {place.diet && <span className="rounded-full bg-paper px-3 py-1 text-xs font-bold text-plum">{place.diet}</span>}
-        <span className="rounded-full bg-black/35 px-3 py-1 text-xs font-semibold backdrop-blur">{km(place.distance)}</span>
-      </div>
 
       {/* infos */}
       <div className="absolute inset-x-0 bottom-0 z-10 p-5">
-        <p className="text-xs font-bold uppercase tracking-wider text-paper/85">{place.kind}</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-paper/85">
+          {place.kind}
+          {place.event && <span className="text-coral"> · Atelier du jour</span>}
+          {place.diet && <span className="text-[#b9f5cf]"> · {place.diet}</span>}
+        </p>
         <h3 className="mt-1 font-display text-[2rem] font-bold leading-[1.05]">{place.name}</h3>
+        <p className="mt-1.5 flex items-center gap-1.5 text-[13px] font-medium text-paper/90">
+          {place.openLabel && (
+            <>
+              <span className="size-1.5 rounded-full bg-[#5ee08f]" aria-hidden />
+              <span>{place.openLabel}</span>
+              <span className="text-paper/50">·</span>
+            </>
+          )}
+          <span>{walk(place.distance)}</span>
+        </p>
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
           {place.rating != null && <Stars value={place.rating} count={place.ratingCount} />}
           <span className="text-sm font-semibold">
@@ -833,7 +896,6 @@ function Card({
             « {place.review.text} » <span className="not-italic text-paper/70">— {place.review.author}</span>
           </p>
         )}
-        {place.address && <p className="mt-1.5 truncate text-xs text-paper/75">{place.address}</p>}
         <div className="mt-3 flex flex-wrap gap-2">
           {place.cinema && active && (
             <button
