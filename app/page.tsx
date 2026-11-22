@@ -137,6 +137,12 @@ export default function Home() {
               width={DEMO.width}
               height={DEMO.height}
             />
+            <h3 className="mt-14 font-display text-2xl font-bold text-plum sm:text-3xl">Essaie, c&apos;est toi qui swipes</h3>
+            <p className="mt-1 text-muted">Exactement ce que tes amis verront sur leur téléphone.</p>
+            <div className="mx-auto mt-6 max-w-sm text-left">
+              <SwipeDemo />
+              <p className="mt-4 text-center text-sm text-muted">Glisse la carte ou utilise les boutons</p>
+            </div>
           </div>
         ) : (
           <div className="mx-auto mt-10 max-w-sm text-left">

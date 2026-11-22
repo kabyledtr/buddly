@@ -51,7 +51,12 @@ export default function RootLayout({
     <html lang="fr" suppressHydrationWarning>
       <head>
         {/* Active les animations au scroll avant le premier rendu (sans JS, tout reste visible) */}
-        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('rv')" }} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "if(!navigator.webdriver&&!/bot|crawl|spider|slurp|headless|lighthouse|screenshot|puppeteer|playwright|phantom|prerender|preview/i.test(navigator.userAgent))document.documentElement.classList.add('rv')",
+          }}
+        />
       </head>
       <body className={`${display.variable} ${body.variable} antialiased`}>
         {children}

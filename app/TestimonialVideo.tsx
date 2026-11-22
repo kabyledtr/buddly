@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { isBot } from "@/lib/bot";
 
 /**
  * Vidéo avec son et lecteur : l'image de départ avec un gros bouton lecture ; au clic, la vidéo démarre avec le son
@@ -16,6 +17,7 @@ export default function TestimonialVideo({ src, poster }: { src: string; poster:
     const el = box.current;
     const v = video.current;
     if (!el || !v) return;
+    if (isBot()) return setShown(true);
     const io = new IntersectionObserver(
       ([e]) => {
         if (e.intersectionRatio > 0.15) setShown(true);

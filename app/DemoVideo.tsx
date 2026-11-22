@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { isBot } from "@/lib/bot";
 
 /**
  * Vidéo de démo sans lecteur :
@@ -33,12 +34,18 @@ export default function DemoVideo({
   const [load, setLoad] = useState(false); // les sources ne sont posées qu'à l'approche
   const [shown, setShown] = useState(false); // effet d'apparition, une seule fois
   const [ready, setReady] = useState(false); // première image de la vidéo disponible
-  const visible = shown && (!revealOnReady || ready);
+  const [bot, setBot] = useState(false);
+  const visible = bot || (shown && (!revealOnReady || ready));
 
   useEffect(() => {
     const el = box.current;
     const v = video.current;
     if (!el || !v) return;
+    if (isBot()) {
+      // robot de capture : image d'aperçu affichée tout de suite
+      setBot(true);
+      return;
+    }
 
     // 1) charger un peu avant d'arriver dessus
     const near = new IntersectionObserver(
@@ -109,7 +116,7 @@ export default function DemoVideo({
         loop
         playsInline
         preload={load ? "auto" : "none"}
-        poster={revealOnReady ? undefined : poster}
+        poster={revealOnReady && !bot ? undefined : poster}
         onLoadedData={() => setReady(true)}
         disablePictureInPicture
         disableRemotePlayback
