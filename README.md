@@ -1,6 +1,6 @@
 # Buddly
 
-> **Swipez ensemble, sortez ensemble.** Buddly trouve la sortie qui plaît à tout votre groupe d'amis.
+> **Swipez, Matchez, Sortez !** Buddly trouve la sortie qui plaît à tout votre groupe d'amis.
 
 🔗 **Site en ligne : [buddly.io](https://buddly.io)**
 
@@ -13,18 +13,18 @@ Thème de la saison : **Intelligence artificielle**. Sous-thème de l'édition :
 
 Organiser une sortie entre amis tourne vite à la galère. La conversation de groupe s'étire sur des dizaines de messages et personne ne tranche (« je sais pas, comme vous voulez »). Il faut composer avec le budget de l'un, le régime alimentaire de l'autre, celui qui habite loin et celle qui n'est libre que le samedi. Au final, la sortie est repoussée, puis annulée, ou alors le groupe retourne toujours au même endroit.
 
-**Pour qui ?** Les groupes d'amis de 18 à 35 ans, en ville, qui sortent régulièrement (restos, bars, activités) et organisent tout par messagerie.
+**Pour qui ?** Les groupes d'amis de 18 à 30 ans, en ville (étudiants, jeunes actifs), qui sortent régulièrement (restos, bars, activités) et organisent tout dans une conversation de groupe.
 
 ## La solution
 
 Buddly est une application web (SaaS) qui simplifie l'organisation des sorties entre amis :
 
-1. **Créer un groupe** : un utilisateur partage un lien d'invitation, et ses amis rejoignent le groupe.
-2. **Donner ses préférences** : chacun indique son budget, sa localisation, la distance maximale, ses disponibilités et les activités qui lui plaisent.
-3. **Swiper** : chacun swipe des restaurants et des activités réels à proximité, à la manière de Tinder.
-4. **Le match** : un matching intelligent fait ressortir les lieux qui plaisent à tout le monde. L'IA personnalise les recommandations selon les envies du groupe.
+1. **Créer une sortie en 3 questions** : quand, où, ce qui tente le groupe et le budget. Buddly trouve de vrais restos, bars et activités ouverts sur ce créneau (Google Places), plus les ateliers du jour (Tavily).
+2. **Partager le lien** : les amis rejoignent depuis leur téléphone, sans application ni mot de passe, avec leurs envies et leur budget.
+3. **Swiper** : chacun vote oui ou non sur les mêmes lieux, de son côté.
+4. **Le match** : un lieu aimé par tout le monde est un match. Sinon, le classement équilibre votes, envies et budgets, et l'IA (« le mot de Bud », Claude) recommande le meilleur compromis pour tout le groupe.
 
-**Fonctionnalité essentielle :** le swipe de groupe avec matching. Une démo interactive est visible et utilisable dès la page d'accueil.
+**Fonctionnalité essentielle :** le swipe de groupe avec matching. Une vidéo de démo est visible dès la page d'accueil, et l'application est utilisable gratuitement sur [buddly.io/app](https://buddly.io/app).
 
 ## Modèle économique
 
@@ -69,11 +69,14 @@ Le détail exact de chaque modification est visible dans l'historique Git, en co
 
 ### Code produit pendant la course
 
-Tout le code applicatif a été écrit pendant la course, notamment :
+Tout le code applicatif a été écrit pendant la course (80 commits entre le 21/11 à 10h40 et l'arrivée) :
 
-- `app/page.tsx` : la landing page (problème, démo, fonctionnement, tarifs) ;
-- `app/SwipeDemo.tsx` : la démo interactive de swipe et de match ;
-- `app/layout.tsx` et `app/globals.css` : la mise en page, les métadonnées, les polices et la charte de couleurs.
+- la landing page (`app/page.tsx`, `app/Hero.tsx`, animations, vidéo de démo, tarifs, FAQ) ;
+- l'application : création de sortie en 3 étapes (`app/app/`), sortie partagée, swipe, résultats et paywall (`app/g/[id]/`) ;
+- les API : création et partage de sortie, votes, recherche de lieux, conseil IA, cinémas, ateliers du jour, paiements Stripe et webhook, relance (`app/api/`) ;
+- la logique métier : recherche Google Places, classement du groupe, offres, paiements, API Conversions (`lib/`) ;
+- les pages de contenu et le référencement : guides, pages villes, sitemap, robots, données structurées (`app/idees/`, `app/sortie-entre-amis/`, `lib/seo.ts`) ;
+- les pages légales (`app/mentions-legales/`, `app/cgv/`).
 
 Aucun code, aucune maquette et aucun contenu n'a été produit avant le départ. Aucun projet existant n'a été repris. Le dépôt GitHub a été créé le jour de la course.
 
@@ -84,13 +87,15 @@ L'équipe a développé avec l'aide d'un assistant de code IA (**Claude Code**).
 ### Ressources tierces
 
 - **Polices** : Fredoka et DM Sans (Google Fonts), hébergées dans le projet (`app/fonts`), sous licence SIL Open Font License.
-- **Logo et mascotte Bud** (`public/logo.png`, `public/pet*.png`) : créés par l'équipe Buddly.
-- **Données de la démo** : les lieux affichés dans la démo de la page d'accueil (noms, quartiers, prix) sont fictifs et servent uniquement d'illustration.
+- **Logo, mascotte Bud et visuels** (`public/logo.png`, `public/pet*.png`, icônes de l'app) : réalisés pendant la course pour Buddly.
+- **Vidéo de démo** (`public/demo.mp4`, `public/demo.webm`) et **captures de téléphone** (`public/phone-*.webp`) : réalisées pendant la course à partir de l'application.
+- **Démo interactive** (`app/SwipeDemo.tsx`, affichée si la vidéo est absente) : les lieux qu'elle montre (noms, quartiers, prix) sont fictifs et servent uniquement d'illustration.
+- **Données des lieux** : Google Places (photos, notes, avis) et OpenStreetMap (© contributeurs OSM, ODbL) ; elles appartiennent à leurs sources.
 
 ### Outils partenaires FounderRace
 
 - **Stripe** : paiement du Pass Sortie et de Buddly+ (Stripe Checkout).
-- **Tavily** : recherche des séances de cinéma du jour.
+- **Tavily** : recherche web des séances de cinéma du jour et des ateliers datés (poterie, cuisine, dégustation…) publiés sur les sites d'ateliers.
 
 ---
 
@@ -102,11 +107,15 @@ L'équipe a développé avec l'aide d'un assistant de code IA (**Claude Code**).
 4. **Matching** : un lieu aimé par tout le monde est un match. Sinon, un score combine les votes, les envies et le budget de chacun, puis la distance.
 5. **Le mot de Bud (IA)** : un modèle Claude (Anthropic) explique quel lieu choisir et pourquoi, à partir des votes et des préférences du groupe.
 6. **Paywall** : **Pass Sortie à 2,99 €** (une sortie) ou **Buddly+ à 3,99 € à vie** (toutes les sorties liées à l'e-mail), paiements uniques via Stripe Checkout.
-7. **Relance (Buddly+)** : un bouton envoie un e-mail aux amis qui n'ont pas fini de swiper (Resend), avec un message WhatsApp en secours.
+7. **Relance (Buddly+)** : un bouton relance les amis qui n'ont pas fini de swiper, par e-mail si Resend est configuré, sinon par un message WhatsApp prêt à envoyer.
+8. **Ateliers du jour** : Tavily cherche les ateliers datés du jour de la sortie, Claude les extrait, Google Places retrouve le vrai lieu ; ils arrivent en bonus dans le deck (1 / 3 / 5 selon l'offre).
+9. **Plan B (Buddly+)** : Bud tranche les égalités et propose une solution de repli.
+10. **Guides et référencement** : 8 guides de sorties et 12 pages villes (`/idees`, `/sortie-entre-amis/<ville>`), sitemap et données structurées.
+11. **Mesure d'audience** : pixels Meta et TikTok et API Conversions de Meta, chargés **uniquement après accord** du visiteur (bandeau de consentement).
 
 ### Sources de données
 - Lieux : Google Places (photos, notes, avis, horaires ; seuls les lieux ouverts sur le créneau choisi et bien notés sont proposés). Secours : Geoapify, Nominatim puis Overpass (OpenStreetMap, © contributeurs OSM, ODbL).
-- Cinémas : séances du jour choisi via Tavily (recherche web) puis extraction structurée par Claude.
+- Cinémas et ateliers du jour : recherche web via Tavily, puis extraction structurée par Claude.
 - Stockage : Upstash Redis (intégration Vercel). En local sans configuration, stockage en mémoire.
 
 ### Variables d'environnement
@@ -126,7 +135,7 @@ L'équipe a développé avec l'aide d'un assistant de code IA (**Claude Code**).
 
 - [Next.js 15](https://nextjs.org) (App Router) avec React 19 et TypeScript
 - [Tailwind CSS 4](https://tailwindcss.com)
-- Upstash Redis, Stripe Checkout, API Claude (Anthropic), données OpenStreetMap
+- Upstash Redis, Stripe Checkout, API Claude (Anthropic), Tavily, Google Places, données OpenStreetMap
 - Hébergement sur [Vercel](https://vercel.com), domaine `buddly.io`
 - Déploiement continu : chaque push sur `main` redéploie le site
 
@@ -147,18 +156,27 @@ Puis ouvrir http://localhost:3000.
 
 ```
 app/
-  layout.tsx      Mise en page, polices, métadonnées SEO
-  page.tsx        Landing page
-  Hero.tsx        Navbar, hero, mascotte SVG, vagues
-  LegalPage.tsx   Gabarit des pages légales + footer
-  mentions-legales/page.tsx  Mentions légales
-  cgv/page.tsx    Conditions générales de vente
-  SwipeDemo.tsx   Démo interactive du swipe de groupe
-  globals.css     Charte de couleurs (Tailwind)
-public/
-  logo.png        Logo Buddly
-  pet.png         Mascotte et icône de l'app
-  pet-phones.png  Mascotte qui tient 2 téléphones (hero)
+  page.tsx, Hero.tsx         Landing page (hero, démo vidéo, problème, pour qui, fonctionnement, tarifs, FAQ)
+  DemoVideo.tsx              Vidéo de démo sans lecteur (lecture et pause selon la visibilité)
+  PhoneScroll.tsx            Téléphone qui change d'écran au scroll
+  app/                       Création d'une sortie en 3 étapes (calendrier, adresse, envies)
+  g/[id]/                    Sortie partagée : invitation, swipe, résultats, paywall, aperçu de partage
+  idees/, sortie-entre-amis/ Guides et pages villes (référencement)
+  SeoShell.tsx               Gabarit des pages guides
+  MetaPixel.tsx              Bandeau de consentement + pixels Meta et TikTok
+  LegalPage.tsx, SupportButton.tsx, mentions-legales/, cgv/   Pages légales, pied de page, support
+  sitemap.ts, robots.ts, manifest.ts, opengraph-image.png      Référencement, écran d'accueil, aperçu
+  api/                       Sorties, votes, IA, cinémas, ateliers, Stripe (checkout, verify, webhook), photos, Meta
+lib/
+  types.ts                   Modèles et offres (Gratuit, Pass Sortie, Buddly+)
+  group.ts                   Stockage des sorties, classement du groupe, Buddly+ par e-mail
+  google.ts, places.ts       Recherche de lieux (Google Places, repli OpenStreetMap, cache)
+  events.ts                  Ateliers du jour (Tavily + Claude + Google Places)
+  fulfill.ts                 Activation des achats (retour Stripe et webhook)
+  capi.ts, track.ts          Mesure publicitaire (avec consentement)
+  seo.ts                     Contenus des guides et des pages villes
+  store.ts                   Upstash Redis (repli mémoire en local)
+public/                      Logo, mascotte, captures, vidéo de démo, icônes
 ```
 
 ## Équipe
