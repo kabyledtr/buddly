@@ -73,7 +73,7 @@ export function Nav() {
         <Image src="/logo.png" alt="Buddly" width={940} height={420} priority draggable={false} className="h-10 w-auto select-none sm:h-12 [-webkit-user-drag:none]" />
       </a>
       <nav className="hidden items-center gap-10 text-[15px] font-semibold text-ink md:flex">
-        <a href="#fonctionnalites" className="hover:text-violet">Fonctionnalités</a>
+        <a href="#fonctionnalites" className="hover:text-violet">C&apos;est quoi ?</a>
         <a href="#tarifs" className="hover:text-violet">Tarifs</a>
         <a href="#faq" className="hover:text-violet">FAQ</a>
       </nav>

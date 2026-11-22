@@ -62,6 +62,7 @@ export default function MetaPixel() {
   }
 
   if (consent !== null) return null;
+  if (typeof window !== "undefined" && new URLSearchParams(window.location.search).has("capture")) return null; // capture de l'image d'aperçu
   return (
     <div className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-md rounded-[1.75rem] border border-plum/10 bg-paper p-4 shadow-[0_18px_40px_-16px_rgba(67,32,122,0.45)] sm:inset-x-auto sm:right-5 sm:bottom-5">
       <p className="text-sm text-ink">

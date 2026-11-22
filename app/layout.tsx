@@ -29,12 +29,17 @@ export const metadata: Metadata = {
   // nom sous l'icône quand on ajoute le site à l'écran d'accueil de l'iPhone
   appleWebApp: { capable: true, title: "Buddly", statusBarStyle: "default" },
   openGraph: {
-    title: "Buddly",
-    description: "Swipez ensemble, sortez ensemble.",
+    title: "Buddly — Swipez, Matchez, Sortez !",
+    description: "Fini les 100 messages pour choisir où sortir : chacun swipe, et Buddly trouve le lieu qui plaît à tout le groupe.",
     url: "https://buddly.io",
     siteName: "Buddly",
     locale: "fr_FR",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Buddly — Swipez, Matchez, Sortez !",
+    description: "Fini les 100 messages pour choisir où sortir : chacun swipe, et Buddly trouve le lieu qui plaît à tout le groupe.",
   },
 };
 
