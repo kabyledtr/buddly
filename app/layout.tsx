@@ -26,6 +26,8 @@ export const metadata: Metadata = {
   description:
     "Buddly organise vos sorties entre amis : chacun swipe des restos et activités près de chez vous, et l'IA trouve le lieu qui plaît à tout le groupe.",
   metadataBase: new URL("https://buddly.io"),
+  // nom sous l'icône quand on ajoute le site à l'écran d'accueil de l'iPhone
+  appleWebApp: { capable: true, title: "Buddly", statusBarStyle: "default" },
   openGraph: {
     title: "Buddly",
     description: "Swipez ensemble, sortez ensemble.",
