@@ -83,10 +83,39 @@ const FAQ: [string, string][] = [
   ["Comment Buddly+ me reconnaît sur une nouvelle sortie ?", "Grâce à ton e-mail : crée ou rejoins une sortie avec la même adresse, et elle est débloquée automatiquement."],
 ];
 
+export const metadata = { alternates: { canonical: "/" } };
+
 export default function Home() {
   return (
     <main className="overflow-x-hidden">
       <ScrollReveal />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([
+            { "@context": "https://schema.org", "@type": "WebSite", name: "Buddly", url: "https://buddly.io", inLanguage: "fr-FR" },
+            {
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "Buddly",
+              url: "https://buddly.io",
+              applicationCategory: "LifestyleApplication",
+              operatingSystem: "Web",
+              description: "Organisez une sortie entre amis : chacun swipe de vrais restos, bars et activités, et le lieu qui plaît à tout le groupe ressort.",
+              offers: [
+                { "@type": "Offer", name: "Gratuit", price: "0", priceCurrency: "EUR" },
+                { "@type": "Offer", name: "Pass Sortie", price: "2.99", priceCurrency: "EUR" },
+                { "@type": "Offer", name: "Buddly+ à vie", price: "3.99", priceCurrency: "EUR" },
+              ],
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: FAQ.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+            },
+          ]),
+        }}
+      />
       <Hero />
 
       {/* DÉMO */}

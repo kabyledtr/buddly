@@ -11,6 +11,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-6xl xl:max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p>© 2026 Buddly</p>
         <nav className="flex flex-wrap gap-x-6 gap-y-2">
+          <Link href="/idees" className="hover:text-ink">Idées de sorties</Link>
           <Link href="/mentions-legales" className="hover:text-ink">Mentions légales</Link>
           <Link href="/cgv" className="hover:text-ink">Conditions générales de vente</Link>
           <SupportButton email={CONTACT_EMAIL} />
