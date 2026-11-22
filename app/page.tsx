@@ -223,18 +223,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ILS ONT TESTÉ */}
+      {/* ILS APPROUVENT */}
       <section className="overflow-hidden py-20">
         <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 text-center sm:px-6">
           <h2 className="font-display text-4xl font-bold text-plum sm:text-5xl">
-            <Words text="Ils ont testé" accent="Buddly." />
+            <Words text="Ils approuvent." accent="Et toi ?" />
           </h2>
           <Reveal as="p" delay={120} className="mx-auto mt-3 max-w-xl text-muted">
-            Trois soirées organisées avec Buddly, racontées par ceux qui les ont vécues.
+            Ils ont organisé leur soirée avec Buddly. Qu&apos;est-ce que tu attends ?
           </Reveal>
           <div className="mt-10">
             <UgcVideos />
           </div>
+          <Reveal delay={200} className="mt-10">
+            <a href="/app" className="inline-block rounded-full bg-coral px-7 py-3.5 font-semibold text-paper shadow-[0_8px_0_-2px_#d9604b] hover:brightness-105">
+              Créer ma sortie gratuitement
+            </a>
+          </Reveal>
         </div>
       </section>
 
