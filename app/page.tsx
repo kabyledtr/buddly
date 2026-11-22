@@ -5,6 +5,7 @@ import { Footer } from "./LegalPage";
 import ScrollReveal from "./ScrollReveal";
 import PhoneScroll from "./PhoneScroll";
 import DemoVideo from "./DemoVideo";
+import UgcVideos from "./UgcVideos";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -218,6 +219,21 @@ export default function Home() {
                 </Reveal>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ILS ONT TESTÉ */}
+      <section className="overflow-hidden py-20">
+        <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 text-center sm:px-6">
+          <h2 className="font-display text-4xl font-bold text-plum sm:text-5xl">
+            <Words text="Ils ont testé" accent="Buddly." />
+          </h2>
+          <Reveal as="p" delay={120} className="mx-auto mt-3 max-w-xl text-muted">
+            Trois soirées organisées avec Buddly, racontées par ceux qui les ont vécues.
+          </Reveal>
+          <div className="mt-10">
+            <UgcVideos />
           </div>
         </div>
       </section>
