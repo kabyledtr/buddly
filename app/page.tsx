@@ -6,6 +6,7 @@ import ScrollReveal from "./ScrollReveal";
 import PhoneScroll from "./PhoneScroll";
 import DemoVideo from "./DemoVideo";
 import UgcVideos from "./UgcVideos";
+import TestimonialVideo from "./TestimonialVideo";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -227,12 +228,15 @@ export default function Home() {
       <section className="overflow-hidden py-20">
         <div className="mx-auto max-w-6xl xl:max-w-7xl px-4 text-center sm:px-6">
           <h2 className="font-display text-4xl font-bold text-plum sm:text-5xl">
-            <Words text="Ils approuvent." accent="Et toi ?" />
+            <Words text="Ils approuvent." accent={"Et toi\u00a0?"} />
           </h2>
           <Reveal as="p" delay={120} className="mx-auto mt-3 max-w-xl text-muted">
-            Ils en parlent mieux que nous. Qu&apos;est-ce que tu attends ?
+            Ils en parlent mieux que nous. Qu&apos;est-ce que tu attends&nbsp;?
           </Reveal>
           <div className="mt-10">
+            <TestimonialVideo src="/testimonial.mp4" poster="/testimonial-poster.webp" />
+          </div>
+          <div className="mt-14">
             <UgcVideos />
           </div>
           <Reveal delay={200} className="mt-10">
