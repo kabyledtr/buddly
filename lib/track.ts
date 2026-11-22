@@ -29,9 +29,10 @@ export function track(event: string, params?: Record<string, unknown>, eventId?:
   }
 }
 
+// noms des événements standard TikTok (ceux listés dans le Gestionnaire d'événements, utilisables pour optimiser une campagne)
 const TIKTOK: Record<string, string> = {
-  Lead: "SubmitForm",
-  CompleteRegistration: "CompleteRegistration",
-  InitiateCheckout: "InitiateCheckout",
-  Purchase: "CompletePayment",
+  Lead: "CompleteRegistration", // sortie créée
+  CompleteRegistration: "CompleteRegistration", // ami qui rejoint une sortie
+  InitiateCheckout: "InitiateCheckout", // paiement lancé
+  Purchase: "Purchase", // achat confirmé
 };
