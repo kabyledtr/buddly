@@ -10,11 +10,30 @@ import { useEffect, useRef, useState } from "react";
  * - se met en pause dès qu'elle sort de l'écran, et reprend là où elle s'était arrêtée.
  * Ni commandes, ni clic, ni clic droit, ni glisser-déposer, ni image dans l'image.
  */
-export default function DemoVideo({ src, webm, poster, width, height }: { src: string; webm?: string; poster: string; width: number; height: number }) {
+export default function DemoVideo({
+  src,
+  webm,
+  poster,
+  width,
+  height,
+  revealOnReady = false,
+  className = "",
+}: {
+  src: string;
+  webm?: string;
+  poster: string;
+  width: number;
+  height: number;
+  /** n'apparaît qu'une fois la première image de la vidéo prête (aucune carte vide à l'écran) */
+  revealOnReady?: boolean;
+  className?: string;
+}) {
   const box = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const [load, setLoad] = useState(false); // les sources ne sont posées qu'à l'approche
   const [shown, setShown] = useState(false); // effet d'apparition, une seule fois
+  const [ready, setReady] = useState(false); // première image de la vidéo disponible
+  const visible = shown && (!revealOnReady || ready);
 
   useEffect(() => {
     const el = box.current;
@@ -79,9 +98,9 @@ export default function DemoVideo({ src, webm, poster, width, height }: { src: s
       ref={box}
       onContextMenu={block}
       onDragStart={block}
-      className={`relative mx-auto w-full select-none overflow-hidden rounded-[2.25rem] transition-[opacity,transform] duration-[900ms] ease-out [-webkit-touch-callout:none] ${
-        shown ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-      }`}
+      className={`relative mx-auto w-full select-none overflow-hidden rounded-[2.25rem] transition-[opacity,transform] duration-[900ms] ease-out [-webkit-touch-callout:none] [-webkit-user-drag:none] ${
+        visible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+      } ${className}`}
       style={{ aspectRatio: `${width} / ${height}` }}
     >
       <video
@@ -90,19 +109,20 @@ export default function DemoVideo({ src, webm, poster, width, height }: { src: s
         loop
         playsInline
         preload={load ? "auto" : "none"}
-        poster={poster}
+        poster={revealOnReady ? undefined : poster}
+        onLoadedData={() => setReady(true)}
         disablePictureInPicture
         disableRemotePlayback
         controlsList="nodownload nofullscreen noremoteplayback noplaybackrate"
         draggable={false}
         aria-label="Démo de Buddly : on crée une sortie, on swipe des lieux réels, et le groupe trouve son match"
-        className="pointer-events-none absolute inset-0 size-full object-cover"
+        className="pointer-events-none absolute inset-0 size-full select-none object-cover [-webkit-touch-callout:none] [-webkit-user-drag:none]"
       >
         {load && webm && <source src={webm} type="video/webm" />}
         {load && <source src={src} type="video/mp4" />}
       </video>
       {/* calque transparent au-dessus : la vidéo elle-même ne reçoit ni clic, ni appui long, ni glisser */}
-      <div aria-hidden className="absolute inset-0" />
+      <div aria-hidden draggable={false} onContextMenu={block} onDragStart={block} className="absolute inset-0 select-none [-webkit-touch-callout:none] [-webkit-user-drag:none]" />
     </div>
   );
 }

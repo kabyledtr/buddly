@@ -230,7 +230,7 @@ export default function Home() {
             <Words text="Ils approuvent." accent="Et toi ?" />
           </h2>
           <Reveal as="p" delay={120} className="mx-auto mt-3 max-w-xl text-muted">
-            Ils ont organisé leur soirée avec Buddly. Qu&apos;est-ce que tu attends ?
+            Ils en parlent mieux que nous. Qu&apos;est-ce que tu attends ?
           </Reveal>
           <div className="mt-10">
             <UgcVideos />
