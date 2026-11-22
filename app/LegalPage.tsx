@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import SupportButton from "./SupportButton";
 
 export const CONTACT_EMAIL = "contact@buddly.io";
 export const UPDATED = "21 novembre 2026";
@@ -12,7 +13,7 @@ export function Footer() {
         <nav className="flex flex-wrap gap-x-6 gap-y-2">
           <Link href="/mentions-legales" className="hover:text-ink">Mentions légales</Link>
           <Link href="/cgv" className="hover:text-ink">Conditions générales de vente</Link>
-          <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-ink">Contact</a>
+          <SupportButton email={CONTACT_EMAIL} />
         </nav>
       </div>
     </footer>
