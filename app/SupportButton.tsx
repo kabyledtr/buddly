@@ -51,14 +51,9 @@ export default function SupportButton({ email }: { email: string }) {
             <p className="mt-3 font-display text-2xl font-bold text-plum">Une question ?</p>
             <p className="mt-1 text-sm text-muted">Écris-nous, on te répond vite.</p>
             <p className="mt-4 select-all rounded-full bg-lilac/60 px-4 py-2.5 font-semibold text-plum">{email}</p>
-            <div className="mt-4 flex gap-2">
-              <button type="button" onClick={copy} className="flex-1 rounded-full border border-plum/20 py-2.5 text-sm font-semibold text-plum">
-                {copied ? "Copié !" : "Copier"}
-              </button>
-              <a href={`mailto:${email}`} className="flex-1 rounded-full bg-plum py-2.5 text-center text-sm font-semibold text-paper">
-                Écrire un e-mail
-              </a>
-            </div>
+            <button type="button" onClick={copy} className="mt-4 w-full rounded-full bg-plum py-2.5 text-sm font-semibold text-paper">
+              {copied ? "Adresse copiée !" : "Copier l'adresse"}
+            </button>
           </div>
         </div>
       )}
