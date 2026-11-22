@@ -58,7 +58,7 @@ export default function TestimonialVideo({ src, poster }: { src: string; poster:
         onDragStart={block}
         onEnded={() => setStarted(false)}
         aria-label="Vidéo : présentation de Buddly"
-        className="absolute inset-0 size-full object-cover"
+        className="absolute inset-0 size-full bg-black object-cover [&:-webkit-full-screen]:object-contain [&:fullscreen]:object-contain"
       />
       {!started && (
         <button
