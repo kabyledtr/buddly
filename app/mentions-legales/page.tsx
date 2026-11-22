@@ -47,7 +47,7 @@ export default function MentionsLegales() {
         </p>
         <p>
           Cookies et mesure d&apos;audience : avec ton accord (bandeau affiché à la première visite), Buddly charge
-          le pixel Meta pour mesurer l&apos;efficacité de ses publicités (pages vues, sortie créée, paiement). Sans
+          les pixels Meta et TikTok pour mesurer l&apos;efficacité de ses publicités (pages vues, sortie créée, paiement). Sans
           accord, rien n&apos;est déposé. Pour changer d&apos;avis, efface les données du site dans ton navigateur : le
           bandeau réapparaîtra.
         </p>
