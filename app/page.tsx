@@ -9,7 +9,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 // Vidéo de démo : utilisée dès que public/demo.json existe (créé à la compression), sinon la démo interactive.
-const DEMO: { width: number; height: number; webm?: boolean } | null = (() => {
+const DEMO: { width: number; height: number; webm?: boolean; v?: number } | null = (() => {
   const f = join(process.cwd(), "public/demo.json");
   try {
     return existsSync(f) ? JSON.parse(readFileSync(f, "utf8")) : null;
@@ -100,9 +100,9 @@ export default function Home() {
         {DEMO ? (
           <div className="mx-auto mt-10" style={{ maxWidth: `min(100%, 960px, calc(78svh * ${DEMO.width} / ${DEMO.height}))` }}>
             <DemoVideo
-              src="/demo.mp4"
-              webm={DEMO.webm ? "/demo.webm" : undefined}
-              poster="/demo-poster.webp"
+              src={`/demo.mp4?v=${DEMO.v ?? 1}`}
+              webm={DEMO.webm ? `/demo.webm?v=${DEMO.v ?? 1}` : undefined}
+              poster={`/demo-poster.webp?v=${DEMO.v ?? 1}`}
               width={DEMO.width}
               height={DEMO.height}
             />
